@@ -116,7 +116,41 @@ const BarangayMap = lazy(() => import('@/components/map/barangay-map'));
 - **Prefetch likely next pages** with `<Link prefetch>` on main navigation.
 - **Paginate long lists** on the server. Never render thousands of rows.
 - **The React Compiler is on**, so `useMemo` and `useCallback` are rarely needed. Add them only after measuring a slow render.
-- **No runtime calls to third parties.** The booth demo runs offline. Map shapes come from our own server.
+- **No runtime calls to third parties,** with one exception: the map's basemap from OpenFreeMap, which is optional (see "The map"). Map shapes always come from our own server.
+
+## The map
+
+MapLibre GL JS through `react-map-gl`. Always import from `react-map-gl/maplibre`; the default import is the Mapbox build, which is paid.
+
+```tsx
+import Map, { Layer, Source } from 'react-map-gl/maplibre';
+import 'maplibre-gl/dist/maplibre-gl.css';
+```
+
+- **Shapes** come from our server as GeoJSON props and are drawn with `<Source type="geojson">` and a `fill` `<Layer>`. Fill colors come from the `--map-*` tokens.
+- **Basemap:** OpenFreeMap `positron` (`https://tiles.openfreemap.org/styles/positron`), chosen because it is quiet and lets the choropleth stand out. No key, no account.
+- **Offline fallback:** if the style cannot be fetched, the map uses a plain background style and the shapes still draw. Check this before every demo with the network off.
+
+```tsx
+const OFFLINE_STYLE = {
+    version: 8,
+    sources: {},
+    layers: [{ id: 'background', type: 'background', paint: { 'background-color': mapColor('--muted') } }],
+} as const;
+
+async function loadMapStyle() {
+    try {
+        const response = await fetch('https://tiles.openfreemap.org/styles/positron');
+        return response.ok ? await response.json() : OFFLINE_STYLE;
+    } catch {
+        return OFFLINE_STYLE;
+    }
+}
+```
+
+- `mapColor()` reads a token from `app.css` and returns a color MapLibre accepts, because map layers cannot use Tailwind classes. Add it to `lib/` with the first map, and use it for every map color. Never a hex value.
+- The map component lives in `components/map/` and is loaded with `React.lazy` (see "Performance").
+- The map is never the only way to reach a barangay. A list or search does the same job (`design.md`).
 
 ## Every data view has these states
 
