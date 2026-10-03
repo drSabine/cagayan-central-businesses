@@ -114,7 +114,7 @@ Turn on "Format on save" only for languages the project formats: PHP with Pint (
 ## 11. Your first task
 
 1. Read `CLAUDE.md`, then `docs/team/workflow.md`.
-2. Read your area's docs: front end reads `frontend.md` and `design.md`; back end reads `architecture.md`, `database.md`, and `privacy-rules.md`; data and content reads `database.md` and `data/boundaries/README.md`.
+2. Find your role in `docs/team/workflow.md`, "Roles" (frontend developer, backend developer, or data and content), and read the docs it lists.
 3. Pick your next item from `docs/team/roadmap.md`.
 4. Make a branch inside `staging` (`git switch staging`, `git pull --ff-only`, `git switch -c feat/short-description`), build, `/commit`, `/open-pr`. The pull request goes into `staging`.
 

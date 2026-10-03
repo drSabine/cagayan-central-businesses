@@ -11,7 +11,7 @@ Laravel 13 (PHP 8.3), Inertia 3, React 19 with TypeScript, Vite 8 (through vite-
 ## Start every session like this
 
 1. Run `git branch --show-current`. If it says `main` or `staging`, create a work branch inside `staging` before changing anything: `git switch staging`, `git pull --ff-only`, `git switch -c feat/short-description` (or `bug/`, `data/`, `docs/`, `chore/`). `main` is production, `staging` is development, and work branches merge back into `staging` only. Rules: `docs/team/workflow.md`.
-2. Read the doc for the area you will touch (table below).
+2. Read the doc for the area you will touch (table below). The team has a frontend developer, a backend developer, and a data and content member (`docs/team/workflow.md`, "Roles"). The Data object is the contract between frontend and backend.
 3. Propose a short plan, then build the smallest slice that works end to end.
 
 ## Commands

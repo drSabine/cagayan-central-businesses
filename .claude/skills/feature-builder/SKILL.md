@@ -33,6 +33,7 @@ One feature, one branch, one pull request. Build only what $feature needs.
    - the page path in `resources/js/pages/` and the few components it needs, reused or new
    - rate limit, if strangers can repeat the action
    - the tests, by name
+   - which parts are backend and which are frontend, so the two developers can split the work (`docs/team/workflow.md`, "How frontend and backend split a feature")
    Keep it small. No extra layers, options, or components the feature does not need now.
 6. **Build in this order**, so each step proves the one before:
    1. Server tests in `tests/Feature/Capitol/` or `tests/Feature/Public/`: the happy path, guests rejected on Capitol routes, and the privacy cases (hidden figure with its reason, admin fields absent from public responses, a sentinel sales value absent everywhere, a filter that shrinks a group below the threshold). Watch them fail.

@@ -2,15 +2,44 @@
 
 How three people and their AI agents work in one repository without breaking `staging` or `main`. Every person and every agent follows this.
 
-## Who owns what
+## Roles
 
-The owner decides on their area and reviews changes to it. Everyone can still work anywhere.
+Every member has one role. The role owner decides on their area and reviews changes to it. Anyone can still help anywhere.
 
-| Area | Owner | GitHub |
+| Role | Name | GitHub |
 | :- | :- | :- |
-| Map and front end: pages, components, map, charts, the public side's look | ________ | ________ |
-| Back end, database, and metrics: schema, metric SQL, privacy guard, login, exports, CI and deploy | ________ | ________ |
-| Data and content: boundaries, population, seeder, the start-a-business checklist | ________ | ________ |
+| Frontend developer | ________ | ________ |
+| Backend developer | ________ | ________ |
+| Data and content | ________ | ________ |
+
+One of the three is also the **repository owner**: GitHub settings, branch protection, releases into `main`, and the Docker files.
+
+### Frontend developer
+
+- **Owns:** `resources/js/` (pages, layouts, components, hooks), `resources/css/` (tokens), the map, charts, and how both sides look and read.
+- **Reads first:** `docs/engineering/frontend.md`, `docs/engineering/design.md`.
+- **Uses:** `/feature-builder` for the page part of a feature, `/design-check` before every UI commit.
+
+### Backend developer
+
+- **Owns:** `app/` (controllers, Queries, Actions, Services, Data objects, models), `routes/`, `database/migrations/`, `database/sql/metrics/`, `config/`, the privacy guard, login, exports, CI and deploy.
+- **Reads first:** `docs/engineering/architecture.md`, `database.md`, `metrics.md`, `privacy-rules.md`.
+- **Uses:** `/db-change`, `/metric-builder`, `/feature-builder` for the server part of a feature, `/privacy-check`.
+
+### Data and content
+
+- **Owns:** `data/` (boundaries), `database/seeders/`, `resources/content/` (the start-a-business checklist), and the submission documents.
+- **Reads first:** `docs/engineering/database.md`, `data/boundaries/README.md`.
+- **Uses:** `/checklist-content`, `/demo-check`.
+
+### How frontend and backend split a feature
+
+The Data object is the contract between the two developers.
+
+1. **Agree the shape first.** In the issue, list the Data object's fields and the matching TypeScript type. Both developers approve it.
+2. **Backend** builds the route, controller, Query or Action, Data object, and server tests on `feat/<id>-<name>`.
+3. **Frontend** builds the page against the agreed type on `feat/<id>-<name>-page`, created from `staging`, using sample props until the backend merges. Then `git merge origin/staging` and switch to the real props.
+4. A small feature can stay one branch with one developer.
 
 Two reviewers are needed for `docs/engineering/metrics.md`, `docs/engineering/privacy-rules.md`, and `app/Services/Privacy/`, because a mistake there reaches every screen.
 
