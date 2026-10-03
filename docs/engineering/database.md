@@ -191,7 +191,7 @@ Index `(business_id, viewed_at)`.
 
 ### users
 
-From the starter kit, plus:
+Laravel's default `users` table (two-factor columns dropped, decisions.md O8), plus:
 
 | Column | Type | Notes |
 | :- | :- | :- |

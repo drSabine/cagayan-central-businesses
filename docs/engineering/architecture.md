@@ -26,12 +26,12 @@ Start with the fewest pieces that work. A page with no input and one simple read
 
 ## Routes
 
-- Three route files: `routes/web.php` (home page, and it requires the others), `routes/public.php`, `routes/capitol.php`. `routes/settings.php` came with the starter kit.
+- Three route files: `routes/web.php` (home page, and it requires the others), `routes/public.php`, `routes/capitol.php`.
 - Every route has a name. Public routes are `public.*`. Capitol routes are `capitol.*`.
 - Capitol routes sit in one group so a new route cannot be left open by mistake:
 
 ```php
-Route::middleware(['auth', 'verified', 'can:capitol'])
+Route::middleware(['auth', 'can:capitol'])
     ->prefix('capitol')
     ->name('capitol.')
     ->group(function () {
@@ -175,15 +175,11 @@ final readonly class BarangayProfile
 2. Extend what exists if the change keeps it simple.
 3. Copying a few lines once is fine. Extract on the third copy, when the shared shape is clear.
 
-## Starter kit code
+## Login
 
-These came with the Laravel React starter kit. They are not product code and not the pattern to copy:
+Fortify handles the login `POST` and logout. Its built-in pages are off (`'views' => false` in `config/fortify.php`), and `routes/web.php` renders `auth/login`. Every other starter kit feature was removed: registration, password reset, email verification, two-factor login, passkeys, and the settings pages (decisions.md, O8).
 
-- `app/Http/Controllers/Settings/`, `app/Actions/Fortify/`, `app/Concerns/`
-- the auth, settings, welcome, and dashboard pages
-- email verification, passkeys, two-factor login
-
-Leave them alone unless the task is about login or account settings. Build product code in the folders this document names.
+Fortify still registers two password confirmation endpoints (`user/confirm-password`, `user/confirmed-password-status`) for logged-in users. Nothing uses them.
 
 ## Performance
 
@@ -249,9 +245,6 @@ Route::post('wishes', [WishController::class, 'store'])->middleware('throttle:wi
 | Endpoint | Limit | Where |
 | :- | :- | :- |
 | Login | 5 per minute per email and IP | `FortifyServiceProvider` (exists) |
-| Two-factor challenge | 5 per minute per login attempt | `FortifyServiceProvider` (exists) |
-| Password update | 6 per minute | `routes/settings.php` (exists) |
-| Forgot password | none yet, add a per-IP limit | open gap |
 | Wish form (P3) | per IP, per hour | add with the feature |
 | CSV and PDF exports (C14) | per user, per minute | add with the feature |
 

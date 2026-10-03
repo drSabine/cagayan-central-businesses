@@ -113,7 +113,7 @@ Each has a default so work is not blocked.
 - **O5. Hosting for the online version.** Owner: back end member. Default: one small VPS. Not needed for the video or the booth.
 - **O6. Size of the simulated dataset.** Owner: data member. Default: about 4,000 businesses. Replace with a figure grounded in a public count if one is found, and cite it.
 - **O7. Outlook middle estimate.** Default: the average renewal rate of the three most recent years. Confirm with the adviser. See `metrics.md`, M11.
-- **O8. Unused starter kit features.** Owner: back end member. Email verification, passkeys, two-factor login, and account deletion came with the starter kit. Default: leave them as they are until after the video, then remove what Capitol administrators do not need.
+- **O8. Unused starter kit features.** Decided October 3, 2026: removed before the build starts, so the design system starts from a clean slate. Kept: Fortify login and logout, the shadcn primitives in `components/ui/`, and the hooks they need (`use-mobile`, `use-appearance`, `use-flash-toast`). Removed: registration, password reset, email verification, two-factor login, passkeys, profile, security, and appearance settings, account deletion, the starter layouts and app components, and the `@laravel/passkeys` package. The `passkeys` table and two-factor columns are dropped by a new migration.
 
 ## Installed versions
 
