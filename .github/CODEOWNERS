@@ -1,8 +1,8 @@
-# Code owners for Cagayan Business. Areas come from docs/team/team-rules.md.
+# Code owners for Cagayan Business. Areas come from docs/team/workflow.md.
 #
 # TODO: the team members were not known at kickoff. Every area points to the
 # repository owner for now. Replace each @drSabine with the owner's GitHub
-# username, and fill in the names in docs/team/team-rules.md at the same time.
+# username, and fill in the names in docs/team/workflow.md at the same time.
 #
 #   Map and front end ........................ @drSabine
 #   Back end, database, and metrics .......... @drSabine
@@ -30,7 +30,7 @@
 /database/seeders/                  @drSabine
 /resources/content/                 @drSabine
 
-# Two reviewers. A mistake here reaches every screen (team-rules.md).
+# Two reviewers. A mistake here reaches every screen (docs/team/workflow.md).
 # List two owners on each line. CODEOWNERS asks both for review; the team rule
 # is that both approve before merging.
 /docs/engineering/metrics.md        @drSabine
