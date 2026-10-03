@@ -30,7 +30,9 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D5. MapLibre GL JS through react-map-gl for the map
 
-**Decided.** Shapes come from PostGIS as GeoJSON and are drawn as filled, clickable layers. No external basemap is required: the booth demo runs offline. Shapes are simplified before loading. A local PMTiles basemap is optional polish.
+**Decided, updated October 3, 2026.** Shapes come from PostGIS as GeoJSON and are drawn as filled, clickable layers. Shapes are simplified before loading. The basemap (streets and place names under the shapes) is OpenFreeMap's `positron` style: free, no API key, no account. When the basemap cannot load, for example at the booth without internet, the map falls back to a plain background and the shapes still draw, so the demo never depends on it. A self-hosted basemap (VersaTiles or PMTiles) is optional polish after the video.
+
+**Why:** a basemap helps people find their barangay, and OpenFreeMap costs nothing. The fallback keeps D5's promise that the booth demo runs offline.
 
 ## D6. Supporting libraries
 
@@ -127,7 +129,8 @@ Recorded October 3, 2026, from `composer.lock`, `package-lock.json`, and the run
 - Node 22 in CI. Node 24.9.0 also works locally.
 - PostgreSQL 17.5, PostGIS 3.5.2
 - Pest 4.7.8, Paratest 7.20.0
-- Not installed yet: MapLibre GL JS and react-map-gl (F6), Recharts (first chart), TanStack Table (first table), laravel-dompdf (C14)
+- maplibre-gl 6.11.2, react-map-gl 8.1.3
+- Not installed yet: Recharts (first chart), TanStack Table (first table), laravel-dompdf (C14)
 
 ## Changes from the starter kit
 
