@@ -96,6 +96,12 @@ What the team decided and why. Change a decision only through a pull request tha
 
 **Decided October 3, 2026.** Not before the video. Manifest and icons may be added any time. A service worker that caches static assets only may follow before the booth. See `pwa.md`.
 
+## D19. Docker files are locked
+
+**Decided October 3, 2026.** `compose.yaml` and `docker/` change only through the repository owner. The pre-commit hook refuses them, CI fails a pull request into `staging` that changes them unless the owner opened it, and Claude Code is denied edits to them and destructive Docker commands.
+
+**Why:** the database setup is shared by every laptop and by CI. One unreviewed change there breaks everyone at once, often in ways that look like an app bug. Personal settings such as the port live in `.env`.
+
 ## Open decisions
 
 Each has a default so work is not blocked.

@@ -12,7 +12,7 @@ Every member has one role. The role owner decides on their area and reviews chan
 | Backend developer | ________ | ________ |
 | Data and content | ________ | ________ |
 
-One of the three is also the **repository owner**: GitHub settings, branch protection, releases into `main`, and the Docker files.
+One of the three is also the **repository owner**: GitHub settings, branch protection, releases into `main`, and the Docker files. The Docker files are locked to the owner: the pre-commit hook, CI, and Claude Code all refuse changes to `compose.yaml` and `docker/` from anyone else. The owner commits a Docker change with `git commit --no-verify` after checking it on every laptop.
 
 ### Frontend developer
 
@@ -197,6 +197,7 @@ If a hook fails, fix the cause: `composer lint` for PHP formatting, `npm run che
 - Committing or pushing directly to `main` or `staging`, or force pushing a shared branch.
 - Opening a work pull request into `main`. Work goes into `staging`, and `main` changes only by release.
 - Skipping hooks with `--no-verify`.
+- Changing the Docker files (`compose.yaml`, `docker/`). Only the repository owner changes them. A database problem on your laptop is fixed in your own `.env` or with `composer doctor`. If the setup itself is wrong, tell the owner.
 - Editing a migration that has been merged.
 - Committing `.env` files, database dumps, or real business records.
 - Adding a package without a line in `decisions.md` and the owner's approval.

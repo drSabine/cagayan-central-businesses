@@ -76,6 +76,7 @@ Full rules: `docs/engineering/design.md`.
 - Checklist content needs an official source and a verification date from a team member. Never write a requirement from memory.
 - Tests run on PostGIS, never SQLite.
 - Never edit a migration that has been merged. Add a new one.
+- Never change the Docker files (`compose.yaml`, `docker/`). They belong to the repository owner. Database problems are fixed in the person's own `.env` or reported to the owner.
 - Never commit or push directly to `main` or `staging`. Work pull requests go into `staging`. `main` changes only by a release from `staging`. Never force push a shared branch, never skip hooks.
 - No attribution trailers or generated-by text in commits or pull requests.
 

@@ -46,6 +46,8 @@ With WAMP, the command line reads `php.ini` and the web server reads `phpForApac
 
 Open Docker Desktop from the Start menu and wait until it says "Engine running". It must be running whenever you work on this project. It runs only the database.
 
+You only start and stop Docker. Never change `compose.yaml` or anything in `docker/`: they are locked to the repository owner, and the hooks and CI refuse changes. Every database setting you may need to change (port, password) lives in your own `.env`.
+
 **Check:** `docker info` prints details instead of an error.
 
 ## 5. Tell Git who you are
@@ -143,6 +145,8 @@ FORWARD_DB_PORT=5433
 ```
 
 **`could not find driver`.** The extensions are on for the web server but not the command line. Redo step 3 with the file `php --ini` shows.
+
+**Something about Docker looks wrong.** Do not edit `compose.yaml` or `docker/`. Run `composer doctor`, then send its output to the repository owner.
 
 **Docker is not running.** You see `failed to connect to the docker API` or `Cannot connect to the database`. Start Docker Desktop, wait for "Engine running", then `composer db:up`.
 
