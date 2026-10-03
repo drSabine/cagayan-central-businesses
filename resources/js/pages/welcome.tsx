@@ -1,17 +1,18 @@
-import { Head, Link } from '@inertiajs/react';
-import { login } from '@/routes';
+import { Head } from '@inertiajs/react';
 
-// Placeholder until the design system and P1 (Explore map) are built.
+// Placeholder until P1 (Explore map) becomes the public home page.
 export default function Welcome() {
     return (
         <>
             <Head title="Home" />
-            <main className="mx-auto flex max-w-xl flex-col gap-4 p-6">
-                <h1 className="text-2xl font-semibold">Cagayan Business</h1>
-                <Link href={login()} className="underline">
-                    Log in
-                </Link>
-            </main>
+            <div className="flex flex-col gap-2">
+                <h1 className="text-2xl font-semibold">
+                    Businesses in Tuguegarao City
+                </h1>
+                <p className="text-muted-foreground">
+                    Registered businesses only
+                </p>
+            </div>
         </>
     );
 }
