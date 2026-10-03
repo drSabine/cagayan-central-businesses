@@ -40,6 +40,7 @@ resources/
       map/              the map and its layers
       charts/           chart wrappers
       privacy/          guarded figure, hidden notice, simulated label
+    pdf/              PDF templates for @react-pdf/renderer
       *.tsx             app-wide pieces (layout parts, headings, breadcrumbs), added with the design system
     hooks/            reusable hooks, named use-*.ts
     lib/              plain functions with no React: formatting, cn()
@@ -50,7 +51,7 @@ resources/
   content/checklists/ start-a-business guide content
 ```
 
-Later, PDF exports may add Blade views under `resources/views/exports/`, because the PDF library renders HTML on the server.
+PDF templates live in `resources/js/pdf/`, one file per document (see "PDF export").
 
 ## Layers inside the front end
 
@@ -95,6 +96,16 @@ export default function Show({ profile }: Props) { ... }
 
 - Never write a URL by hand. Import from `@/routes` (named routes) or `@/actions` (controller actions). Wayfinder generates both.
 - Use `<Link>` for navigation, not `<a href>`, so Inertia keeps the page fast.
+- How URLs look and where the server redirects is decided on the back end: `architecture.md`, "Clean URLs" and "Redirects". The front end never builds or rewrites a path.
+
+| Need | Use |
+| :- | :- |
+| A link | `<Link href={show(barangay.psgcCode)}>` |
+| A link with filters | `<Link href={index({ query: { year: 2026 } })}>` |
+| Go somewhere from code | `router.visit(show(barangay.psgcCode))` |
+| Change filters on the current page | `router.get(index(), { year }, { preserveState: true, preserveScroll: true })` |
+| A form | `<Form {...store.form()}>`. After it succeeds, the server redirects; do not navigate in `onSuccess`. |
+| A file download (CSV, server export) | a plain `<a href={exportCsv().url}>`, because the response is not an Inertia page |
 - Public pages never link to a Capitol page except through the login link.
 - The server decides access. Hiding a button in React protects nothing; the route must check it.
 - Logout is a `POST` (`<Link method="post" href={logout()} as="button">`).
@@ -116,7 +127,75 @@ const BarangayMap = lazy(() => import('@/components/map/barangay-map'));
 - **Prefetch likely next pages** with `<Link prefetch>` on main navigation.
 - **Paginate long lists** on the server. Never render thousands of rows.
 - **The React Compiler is on**, so `useMemo` and `useCallback` are rarely needed. Add them only after measuring a slow render.
-- **No runtime calls to third parties.** The booth demo runs offline. Map shapes come from our own server.
+- **No runtime calls to third parties,** with one exception: the map's basemap from OpenFreeMap, which is optional (see "The map"). Map shapes always come from our own server.
+
+## The map
+
+MapLibre GL JS through `react-map-gl`. Always import from `react-map-gl/maplibre`; the default import is the Mapbox build, which is paid.
+
+```tsx
+import Map, { Layer, Source } from 'react-map-gl/maplibre';
+import 'maplibre-gl/dist/maplibre-gl.css';
+```
+
+- **Shapes** come from our server as GeoJSON props and are drawn with `<Source type="geojson">` and a `fill` `<Layer>`. Fill colors come from the `--map-*` tokens.
+- **Basemap:** OpenFreeMap `positron` (`https://tiles.openfreemap.org/styles/positron`), chosen because it is quiet and lets the choropleth stand out. No key, no account.
+- **Offline fallback:** if the style cannot be fetched, the map uses a plain background style and the shapes still draw. Check this before every demo with the network off.
+
+```tsx
+const OFFLINE_STYLE = {
+    version: 8,
+    sources: {},
+    layers: [{ id: 'background', type: 'background', paint: { 'background-color': mapColor('--muted') } }],
+} as const;
+
+async function loadMapStyle() {
+    try {
+        const response = await fetch('https://tiles.openfreemap.org/styles/positron');
+        return response.ok ? await response.json() : OFFLINE_STYLE;
+    } catch {
+        return OFFLINE_STYLE;
+    }
+}
+```
+
+- `mapColor()` reads a token from `app.css` and returns a color MapLibre accepts, because map layers cannot use Tailwind classes. Add it to `lib/` with the first map, and use it for every map color. Never a hex value.
+- The map component lives in `components/map/` and is loaded with `React.lazy` (see "Performance").
+- The map is never the only way to reach a barangay. A list or search does the same job (`design.md`).
+
+## Charts
+
+Recharts through shadcn's Chart component (`components/ui/chart.tsx`). It gives tooltips and legends that match the theme, and colors from the `--chart-*` tokens.
+
+- Use `ChartContainer` with a `ChartConfig` that names each series and its token color (`var(--chart-1)`). Never a hex value.
+- Shared chart wrappers go in `components/charts/`.
+- Every chart has a table version a click away (`design.md`).
+- Docs: https://ui.shadcn.com/docs/components/chart
+
+## PDF export
+
+`@react-pdf/renderer` builds the PDF in the browser from the page's own props.
+
+- **Templates** live in `resources/js/pdf/`, one file per document, for example `pdf/barangay-brief.tsx`.
+- **Its own layout system.** A template uses `Document`, `Page`, `View`, `Text`, and `StyleSheet` (flexbox). Tailwind classes, shadcn components, and Recharts do not work inside a PDF. If a brief needs a chart, draw it with the library's `Svg` elements and ask first.
+- **Same data as the screen.** Build the PDF only from the props the page already received. Never fetch extra data for it (privacy-rules.md, P11).
+- **The "Simulated data" label** is on every PDF with business records.
+- **Load it only on click,** because the library is large:
+
+```tsx
+async function downloadBrief(brief: BarangayBrief) {
+    const [{ pdf }, { default: BriefPdf }] = await Promise.all([
+        import('@react-pdf/renderer'),
+        import('@/pdf/barangay-brief'),
+    ]);
+    const blob = await pdf(<BriefPdf brief={brief} />).toBlob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `brief-${brief.psgcCode}.pdf`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+```
 
 ## Every data view has these states
 
