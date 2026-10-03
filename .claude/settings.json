@@ -34,12 +34,9 @@
       "Bash(git switch -c *)"
     ],
     "deny": [
-      "Edit(./compose.yaml)",
-      "Write(./compose.yaml)",
-      "Edit(./docker/**)",
-      "Write(./docker/**)",
-      "Bash(docker compose down*)",
-      "Bash(docker volume *)",
+      "Bash(docker compose down -v*)",
+      "Bash(docker compose down --volumes*)",
+      "Bash(docker volume rm *)",
       "Bash(docker system prune*)",
       "Read(./.env.production)",
       "Read(./.env.staging)",
