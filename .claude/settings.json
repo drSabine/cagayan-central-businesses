@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "allow": [
+      "Bash(composer ci:check)",
+      "Bash(composer test)",
+      "Bash(composer lint)",
+      "Bash(composer run *)",
+      "Bash(php artisan test)",
+      "Bash(php artisan test *)",
+      "Bash(php artisan migrate)",
+      "Bash(php artisan migrate:status)",
+      "Bash(php artisan route:list *)",
+      "Bash(php artisan app:doctor)",
+      "Bash(php artisan metrics:refresh)",
+      "Bash(npm run *)",
+      "Bash(docker compose ps)",
+      "Bash(docker compose up *)",
+      "Bash(docker compose logs *)",
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git branch *)"
+    ],
+    "deny": [
+      "Read(./.env.production)",
+      "Read(./.env.staging)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)"
+    ]
+  }
+}

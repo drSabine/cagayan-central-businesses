@@ -1,0 +1,28 @@
+---
+paths:
+  - "app/Http/**"
+  - "app/Data/**"
+  - "app/Services/Privacy/**"
+  - "resources/js/pages/**"
+---
+
+# Privacy rules, short form
+
+Full rules and reasons: `docs/engineering/privacy-rules.md`. Read it before changing anything here. With Inertia, every prop reaches the browser, so protection happens on the server.
+
+- **P1** No single business's sales leaves the server: not in props, JSON, CSV, PDF, logs, or errors. No data object has a field for it.
+- **P2** Fewer than `cagayan.privacy.small_group_min` active businesses: sales hidden, reason `small_group`. Administrators included.
+- **P3** Largest single business over `cagayan.privacy.dominance_max_share` of the total: hidden, reason `dominance`. Uses `declared_sales_max_single`.
+- **P4** Exactly one hidden cell in a breakdown shown beside its total: also hide the smallest remaining cell, reason `complementary`.
+- **P5** The guard runs after filters, on the final group.
+- **P6** Anything derived from a hidden figure is hidden: per business, share, change, rank, concentration, outlook.
+- **P7** The public sees a band only, never a number. Hidden stays hidden, with no band.
+- **P8** Owner name, contact number, ownership type, size category, employee count: authenticated administrators only.
+- **P9** Opening a full business record writes one `record_view_logs` row before responding. The list view writes none.
+- **P10** Pages get data objects from `app/Data/`, never models, collections, or `->toArray()` of a model, including shared props in `app/Http/Middleware/HandleInertiaRequests.php`. Separate public and admin objects.
+- **P11** CSV and PDF are built from the same guarded data objects.
+- **P12** Wishes store no name, contact, or network address, only a daily one-way hash. Reasons are admin only. The form is rate limited.
+- **P13** The "Simulated data" label is in the shared layout and every export.
+- **P14** No sales, owner names, or contact numbers in logs or exception text.
+
+Before committing, walk the review checklist at the end of `docs/engineering/privacy-rules.md`, or run the `privacy-check` skill.
