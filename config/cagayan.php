@@ -98,7 +98,7 @@ return [
 
     /*
     | The administrator the seeder creates for the demo. The password comes
-    | from .env and is never written in code (data-model.md, seeder item 11).
+    | from .env and is never written in code (database.md, seeder item 11).
     */
     'demo_admin' => [
         'email' => env('DEMO_ADMIN_EMAIL'),

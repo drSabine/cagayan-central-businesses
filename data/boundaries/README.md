@@ -40,7 +40,7 @@ Geometry is `Polygon` for most features and `MultiPolygon` for towns with island
 Only the properties. The shapes are as published.
 
 1. The 9 digit numeric codes were padded to the 10 digit PSGC form.
-2. Properties were renamed to match `docs/engineering/data-model.md`.
+2. Properties were renamed to match `docs/engineering/database.md`.
 3. Coordinates were rounded to 6 decimals, about 11 centimeters.
 
 ## Checks that passed
