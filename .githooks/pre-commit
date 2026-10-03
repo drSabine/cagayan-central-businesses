@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# Fast checks before every commit, for people and AI agents alike.
+# Only the checks for the file types being committed run, so docs-only commits are instant.
+# The full test suite and the build run in pre-push.
+#
+# Git runs this from .githooks because `composer setup` sets core.hooksPath.
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+log=$(mktemp)
+trap 'rm -f "$log"' EXIT
+
+fail() {
+    printf '\n\033[31mCommit refused:\033[0m %s\n' "$1"
+    [ -n "$2" ] && printf 'Fix: %s\n' "$2"
+    exit 1
+}
+
+warn() {
+    printf '\033[33mNote:\033[0m %s\n' "$1"
+}
+
+run() {
+    label=$1
+    fix=$2
+    shift 2
+    printf '> %s\n' "$label"
+    if ! "$@" >"$log" 2>&1; then
+        tail -n 60 "$log"
+        fail "$label failed." "$fix"
+    fi
+}
+
+# 1. Work happens on branches inside staging, never on main or staging itself.
+branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+case "$branch" in
+    main | staging)
+        fail "you are on $branch." "git switch staging, git pull --ff-only, git switch -c feat/short-description, then commit there (docs/team/workflow.md)."
+        ;;
+    feat/* | bug/* | data/* | docs/* | chore/*) ;;
+    *) warn "branch \"$branch\" does not follow type/short-description (feat, bug, data, docs, chore)." ;;
+esac
+
+# 2. Files that never belong in the repository.
+blocked=$(printf '%s\n' "$staged" \
+    | grep -E '(^|/)\.env(\..+)?$|^public/(build|hot|storage)(/|$)|^(vendor|node_modules)/|^resources/js/(routes|actions|wayfinder)/|\.(pem|key|sqlite|dump)$|\.sql$' \
+    | grep -vE '(^|/)\.env\.example$|^database/sql/|^docker/db/init/')
+if [ -n "$blocked" ]; then
+    printf '%s\n' "$blocked"
+    fail "these files must not be committed: secrets, build output, generated files, or database dumps." "git restore --staged <file>"
+fi
+
+# 3. Debugging leftovers in added lines.
+leftovers=$(git diff --cached -U0 --diff-filter=ACMR -- '*.php' '*.ts' '*.tsx' \
+    | grep -E '^\+[^+]' \
+    | grep -E '\b(dd|dump|ray|var_dump)\(|console\.log\(')
+if [ -n "$leftovers" ]; then
+    printf '%s\n' "$leftovers"
+    fail "debugging calls left in the code." "remove them, stage again, and commit."
+fi
+
+# 4. Changes a reviewer must look at twice.
+printf '%s\n' "$staged" | grep -qx '.gitignore' \
+    && warn ".gitignore changed. Check that no needed file is hidden and nothing secret is exposed."
+deps=$(printf '%s\n' "$staged" | grep -E '^(composer\.(json|lock)|package(-lock)?\.json)$' | tr '\n' ' ')
+[ -n "$deps" ] \
+    && warn "dependency files changed: $deps. A new package needs approval and a line in docs/engineering/decisions.md."
+[ -n "$(git diff --cached --name-only -- compose.yaml docker/)" ] \
+    && warn "Docker files changed. The whole team and CI use them: keep the CI image in sync, and tell teammates to run composer db:up after merging."
+
+# 5. Checks for the file types being committed.
+if printf '%s\n' "$staged" | grep -qE '\.php$'; then
+    php_files=$(printf '%s\n' "$staged" | grep -E '\.php$')
+    # shellcheck disable=SC2086
+    run "PHP format (Pint)" "composer lint" php vendor/bin/pint --test $php_files
+    run "PHP static analysis (PHPStan)" "read the errors above and fix them" composer types:check
+fi
+
+if printf '%s\n' "$staged" | grep -qE '^resources/(js|css)/|^(vite\.config\.ts|tsconfig\.json|package\.json)$'; then
+    run "Front end format and lint" "npm run check:fix" npm run check
+    run "TypeScript" "read the errors above and fix them" npm run types:check
+fi
+
+exit 0

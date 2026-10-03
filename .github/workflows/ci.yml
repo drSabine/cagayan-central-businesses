@@ -4,8 +4,9 @@
 # actions/cache was added for the Composer cache; its pin was read from the
 # actions/cache repository tags on October 3, 2026.
 #
-# deploy.yml calls this workflow too, so a tag is deployed only after the
-# same checks pass on that commit.
+# Runs on every pull request and on pushes to main (production) and staging
+# (development). deploy.yml calls this workflow too, so a tag is deployed only
+# after the same checks pass on that commit.
 
 name: CI
 
@@ -13,6 +14,7 @@ on:
   push:
     branches:
       - main
+      - staging
   pull_request:
   workflow_call:
     inputs:

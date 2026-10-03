@@ -1,33 +1,31 @@
 ---
 name: open-pr
-description: Push the current branch and open a pull request with the template filled in, so a teammate can review it in ten minutes.
+description: Push the current work branch and open a pull request into staging with the template filled in from the real commits, so a teammate can review it in ten minutes.
 argument-hint: "[feature or metric id, e.g. C3 or M10]"
 disable-model-invocation: true
-allowed-tools: Bash(git status*) Bash(git diff*) Bash(git log*) Bash(git branch*) Bash(git push -u origin *) Bash(gh pr create *) Bash(gh pr view *) Bash(composer ci:check)
+allowed-tools: Bash(git status*) Bash(git diff*) Bash(git log*) Bash(git branch*) Bash(git fetch*) Bash(git merge origin/staging) Bash(git push -u origin *) Bash(gh pr create *) Bash(gh pr view *)
 ---
 
 # Open a pull request
 
 Feature or metric id from the person, if given: $ARGUMENTS
 
-Rules for pull requests are in `docs/team/team-rules.md`, "Pull requests". The template is `.github/pull_request_template.md`.
+Rules: `docs/team/workflow.md`, "Branching" and "Pull requests". Template: `.github/pull_request_template.md`.
+
+Work pull requests always go into `staging`. A release (`staging` into `main`) is opened by a person, as described in `workflow.md`, "Releases". This skill does not open releases.
 
 ## Steps
 
-1. **Check the branch.** `git branch --show-current` must not be `main`. If there are uncommitted changes, stop and suggest `/commit` first.
-2. **Check the size.** `git diff --stat origin/main...HEAD`. Aim for under 400 changed lines, not counting lock files and generated files. If it is much larger, say so and suggest how to split it before continuing.
-3. **Run the gate.** `composer ci:check` must pass. CI runs the same command and the pull request cannot merge while it is red.
-4. **Push.** `git push -u origin <branch>`. Never force push.
-5. **Title.** One Conventional Commit line, `type(scope): subject`, 72 characters or fewer. Squash merge turns the title into the commit on `main`, so it must stand alone. CI checks this format.
-6. **Body.** Read `.github/pull_request_template.md` and fill every section from the actual diff and commits:
-   - what changed and why, with the feature or metric id
-   - how to check it by hand: exact URL, login, clicks, and what the person should see. This is not optional.
-   - screenshots needed for anything visual: say which, and ask the person to attach them
-   - the checklist, ticked only where it is true. For the privacy items, walk the review checklist at the end of `docs/engineering/privacy-rules.md` and answer each question.
-7. **No generated-by footer** and no AI attribution anywhere in the body.
-8. **Create it** with `gh pr create --base main --title "<title>" --body-file <file>`. Write the body to a temporary file first so line breaks survive PowerShell. Print the link from the output.
-9. If the feature finished, remind the person that `docs/team/roadmap.md` should show it as Done in this pull request.
+1. **Check the branch.** `git branch --show-current` must be a work branch, not `main` or `staging`. Uncommitted changes: stop and suggest `/commit`.
+2. **Bring in `staging`.** `git fetch origin`, then `git merge origin/staging` if the branch is behind. Resolve conflicts with the person. GitHub requires the branch to be current before merging.
+3. **Check the size.** `git diff --stat origin/staging...HEAD`. Over about 400 changed lines, not counting lock and generated files: say so and suggest a split before continuing.
+4. **Push.** `git push -u origin <branch>`. The pre-push hook builds the front end and runs `composer ci:check`, the same as CI. It needs the database running (`composer db:up`). If it fails, fix the cause and push again. Never `--no-verify`, never force push.
+5. **Write the description.** If `/commit` printed one in this session and nothing changed since, reuse it. Otherwise fill `.github/pull_request_template.md` from `git log origin/staging..HEAD` and the diff, exactly as `/commit` step 7 describes: What, Why, How, How to check it, Impact, When, Who, Screenshots, Checklist. Write "none" where nothing changed. Tick only what is true.
+6. **Title:** one Conventional Commit line, `type(scope): subject`, 72 characters or fewer. Squash merge makes it the commit on `staging`. CI checks the format.
+7. **No generated-by footer** and no AI attribution anywhere.
+8. **Create it.** Write the body to a temporary file so line breaks survive PowerShell, then `gh pr create --base staging --title "<title>" --body-file <file>`. Print the link.
+9. **Remind the person** to attach screenshots for visual changes, and to set the feature to Done in `docs/team/roadmap.md` in this pull request if it finished.
 
 ## Done when
 
-The branch is pushed, a pull request exists against `main` with a Conventional Commit title and a fully filled template, and its link is shown.
+The branch is pushed with the hooks passing, a pull request exists into `staging` with a valid title and a fully filled description, and its link is shown.
