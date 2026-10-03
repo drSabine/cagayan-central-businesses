@@ -1,0 +1,30 @@
+# Local database for Cagayan Business.
+# Only the database runs in Docker. PHP and Node run on your own machine.
+#
+# Start:  docker compose up -d --wait
+# Stop:   docker compose stop
+# Reset:  docker compose down -v   (deletes all local data, then start again)
+#
+# Values come from the project .env file, with the defaults below as fallback.
+
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: "${DB_DATABASE:-cagayan_business}"
+      POSTGRES_USER: "${DB_USERNAME:-cagayan}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-secret}"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - ./docker/db/init/20-create-test-database.sql:/docker-entrypoint-initdb.d/20-create-test-database.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-cagayan} -d ${DB_DATABASE:-cagayan_business}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  dbdata:
