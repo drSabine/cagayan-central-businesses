@@ -52,7 +52,14 @@ if [ -n "$blocked" ]; then
     fail "these files must not be committed: secrets, build output, generated files, or database dumps." "git restore --staged <file>"
 fi
 
-# 3. Debugging leftovers in added lines.
+# 3. Docker files are locked to the repository owner (docs/team/workflow.md, "Roles").
+docker_files=$(git diff --cached --name-only -- compose.yaml docker/)
+if [ -n "$docker_files" ]; then
+    printf '%s\n' "$docker_files"
+    fail "the Docker files are locked. Only the repository owner changes them." "git restore --staged <file>, then ask the repository owner."
+fi
+
+# 4. Debugging leftovers in added lines.
 leftovers=$(git diff --cached -U0 --diff-filter=ACMR -- '*.php' '*.ts' '*.tsx' \
     | grep -E '^\+[^+]' \
     | grep -E '\b(dd|dump|ray|var_dump)\(|console\.log\(')
@@ -61,14 +68,14 @@ if [ -n "$leftovers" ]; then
     fail "debugging calls left in the code." "remove them, stage again, and commit."
 fi
 
-# 4. Changes a reviewer must look at twice.
+# 5. Changes a reviewer must look at twice.
 printf '%s\n' "$staged" | grep -qx '.gitignore' \
     && warn ".gitignore changed. Check that no needed file is hidden and nothing secret is exposed."
 deps=$(printf '%s\n' "$staged" | grep -E '^(composer\.(json|lock)|package(-lock)?\.json)$' | tr '\n' ' ')
 [ -n "$deps" ] \
     && warn "dependency files changed: $deps. A new package needs approval and a line in docs/engineering/decisions.md."
 
-# 5. Checks for the file types being committed.
+# 6. Checks for the file types being committed.
 if printf '%s\n' "$staged" | grep -qE '\.php$'; then
     php_files=$(printf '%s\n' "$staged" | grep -E '\.php$')
     # shellcheck disable=SC2086

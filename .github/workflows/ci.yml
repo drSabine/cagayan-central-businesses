@@ -146,6 +146,21 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Docker files are locked to the repository owner
+        # Same rule as .githooks/pre-commit. Hooks can be skipped locally, this check cannot.
+        if: github.base_ref == 'staging' && github.event.pull_request.user.login != github.repository_owner
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE_SHA...$HEAD_SHA" -- compose.yaml docker/)
+          if [ -n "$changed" ]; then
+            echo "$changed"
+            echo "::error::Only the repository owner changes the Docker files. Remove these changes from the pull request."
+            exit 1
+          fi
+          echo "No Docker files changed."
+
       - name: No generated attribution in commit messages
         # Same patterns as .githooks/commit-msg, which strips these locally.
         env:
