@@ -1,0 +1,136 @@
+# Privacy Rules
+
+These rules are part of the product, not a layer added at the end. Each one is written so it can be tested. A pull request that touches business data must keep every test here green.
+
+The reasons behind the rules are in the product document, under "Privacy rules built into the product" and "Verification findings".
+
+## The one idea behind all of them
+
+With Inertia, everything a controller passes to a page is delivered to the browser and can be read there, whether or not React displays it. So protection happens on the server, before data leaves. Hiding a value in the front end protects nothing.
+
+## Field classes
+
+- **Public:** business name, type, description, year established, barangay, map location.
+- **Admin:** owner name, contact number, ownership type, size category, number of employees.
+- **Never displayed:** the declared gross sales of a single business.
+
+## The rules
+
+### P1. No single business's sales ever leaves the server
+
+Not to the public and not to administrators. Not in page props, JSON, CSV, PDF, logs, or error messages.
+
+- Enforce: the sales column is hidden on the model, and no data object has a field for it. Request code reads sales only from summary tables.
+- Test: scan every route's response for a known seeded sales amount and assert it is absent.
+
+### P2. Small-group rule
+
+A sales figure for a group with fewer than 5 active businesses is hidden, for everyone, administrators included. The threshold is `privacy.small_group_min`.
+
+- Test: a group of 4 returns hidden with reason `small_group`. A group of 5 returns a value.
+
+### P3. Dominance rule
+
+A sales figure is hidden when the largest single business accounts for more than 70 percent of the group's total. The threshold is `privacy.dominance_max_share`.
+
+- Enforce: read `declared_sales_max_single` from the summary table and compare with the total.
+- Test: a group of 6 where one business holds 80 percent returns hidden with reason `dominance`.
+
+### P4. Complementary rule
+
+When a breakdown is shown beside its total, a single hidden cell can be worked out by subtraction. So if exactly one cell in a breakdown is hidden, also hide the smallest remaining cell, with reason `complementary`.
+
+- Applies to: sales by business type within an area, and sales by barangay within a town.
+- Test: a breakdown with one small cell and three large ones shows two hidden cells, not one.
+
+### P5. The rules run after filters
+
+Filters by type, size, status, and year shrink groups. The guard runs on the final filtered group, every time.
+
+- Test: an area that shows a figure unfiltered returns hidden when a filter leaves 3 businesses.
+
+### P6. Anything derived from a hidden figure is hidden too
+
+Sales per business, share of total, change from last year, rank by sales, sales concentration, and the sales outlook all inherit the hidden state. A change from last year is hidden if either year is hidden.
+
+- Test: for a hidden area, each derived value is hidden and none is zero.
+
+### P7. The public sees bands only
+
+The public side shows the band that contains a total, never the total. A hidden total stays hidden and shows no band.
+
+- Enforce: public data objects carry a band label and nothing numeric about sales.
+- Test: no public response contains a sales number.
+
+### P8. Admin fields need a login
+
+Owner name, contact number, ownership type, size category, and employee count appear only in responses to authenticated administrators.
+
+- Test: every public route's response is scanned for a known seeded owner name and contact number, and both are absent.
+
+### P9. Every full record view is logged
+
+Opening a business's full record writes a row to `record_view_logs` with the user and the time, before the response is sent. The directory list shows public fields only. Owner details appear only on the record page.
+
+- Test: opening a record adds exactly one log row for that user and business. Viewing the list adds none.
+
+### P10. Pages receive data objects, never models
+
+Controllers build explicit data objects and pass those. No Eloquent model, collection of models, or `toArray()` of a model is passed to Inertia, including through shared props.
+
+- There are separate objects for the two audiences, for example a public business object and an admin business object. The public one has no admin fields to leak.
+- A sales figure is always passed as a guarded object with a state (`shown` or `hidden`), a value when shown, and a reason when hidden.
+- Enforce: an architecture test that fails when a controller passes a model to `Inertia::render`.
+
+### P11. Exports go through the same guard
+
+CSV and PDF are built from the same guarded data objects as the screens.
+
+- The MVP has no bulk export of owner names or contact numbers.
+- Test: a CSV of an area with a hidden figure contains the hidden marker, not a number.
+
+### P12. Wishes collect no identity
+
+No name, no contact, no account. The network address is never stored. Only a one-way daily hash is kept, to block repeats.
+
+- The free-text reason is shown to administrators only, because a resident may type something personal. The public sees counts.
+- The wish form is rate limited.
+- Test: the wishes table has no column that could hold an address or a name, and a repeat submission on the same day is rejected.
+
+### P13. The simulated label is always present
+
+Every screen and every export that shows business records carries a visible "Simulated data" label while the dataset is simulated.
+
+- Enforce: the label is part of the shared layout and the export templates, driven by one config value, not added page by page.
+- Test: every page that shows business data renders the label. Every export contains it.
+
+### P14. Logs and errors carry no protected data
+
+No sales amounts, owner names, or contact numbers in log messages or exception text. Debug mode is off for any demo that others can reach.
+
+## The guard
+
+One service applies P2 through P7. Everything that shows a sales figure calls it.
+
+- Input: a total, the count of active businesses behind it, and the largest single contribution.
+- Output: a guarded figure with state `shown` and a value, or state `hidden` and a reason of `small_group`, `dominance`, or `complementary`.
+- The public variant turns a shown value into a band.
+
+Nothing else in the codebase decides whether a sales figure may be shown.
+
+## Words on screen
+
+- Hidden figure: "Hidden to protect individual businesses"
+- Non-renewal: "Did not renew. This usually means closure, but the business may have moved or kept operating without a permit."
+- Coverage: "Registered businesses only"
+- Declared sales: "Declared business activity, not the income of residents or of the barangay government"
+- Wishes: "Interest from people who chose to answer, not measured demand"
+- Peer comparison: "Below peer average"
+
+## Review checklist for any pull request that touches business data
+
+1. Does any new response include a field from the admin class or the never displayed class? If so, is the route behind a login, and is a view logged?
+2. Is every sales figure produced by the guard?
+3. Does a new filter change group sizes? If so, is there a test for the hidden case?
+4. Does a new page or export carry the simulated label?
+5. Was a model passed to a page anywhere?
