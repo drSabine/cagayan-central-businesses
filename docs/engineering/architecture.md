@@ -44,6 +44,36 @@ Route::middleware(['auth', 'can:capitol'])
 - Filters live in the query string (`?year=2026&type=pharmacy`), so a refresh, the back button, and a shared link all show the same screen.
 - After any `POST`, `PUT`, `PATCH`, or `DELETE`, redirect. Never render a page from a write. Show the result with a toast: `Inertia::flash('toast', ['type' => 'success', 'message' => __('Wish recorded.')])`.
 
+### Clean URLs
+
+A URL should read like an address someone could type or say out loud.
+
+| Rule | Good | Bad |
+| :- | :- | :- |
+| Lower case, words joined by hyphens | `/capitol/business-types` | `/capitol/businessTypes`, `/capitol/business_types` |
+| Plural nouns for collections, no verbs | `/capitol/barangays` | `/capitol/get-barangays`, `/capitol/barangay-list` |
+| A readable key instead of a database id | `/capitol/barangays/0201529001` | `/capitol/barangays/17` |
+| Audience first, then the thing | `/capitol/...`, `/map`, `/guide` | `/admin-panel/...`, `/pages/public/map` |
+| Filters in the query string, not the path | `/capitol/barangays?year=2026` | `/capitol/barangays/year/2026` |
+| No file endings or trailing slash | `/guide` | `/guide.php`, `/guide/` |
+
+Public pages use short top-level paths (`/map`, `/guide`, `/wishes`) even though their route names start with `public.`. Only Capitol pages carry a prefix (`/capitol`), so the login wall is visible in the URL.
+
+### Redirects
+
+Always redirect to a route name, never to a typed path, so renaming a URL never breaks a redirect.
+
+| Situation | Use |
+| :- | :- |
+| After a successful write | `return to_route('capitol.wishes.index');` |
+| Back to the form after a write on the same page | `return back();` |
+| To a page outside Inertia (a file download, another site) | `return Inertia::location($url);` |
+| A URL was renamed and old links exist | `Route::permanentRedirect('old-path', 'new-path');` in the route file |
+| Where login sends people | `'home'` in `config/fortify.php` |
+| Where guests are sent when they open a Capitol page | the `login` route, which Laravel uses by default |
+
+Do not use `redirect('/some/path')` or `redirect()->to(...)` with a typed path. Validation failures redirect back on their own through the Form Request.
+
 ## Controllers stay thin
 
 A controller method is usually under 10 lines. If it grows, the logic belongs in a Query, Action, or Service.

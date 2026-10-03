@@ -13,8 +13,8 @@ Full guide with examples: `docs/engineering/architecture.md`.
 - **Thin controllers.** Call one Query or Action, then render one page or redirect. No loops, business `if`s, sums, or `DB::` calls in controllers.
 - **Where code goes:** reads in `app/Queries/`, single writes in `app/Actions/`, rules shared by several of those in `app/Services/`, page payloads in `app/Data/` (final readonly classes), enums in `app/Enums/`.
 - **Validation in Form Requests** under `app/Http/Requests/`. Turn input into typed values there (`$request->filters()`).
-- **Routes:** every route named. Public routes `public.*` in `routes/public.php`. Capitol routes `capitol.*` in `routes/capitol.php`, inside the one group with `auth` and `can:capitol`. Bind by readable keys (`{barangay:psgc_code}`).
-- **After a write, redirect** and flash a toast with `Inertia::flash('toast', [...])`. Never render a page from a write.
+- **Routes:** every route named. Public routes `public.*` in `routes/public.php`. Capitol routes `capitol.*` in `routes/capitol.php`, inside the one group with `auth` and `can:capitol`. Bind by readable keys (`{barangay:psgc_code}`). URLs are lower case with hyphens, plural nouns, no verbs, filters in the query string (`architecture.md`, "Clean URLs").
+- **After a write, redirect** with `to_route('name')` or `back()`, never a typed path, and flash a toast with `Inertia::flash('toast', [...])`. Never render a page from a write.
 - **Pages receive Data objects,** never models, collections of models, or `->toArray()` of a model.
 - **Numbers on screen come from `stats_` tables.** Never aggregate `businesses` or `business_years` in request code. `declared_gross_sales` is read only by `database/sql/metrics/`.
 - **Money is a decimal string.** Never cast to float. Add and compare in SQL or with `bcadd` and `bccomp`.
