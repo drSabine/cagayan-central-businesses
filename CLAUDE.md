@@ -35,7 +35,7 @@ Git hooks run checks on their own: fast checks on `git commit`, the full `ci:che
 route -> Form Request -> controller -> Query (read) or Action (write) -> Data object -> Inertia page -> components
 ```
 
-- **Routes:** named `public.*` or `capitol.*`. Capitol routes live in one group with `auth`, `verified`, and `can:capitol`.
+- **Routes:** named `public.*` or `capitol.*`. Capitol routes live in one group with `auth` and `can:capitol`.
 - **Controllers:** thin. Call one Query or Action, render one page or redirect. No business rules, loops, or `DB::` calls.
 - **Queries** (`app/Queries/`) read `stats_` tables and return Data objects. **Actions** (`app/Actions/`) do one write each. **Services** (`app/Services/`) hold rules shared by several of them, such as the privacy guard.
 - **Data objects** (`app/Data/`): plain readonly classes with exactly the fields a page needs. Pages never get models.
@@ -51,7 +51,7 @@ Details and examples: `docs/engineering/architecture.md` (back end) and `docs/en
 - **Do not over-split.** Keep markup in the page until it repeats or the file passes about 200 lines. No one-line wrapper components, no pass-through props, no `index.ts` re-exports.
 - **Comments only when the reason is not obvious from the code.** One short line, saying why, not what. No commented-out code. PHPDoc only where PHPStan needs types (array shapes, generics).
 - **Follow sibling files** for naming and structure. Use `php artisan make:*` with `--no-interaction` to create files.
-- **Starter kit code is not the pattern.** Auth pages, settings, email verification, passkeys, and two-factor came with the template. Leave them alone unless the task is about login or account settings.
+- **Login is Fortify, login and logout only.** The rest of the starter kit was removed (decisions.md, O8). Do not bring back registration, password reset, email verification, two-factor, passkeys, or settings pages without a decision.
 - **No new packages** without asking. A new package needs a line in `docs/engineering/decisions.md`.
 
 ## UI rules

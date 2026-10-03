@@ -1,12 +1,13 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
-import AppLogo from '@/components/app-logo';
 import { SimulatedLabel } from '@/components/privacy/simulated-label';
 import { Button } from '@/components/ui/button';
 import { home, login } from '@/routes';
 
 // Phone first. The login link is the only way from a public page to the Capitol side.
 export default function PublicLayout({ children }: { children: ReactNode }) {
+    const { name } = usePage().props;
+
     return (
         <div className="flex min-h-screen flex-col bg-background">
             <header className="border-b">
@@ -15,7 +16,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                         href={home()}
                         className="flex min-h-10 min-w-0 items-center"
                     >
-                        <AppLogo />
+                        <span className="truncate font-semibold">{name}</span>
                     </Link>
                     <div className="ml-auto flex items-center gap-2">
                         <SimulatedLabel />

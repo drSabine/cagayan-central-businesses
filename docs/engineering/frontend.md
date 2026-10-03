@@ -40,7 +40,7 @@ resources/
       map/              the map and its layers
       charts/           chart wrappers
       privacy/          guarded figure, hidden notice, simulated label
-      *.tsx             app-wide pieces from the starter kit (sidebar, breadcrumbs, headings)
+      *.tsx             app-wide pieces (layout parts, headings, breadcrumbs), added with the design system
     hooks/            reusable hooks, named use-*.ts
     lib/              plain functions with no React: formatting, cn()
     types/            TypeScript types that mirror app/Data

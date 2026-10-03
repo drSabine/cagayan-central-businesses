@@ -1,7 +1,5 @@
 <?php
 
-use Laravel\Fortify\Features;
-
 return [
 
     /*
@@ -116,8 +114,6 @@ return [
 
     'limiters' => [
         'login' => 'login',
-        'two-factor' => 'two-factor',
-        'passkeys' => 'passkeys',
     ],
 
     /*
@@ -131,23 +127,7 @@ return [
     |
     */
 
-    'views' => true,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Passkeys
-    |--------------------------------------------------------------------------
-    |
-    | These settings configure Fortify's passkey (WebAuthn) support.
-    |
-    */
-
-    'passkeys' => [
-        'relying_party_id' => parse_url(config('app.url'), PHP_URL_HOST),
-        'allowed_origins' => [config('app.url')],
-        'user_handle_secret' => env('PASSKEYS_USER_HANDLE_SECRET', config('app.key')),
-        'timeout' => 60000,
-    ],
+    'views' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -161,17 +141,8 @@ return [
     */
 
     'features' => [
-        // Public registration is off (decisions.md, D9). Admin accounts come from the seeder or an Artisan command.
-        Features::resetPasswords(),
-        Features::emailVerification(),
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
-            // 'window' => 0
-        ]),
-        Features::passkeys([
-            'confirmPassword' => true,
-        ]),
+        // Only login and logout. Registration, password reset, email verification, two-factor login,
+        // and passkeys are off (decisions.md, D9 and O8). Admin accounts come from the seeder.
     ],
 
 ];

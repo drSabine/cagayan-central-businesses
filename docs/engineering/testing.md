@@ -32,7 +32,7 @@ tests/
     Metrics/     one file per metric (NetGrowthTest.php)
     Privacy/     cross-cutting privacy rules (sentinel scans, guard behavior)
     Seeder/      the seeder requirement checks
-    Auth/ Settings/   from the starter kit
+    Auth/        login, logout, and the removed starter kit routes
   Unit/          pure PHP with no database: the privacy guard, sales bands, enums
   Arch/          architecture rules (arch() tests)
 ```
@@ -156,7 +156,6 @@ Before trusting a new security test, break the protection on purpose (remove the
 
 - Framework behavior (that `required` rejects empty input, that Eloquent saves).
 - The same thing twice at two layers.
-- Starter kit pages (email verification, passkeys, two-factor). Their existing tests stay. Spend new effort on product features.
 
 ## Never
 
@@ -171,5 +170,4 @@ From the October 3, 2026 review. To be done later, in this order:
 1. Route guard dataset test: guests redirect to login on every `auth` route, and state-changing routes sit in the `web` group.
 2. Replace the full `User` model in the shared `auth.user` prop (`HandleInertiaRequests`) with an explicit array, and lock its keys with a test. Today it sends every non-hidden column to the browser, which will include `role` once it exists (privacy rule P10).
 3. Convert the starter kit's class-style tests to Pest (`./vendor/bin/pest --drift`), move `RefreshDatabase` into `tests/Pest.php` once, delete `tests/Unit/ExampleTest.php` and `tests/Feature/ExampleTest.php`.
-4. Rewrite the login rate-limit test to send six bad logins instead of rebuilding the throttle key. Add behavior tests for the two-factor, password update, passkey, and verification email limits.
-5. Add a per-IP limit to the forgot-password form. Today only the one-email-per-address-per-minute rule of the password broker applies.
+4. Rewrite the login rate-limit test to send six bad logins instead of rebuilding the throttle key.
