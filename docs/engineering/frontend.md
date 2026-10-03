@@ -95,6 +95,16 @@ export default function Show({ profile }: Props) { ... }
 
 - Never write a URL by hand. Import from `@/routes` (named routes) or `@/actions` (controller actions). Wayfinder generates both.
 - Use `<Link>` for navigation, not `<a href>`, so Inertia keeps the page fast.
+- How URLs look and where the server redirects is decided on the back end: `architecture.md`, "Clean URLs" and "Redirects". The front end never builds or rewrites a path.
+
+| Need | Use |
+| :- | :- |
+| A link | `<Link href={show(barangay.psgcCode)}>` |
+| A link with filters | `<Link href={index({ query: { year: 2026 } })}>` |
+| Go somewhere from code | `router.visit(show(barangay.psgcCode))` |
+| Change filters on the current page | `router.get(index(), { year }, { preserveState: true, preserveScroll: true })` |
+| A form | `<Form {...store.form()}>`. After it succeeds, the server redirects; do not navigate in `onSuccess`. |
+| A file download (CSV, server export) | a plain `<a href={exportCsv().url}>`, because the response is not an Inertia page |
 - Public pages never link to a Capitol page except through the login link.
 - The server decides access. Hiding a button in React protects nothing; the route must check it.
 - Logout is a `POST` (`<Link method="post" href={logout()} as="button">`).
