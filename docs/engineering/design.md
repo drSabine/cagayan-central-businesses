@@ -56,7 +56,7 @@ The values are a starting point. The front end owner may tune them, keeping cont
 ## Components
 
 - Build from `resources/js/components/ui/` (shadcn). Add missing ones with `npx shadcn@latest add <name>`. Do not hand-roll a dialog, select, table, or tooltip.
-- Use the existing app pieces: `heading.tsx`, `breadcrumbs.tsx`, `input-error.tsx`, the sidebar, the toast.
+- The toast (`components/ui/sonner.tsx`) shows flashed messages. Layouts, headings, and breadcrumbs come with the design system.
 - A screen that shows business data includes the "Simulated data" label from the shared layout. Never add it page by page.
 
 ## Screen patterns
