@@ -18,6 +18,8 @@ Full guides: `docs/engineering/frontend.md` (structure and data) and `docs/engin
 - **Links and forms use Wayfinder** (`@/routes`, `@/actions`). Never a hard-coded URL. `<Link>` for navigation.
 - **Heavy libraries load lazily** (`React.lazy` for the map and charts) with a skeleton.
 - **Map:** import from `react-map-gl/maplibre`, never the default import. Basemap is OpenFreeMap `positron` with the offline fallback in `frontend.md`, "The map". Map colors come from tokens through `mapColor()`.
+- **Charts:** shadcn's `ChartContainer` (Recharts) with `--chart-*` tokens. Every chart has a table version.
+- **PDF:** `@react-pdf/renderer`, templates in `resources/js/pdf/`, built only from the page's props, loaded with `import()` on click. Tailwind and shadcn do not work inside a PDF. Show the "Simulated data" label.
 - **The server decides access.** Hiding something in React protects nothing. Public pages never receive admin fields.
 - File names kebab-case. Components PascalCase. Hooks `use-*`.
 

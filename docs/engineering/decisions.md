@@ -36,7 +36,9 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D6. Supporting libraries
 
-**Decided.** Charts: Recharts. Tables: TanStack Table. PDF: `barryvdh/laravel-dompdf`. CSV: a streamed Laravel response, no package. Boundary preparation outside the app: QGIS and mapshaper. Each is installed with the first feature that needs it, and its version recorded below.
+**Decided, updated October 3, 2026.** Charts: Recharts, through shadcn's Chart component. Tables: TanStack Table. PDF: `@react-pdf/renderer`, built in the browser (replaces `barryvdh/laravel-dompdf`, see below). CSV: a streamed Laravel response, no package. Boundary preparation outside the app: QGIS and mapshaper. Each is installed with the first feature that needs it, and its version recorded below.
+
+**Why `@react-pdf/renderer`:** dompdf supports only old CSS, so a brief laid out with it looks dated and is hard to style. `@react-pdf/renderer` lays out pages with flexbox in React, which the frontend developer already writes, and the server stays free of a PDF engine. The PDF is built from the props the page already has, so it carries the same guarded data as the screen (privacy-rules.md, P11).
 
 ## D7. Metrics are computed in SQL and stored in summary tables
 
@@ -129,8 +131,8 @@ Recorded October 3, 2026, from `composer.lock`, `package-lock.json`, and the run
 - Node 22 in CI. Node 24.9.0 also works locally.
 - PostgreSQL 17.5, PostGIS 3.5.2
 - Pest 4.7.8, Paratest 7.20.0
-- maplibre-gl 6.11.2, react-map-gl 8.1.3
-- Not installed yet: Recharts (first chart), TanStack Table (first table), laravel-dompdf (C14)
+- maplibre-gl 6.11.2, react-map-gl 8.1.3, recharts 3.10.1, @react-pdf/renderer 4.9.0
+- Not installed yet: TanStack Table (first table)
 
 ## Changes from the starter kit
 

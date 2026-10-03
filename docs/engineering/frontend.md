@@ -40,6 +40,7 @@ resources/
       map/              the map and its layers
       charts/           chart wrappers
       privacy/          guarded figure, hidden notice, simulated label
+    pdf/              PDF templates for @react-pdf/renderer
       *.tsx             app-wide pieces (layout parts, headings, breadcrumbs), added with the design system
     hooks/            reusable hooks, named use-*.ts
     lib/              plain functions with no React: formatting, cn()
@@ -50,7 +51,7 @@ resources/
   content/checklists/ start-a-business guide content
 ```
 
-Later, PDF exports may add Blade views under `resources/views/exports/`, because the PDF library renders HTML on the server.
+PDF templates live in `resources/js/pdf/`, one file per document (see "PDF export").
 
 ## Layers inside the front end
 
@@ -161,6 +162,40 @@ async function loadMapStyle() {
 - `mapColor()` reads a token from `app.css` and returns a color MapLibre accepts, because map layers cannot use Tailwind classes. Add it to `lib/` with the first map, and use it for every map color. Never a hex value.
 - The map component lives in `components/map/` and is loaded with `React.lazy` (see "Performance").
 - The map is never the only way to reach a barangay. A list or search does the same job (`design.md`).
+
+## Charts
+
+Recharts through shadcn's Chart component (`components/ui/chart.tsx`). It gives tooltips and legends that match the theme, and colors from the `--chart-*` tokens.
+
+- Use `ChartContainer` with a `ChartConfig` that names each series and its token color (`var(--chart-1)`). Never a hex value.
+- Shared chart wrappers go in `components/charts/`.
+- Every chart has a table version a click away (`design.md`).
+- Docs: https://ui.shadcn.com/docs/components/chart
+
+## PDF export
+
+`@react-pdf/renderer` builds the PDF in the browser from the page's own props.
+
+- **Templates** live in `resources/js/pdf/`, one file per document, for example `pdf/barangay-brief.tsx`.
+- **Its own layout system.** A template uses `Document`, `Page`, `View`, `Text`, and `StyleSheet` (flexbox). Tailwind classes, shadcn components, and Recharts do not work inside a PDF. If a brief needs a chart, draw it with the library's `Svg` elements and ask first.
+- **Same data as the screen.** Build the PDF only from the props the page already received. Never fetch extra data for it (privacy-rules.md, P11).
+- **The "Simulated data" label** is on every PDF with business records.
+- **Load it only on click,** because the library is large:
+
+```tsx
+async function downloadBrief(brief: BarangayBrief) {
+    const [{ pdf }, { default: BriefPdf }] = await Promise.all([
+        import('@react-pdf/renderer'),
+        import('@/pdf/barangay-brief'),
+    ]);
+    const blob = await pdf(<BriefPdf brief={brief} />).toBlob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `brief-${brief.psgcCode}.pdf`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+```
 
 ## Every data view has these states
 
