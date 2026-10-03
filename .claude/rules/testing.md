@@ -5,13 +5,19 @@ paths:
 
 # Testing rules
 
-- **Pest, function style**: `test('...', function () { ... })`. Create with `php artisan make:test --pest NameTest`. The starter kit's class-style tests stay as they are.
-- **Tests run on PostGIS**, in `cagayan_business_test` (set in `phpunit.xml`). Never SQLite. Add `uses(RefreshDatabase::class)` to anything that touches the database.
-- **Where tests go**: `tests/Feature/Metrics/`, `tests/Feature/Privacy/`, `tests/Feature/Capitol/`, `tests/Feature/Public/`, `tests/Arch/`. Create the folder with its first real test.
-- **Metric tests use hand-built fixtures**: two or three barangays, a handful of businesses, two to four years. Write the hand calculation in a comment above the assertion. Run `$this->artisan('metrics:refresh')`, then assert the stored value. Add one test for the "not available" case and, for sales, one for the "hidden" case.
-- **Never test a metric against the demo seeder.** The seeder can change; the definition cannot. Only the seeder requirement tests (data-model.md, items 5 to 9) use the demo seeder.
-- **Privacy tests assert absence.** Seed a sentinel value (a distinctive sales amount, owner name, contact number), call every relevant route, and assert the sentinel appears nowhere in the response. Assert the hidden reason (`small_group`, `dominance`, `complementary`), not just a missing value.
-- **Hidden is never zero.** When a value is hidden or not available, assert its state and assert it is not `0`.
-- **Thresholds from config in tests too.** Build fixtures around `config('cagayan.privacy.small_group_min')`, so a changed threshold cannot leave a test passing for the wrong reason.
-- Run the narrowest set first, for example `php artisan test --compact tests/Feature/PostgisTest.php`. Then `composer ci:check` before committing.
-- Never delete or weaken an existing test to make a change pass. If a test looks wrong, stop and ask.
+Full guide: `docs/engineering/testing.md`.
+
+- **Pest functions** (`it()`, `expect()`). Create with `php artisan make:test --pest NameTest`. The starter kit's class-style tests stay until the planned conversion.
+- **PostGIS, never SQLite.** `uses(RefreshDatabase::class)` for anything touching the database. Pure logic goes in `tests/Unit/` with no database.
+- **Where:** `tests/Feature/Capitol/`, `Public/`, `Metrics/`, `Privacy/`, `Seeder/`, plus `tests/Unit/` and `tests/Arch/`. Create a folder with its first real test.
+- **Test behavior at the boundary:** status, redirect, Inertia props (`assertInertia` with `where`, `missing`), database rows. Not page text, unless the text is the rule.
+- **Fast:** factories with the few rows needed. Never the demo seeder, except in `tests/Feature/Seeder/`. Fake mail, notifications, queues, HTTP.
+- **Reliable:** freeze time with `travelTo()`, set values the test checks explicitly, no network, no test depending on another.
+- **Metrics:** hand-built fixture, the hand calculation in a comment above the assertion, run `metrics:refresh`, assert the stored value. Add "not available" and, for sales, "hidden" cases.
+- **Privacy:** seed a sentinel value and assert it is absent from every relevant response. Assert the hidden reason, not just a missing value.
+- **Thresholds from config** in fixtures, never a literal `5`.
+- **Rate limits:** send the allowed number of requests plus one, expect 429. Do not rebuild throttle keys.
+- **CSRF in Laravel 13** is off during tests. Assert the route is in the `web` group instead of expecting 419.
+- **Security tests must fail without the protection.** Break it on purpose once, watch the test fail, restore it.
+- Run the narrowest set first (`php artisan test --compact <file>`). The pre-push hook runs the full suite.
+- Never delete or weaken a test to make a change pass. If a test looks wrong, stop and ask.

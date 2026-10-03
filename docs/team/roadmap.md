@@ -24,7 +24,7 @@ Other submission items to prepare alongside the build, owned by the data and con
 
 ### Kickoff: October 3 to 4
 
-- Repository set up with `KICKOFF_PROMPT.md`
+- Repository set up (done October 3)
 - All three laptops pass `composer doctor`
 - Branch protection on, first pull request merged by each member
 - The boundary files in `data/boundaries/` are checked against PSA's current listing for Tuguegarao City
@@ -60,7 +60,8 @@ Goal: every tier 1 feature done, tier 2 started in priority order.
 
 ### Week 4: October 26 to 30. Freeze and submit
 
-- **Monday, October 26:** feature freeze. Only fixes after this.
+- **Monday, October 26:** feature freeze. Only `bug/` branches merge into `staging` after this.
+- Release `staging` to `main` and tag `v1.0.0` before recording.
 - `/demo-check` passes on a clean clone on two laptops
 - **Tuesday and Wednesday, October 27 to 28:** record and edit the video
 - **Thursday, October 29:** submit

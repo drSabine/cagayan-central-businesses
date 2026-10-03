@@ -4,6 +4,8 @@ The online version runs on one server and is deployed by `.github/workflows/depl
 
 The video and the booth do not depend on any of this. Both run from a laptop with `composer setup` and `composer dev`.
 
+Only `main`, the production branch, is deployed. `staging` is for development and has no server yet.
+
 ## How a deploy works
 
 1. Someone pushes a version tag, such as `v0.3.0`, or runs the Deploy workflow by hand from the Actions tab with a tag name.
@@ -69,10 +71,10 @@ The real `.env` lives only on the server. It never goes into the repository or G
 1. Finish the first-time server setup above.
 2. Add the four required secrets, and `DEPLOY_KNOWN_HOSTS` if you can.
 3. Add the variable `DEPLOY_ENABLED` with the value `true`.
-4. Tag a commit on `main` and push the tag:
+4. Release `staging` into `main` (`docs/team/workflow.md`, "Releases"), then tag the release on `main` and push the tag:
 
    ```
-   git checkout main
+   git switch main
    git pull
    git tag v0.1.0
    git push origin v0.1.0

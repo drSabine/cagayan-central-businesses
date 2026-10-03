@@ -1,6 +1,7 @@
 #!/bin/sh
 #
-# Removes generated attribution from a commit message.
+# Removes generated attribution from a commit message, then checks the
+# subject is a Conventional Commit line of 72 characters or fewer.
 #
 # Strips:
 #   - Co-authored-by lines that name an AI tool or an AI vendor's address
@@ -30,5 +31,27 @@ grep -v -i -E \
 # Drop trailing blank lines left behind by the removal.
 sed -e ':a' -e '/^[[:space:]]*$/{$d;N;ba' -e '}' "$tmp_file" > "$msg_file"
 rm -f "$tmp_file"
+
+# Check the subject is a Conventional Commit line (same pattern as the CI title check).
+subject=$(grep -v '^#' "$msg_file" | sed -n '/[^[:space:]]/{p;q;}')
+
+case "$subject" in
+    "Merge "* | "Revert "* | "fixup! "* | "squash! "* | "amend! "*) exit 0 ;;
+esac
+
+pattern='^(feat|fix|docs|test|refactor|chore|ci|data)(\((capitol|public|metrics|privacy|data|map|guide|infra)\))?!?: [^ ].*$'
+
+if ! printf '%s' "$subject" | grep -Eq "$pattern"; then
+    printf '\n\033[31mCommit refused:\033[0m the subject must look like type(scope): subject\n'
+    printf 'Types: feat, fix, docs, test, refactor, chore, ci, data\n'
+    printf 'Scopes: capitol, public, metrics, privacy, data, map, guide, infra\n'
+    printf 'Got: %s\n' "$subject"
+    exit 1
+fi
+
+if [ "${#subject}" -gt 72 ]; then
+    printf '\n\033[31mCommit refused:\033[0m the subject is %s characters. Keep it to 72 or fewer.\n' "${#subject}"
+    exit 1
+fi
 
 exit 0

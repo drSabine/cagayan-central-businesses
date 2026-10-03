@@ -1,94 +1,122 @@
 # Cagayan Business
 
-## What this is
-
-A map-based dashboard of registered businesses for the Provincial Government of Cagayan (PGC), built for the PGC Digital Innovation Challenge. Prototype video due October 30, 2026.
+A map-based dashboard of registered businesses for the Provincial Government of Cagayan, built for the PGC Digital Innovation Challenge. Prototype video due October 30, 2026.
 Two audiences: Capitol administrators (logged in, see area sales totals and owner contacts) and the public (no login, sales as bands only, a start-a-business guide, citizen wishes).
-MVP: Tuguegarao City's 49 barangays, real boundaries and population, simulated business records labeled "Simulated data" everywhere.
+MVP: Tuguegarao City's 49 barangays. Real boundaries and population, simulated business records labeled "Simulated data".
 
-## Where the truth is
+## Stack
 
-Read the matching doc before changing anything it covers. Do not restate the docs here.
+Laravel 13 (PHP 8.3), Inertia 3, React 19 with TypeScript, Vite 8 (through vite-plus, `vp`), Tailwind CSS 4, shadcn/ui on Radix, Fortify for login, Wayfinder for typed routes, PostgreSQL 17 with PostGIS 3.5 in Docker, Pest 4. There is no separate API: controllers render React pages through Inertia.
 
-- `docs/product/mvp-scope.md`: every feature (C1 to C14, P1 to P5), the demo walkthrough, out of scope. Read before any feature work. Never edit it.
-- `docs/engineering/decisions.md`: the stack, why, open decisions O1 to O7, installed versions. Read before adding a package.
-- `docs/engineering/data-model.md`: every table, field visibility, status rules, seeder requirements. Read before any migration or seeder.
-- `docs/engineering/metrics.md`: M1 to M17, exact enough to code, plus the config keys. Read before any number on screen.
-- `docs/engineering/privacy-rules.md`: P1 to P14 and the review checklist. Read before touching controllers, pages, exports, or queries over business data.
-- `docs/engineering/repo-blueprint.md`: target folder layout and the standard for each piece.
-- `docs/team/team-rules.md`: branches, commits, pull requests, definition of done.
-- `docs/team/roadmap.md`: schedule and status of every feature. Update it when a feature is done.
-- `data/boundaries/README.md`: source, license, and limits of the barangay and town shapes.
+## Start every session like this
+
+1. Run `git branch --show-current`. If it says `main` or `staging`, create a work branch inside `staging` before changing anything: `git switch staging`, `git pull --ff-only`, `git switch -c feat/short-description` (or `bug/`, `data/`, `docs/`, `chore/`). `main` is production, `staging` is development, and work branches merge back into `staging` only. Rules: `docs/team/workflow.md`.
+2. Read the doc for the area you will touch (table below). The team has a frontend developer, a backend developer, and a data and content member (`docs/team/workflow.md`, "Roles"). The Data object is the contract between frontend and backend.
+3. Propose a short plan, then build the smallest slice that works end to end.
 
 ## Commands
 
-All of these work in PowerShell. Never add bash or PowerShell setup scripts; extend the Composer scripts instead.
+All work in PowerShell. Add new tasks as Composer scripts, never as bash or PowerShell scripts.
 
 - `composer setup`: first-time setup on a fresh clone. Safe to rerun.
 - `composer dev`: run the app at http://localhost:8000 (server, queue, Vite).
-- `composer ci:check`: the single gate before any commit. Front end format and lint, TypeScript, Pint, PHPStan, Pest.
-- `php artisan test --compact tests/Feature/PostgisTest.php`: run one test file. Use `--filter=name` for one test.
+- `composer ci:check`: everything CI runs: front end format and lint, TypeScript, Pint, PHPStan, Pest.
+- `php artisan test --compact tests/Feature/PostgisTest.php`: one file. Add `--filter="name"` for one test.
 - `composer lint`: fix PHP formatting. `npm run check:fix`: fix front end formatting and lint.
-- `composer db:up`: start the database in Docker and wait until it answers.
-- `composer db:reset`: fresh migrate, seed, and metrics refresh. Restores the demo dataset.
+- `composer db:up`: start the database. `composer db:reset`: rebuild the demo dataset.
 - `php artisan metrics:refresh`: rebuild every `stats_` summary table.
-- `composer doctor`: check this machine and the database; prints the fix for each failure.
+- `composer doctor`: check this machine and the database, with a fix for each failure.
 
-## Architecture in ten lines
+Git hooks run checks on their own: fast checks on `git commit`, the full `ci:check` and a build on `git push`. Never bypass them with `--no-verify`.
 
-1. Laravel 13 serves pages, React 19 renders them, Inertia 3 connects them. No separate API.
-2. Request goes route, then controller, then a data object, then an Inertia page under `resources/js/pages/`.
-3. Two sides kept apart: Capitol routes are named `capitol.*` and sit in one `auth` middleware group; public routes are named `public.*`.
-4. Controllers are thin. They read summary tables and build data objects. Pages receive data objects, never Eloquent models.
-5. Metrics are SQL, one file per summary table, run by `metrics:refresh`. Screens read `stats_` tables, never compute metrics in PHP loops or React.
-6. One privacy guard service decides whether any sales figure may be shown. Nothing else decides.
-7. Thresholds live in `config/cagayan.php`.
-8. PostgreSQL 17 with PostGIS 3.5 in Docker (`compose.yaml`). Geometry is SRID 4326. PHP and Node run on the laptop.
-9. Typed routes in React come from Wayfinder: import from `@/routes` or `@/actions`.
-10. New folders follow `docs/engineering/repo-blueprint.md`, section 1. Create a folder only with a real file in it.
+## How a request flows
+
+```
+route -> Form Request -> controller -> Query (read) or Action (write) -> Data object -> Inertia page -> components
+```
+
+- **Routes:** named `public.*` or `capitol.*`. Capitol routes live in one group with `auth`, `verified`, and `can:capitol`.
+- **Controllers:** thin. Call one Query or Action, render one page or redirect. No business rules, loops, or `DB::` calls.
+- **Queries** (`app/Queries/`) read `stats_` tables and return Data objects. **Actions** (`app/Actions/`) do one write each. **Services** (`app/Services/`) hold rules shared by several of them, such as the privacy guard.
+- **Data objects** (`app/Data/`): plain readonly classes with exactly the fields a page needs. Pages never get models.
+- **Pages** (`resources/js/pages/`) receive typed props and arrange the screen. Shared UI goes in `resources/js/components/`.
+
+Details and examples: `docs/engineering/architecture.md` (back end) and `docs/engineering/frontend.md` (front end).
+
+## How to write code here
+
+- **Simple first.** Write the shortest clear code that solves today's task. No layer, interface, abstraction, or option "for later".
+- **Performance by default.** Eager load with `with()` (lazy loading throws outside production), paginate lists, stream exports with `lazyById()`, aggregate in SQL, send only the props a page renders.
+- **Reuse before writing.** Search `app/Queries`, `app/Services`, `app/Data`, model scopes, `resources/js/components`, and `components/ui` first. Extract shared code on the third copy, not the first.
+- **Do not over-split.** Keep markup in the page until it repeats or the file passes about 200 lines. No one-line wrapper components, no pass-through props, no `index.ts` re-exports.
+- **Comments only when the reason is not obvious from the code.** One short line, saying why, not what. No commented-out code. PHPDoc only where PHPStan needs types (array shapes, generics).
+- **Follow sibling files** for naming and structure. Use `php artisan make:*` with `--no-interaction` to create files.
+- **Starter kit code is not the pattern.** Auth pages, settings, email verification, passkeys, and two-factor came with the template. Leave them alone unless the task is about login or account settings.
+- **No new packages** without asking. A new package needs a line in `docs/engineering/decisions.md`.
+
+## UI rules
+
+- No em dashes, en dashes, or middots anywhere in the interface.
+- Titles and headings are one name with no separators: no commas, dashes, middots, or pipes.
+- No gradients. Colors from tokens only (`bg-primary`, `bg-map-3`, `text-status-closed`), never raw hex or palette classes.
+- Every data view handles loading, empty, not available, hidden, and error. "Not available" and "hidden" are never shown as `0`.
+- Filters and tabs live in the URL. After a write, redirect and show a toast. Links use Wayfinder imports, never hard-coded URLs.
+
+Full rules: `docs/engineering/design.md`.
 
 ## Rules that are never broken
 
 - No single business's sales ever leaves the server.
 - Every sales figure comes from the privacy guard.
-- Pages get data objects, never models.
+- Pages get Data objects, never models, including shared props.
 - Admin fields only behind login, and every full record view is logged.
 - Every screen and export with business records shows the "Simulated data" label.
 - Thresholds live in `config/cagayan.php`, never as literals.
-- Metrics are defined in `docs/engineering/metrics.md` and computed in SQL. Do not change a definition without a human approving the doc change.
-- Checklist content needs an official source and a verification date supplied by a team member. Never write a requirement from memory.
+- Metrics are defined in `docs/engineering/metrics.md` and computed in SQL. A definition changes only with a human-approved doc change.
+- Checklist content needs an official source and a verification date from a team member. Never write a requirement from memory.
 - Tests run on PostGIS, never SQLite.
 - Never edit a migration that has been merged. Add a new one.
+- Docker (`compose.yaml`, `docker/`) is shared by the whole team and CI. Change it only when the task is about Docker, as its own `chore/` pull request. Per-laptop settings such as the port go in `.env`. Never run commands that delete the database (`docker compose down -v`, `docker volume rm`).
+- Never commit or push directly to `main` or `staging`. Work pull requests go into `staging`. `main` changes only by a release from `staging`. Never force push a shared branch, never skip hooks.
 - No attribution trailers or generated-by text in commits or pull requests.
 
 If a product rule, metric, or privacy rule looks wrong, or two docs disagree, stop and ask. Do not resolve it quietly.
 
-## How to work here
+## Read before you touch
 
-- Never work on `main`. Branch first: `type/short-description`, for example `feat/c3-barangay-profile`.
-- One task per session. Start from a skill:
-  - `/feature-builder C3` for a feature
-  - `/metric-builder M10` for a metric
-  - `/db-change <what>` for the schema
-  - `/checklist-content` for guide items
-  - `/commit` and `/open-pr` to finish
-  - `/demo-check` before recording or the booth
-- Run `privacy-check` (or the `privacy-reviewer` agent) before committing anything that touches business data.
-- Done means: acceptance checks met, tests including privacy cases, `composer ci:check` green, loading, empty, not available, and hidden states handled, simulated label shown, wording matches `docs/engineering/privacy-rules.md`, roadmap status updated.
-- When Claude gets something wrong twice, add the correction here or in `.claude/rules/` in the same pull request.
-- Decisions go in `docs/engineering/decisions.md`, not in chat.
-- Windows first: commands must work in PowerShell. Composer scripts are arrays of single commands with no shell operators.
+| Working on | Read first |
+| :- | :- |
+| Any feature | `docs/product/mvp-scope.md` (features C1 to C14, P1 to P5, the demo walkthrough) |
+| Routes, controllers, models, queries, services | `docs/engineering/architecture.md` |
+| Pages, components, styling, copy | `docs/engineering/frontend.md`, `docs/engineering/design.md` |
+| Migrations, models, factories, seeders | `docs/engineering/database.md` |
+| Any number on screen | `docs/engineering/metrics.md` |
+| Anything showing business data | `docs/engineering/privacy-rules.md` |
+| Tests | `docs/engineering/testing.md` |
+| Adding a package or making a decision | `docs/engineering/decisions.md` |
+| Branches, commits, pull requests | `docs/team/workflow.md` |
+| Feature status | `docs/team/roadmap.md` |
+| Boundary files | `data/boundaries/README.md` |
 
-## Out of scope for the MVP
+## Skills
 
-Do not build these. Each has a reason in `docs/product/mvp-scope.md`.
+Start each task from one:
 
-- Permit application, issuance, renewal, or expiry warnings. Permit compliance appears only as a statistic.
-- Sales of any single business on screen, for anyone.
-- Unregistered businesses.
-- Black-box forecasts. The outlook uses explainable methods tested against past years.
-- Other municipalities' data. The structure is ready; the data comes later.
-- An AI assistant or question box.
+- `/feature-builder C3`: build one feature as a tested vertical slice.
+- `/metric-builder M10`: build one metric in SQL, test first.
+- `/db-change <what>`: change the schema with its model, factory, seeder, and doc.
+- `/checklist-content <item>`: add a start-a-business guide item from an official source.
+- `/commit`: run the checks, review the diff, commit, and print the pull request description.
+- `/open-pr`: push and open the pull request into `staging`.
+- `/privacy-check` or the `privacy-reviewer` agent: before committing anything that touches business data.
+- `/design-check`: before committing a UI change.
+- `/demo-check`: before recording or the booth.
+
+## Done means
+
+Acceptance checks met. Tests pass, including privacy cases. `composer ci:check` green. Loading, empty, not available, hidden, and error states handled. Simulated label shown. Wording follows `design.md` and `privacy-rules.md`. Roadmap status updated. When Claude gets something wrong twice, add the correction here or in `.claude/rules/` in the same pull request.
+
+Where the Laravel Boost guidelines below disagree with this file, this file wins.
 
 ===
 

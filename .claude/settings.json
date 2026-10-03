@@ -9,6 +9,8 @@
       "Bash(composer ci:check)",
       "Bash(composer test)",
       "Bash(composer lint)",
+      "Bash(composer lint:check)",
+      "Bash(composer types:check)",
       "Bash(composer run *)",
       "Bash(php artisan test)",
       "Bash(php artisan test *)",
@@ -26,13 +28,35 @@
       "Bash(git diff)",
       "Bash(git diff *)",
       "Bash(git log *)",
-      "Bash(git branch *)"
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(git fetch *)",
+      "Bash(git switch -c *)"
     ],
     "deny": [
+      "Bash(docker compose down -v*)",
+      "Bash(docker compose down --volumes*)",
+      "Bash(docker volume rm *)",
+      "Bash(docker system prune*)",
       "Read(./.env.production)",
       "Read(./.env.staging)",
       "Bash(git push --force *)",
-      "Bash(git push -f *)"
+      "Bash(git push -f *)",
+      "Bash(git push * --force)",
+      "Bash(git push * -f)",
+      "Bash(git push origin main*)",
+      "Bash(git push origin HEAD:main*)",
+      "Bash(git push origin staging*)",
+      "Bash(git push origin HEAD:staging*)",
+      "Bash(git commit --no-verify*)",
+      "Bash(git commit -n *)",
+      "Bash(git commit * --no-verify*)",
+      "Bash(git commit * -n *)",
+      "Bash(git push --no-verify*)",
+      "Bash(git push * --no-verify*)",
+      "Bash(git -c core.hooksPath*)",
+      "Bash(git config core.hooksPath *)",
+      "Bash(git config --unset core.hooksPath*)"
     ]
   }
 }

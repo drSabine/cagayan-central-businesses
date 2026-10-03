@@ -1,36 +1,40 @@
-# Code owners for Cagayan Business. Areas come from docs/team/team-rules.md.
+# Code owners for Cagayan Business. Roles come from docs/team/workflow.md, "Roles".
 #
 # TODO: the team members were not known at kickoff. Every area points to the
-# repository owner for now. Replace each @drSabine with the owner's GitHub
-# username, and fill in the names in docs/team/team-rules.md at the same time.
+# repository owner for now. Replace each @drSabine with the role owner's GitHub
+# username, and fill in the names in docs/team/workflow.md at the same time.
 #
-#   Map and front end ........................ @drSabine
-#   Back end, database, and metrics .......... @drSabine
+#   Frontend developer ....................... @drSabine
+#   Backend developer ........................ @drSabine
 #   Data and content ......................... @drSabine
+#   Repository owner (.github) ............... @drSabine
 #
 # Later lines win over earlier ones.
 
-# Default: back end owner.
+# Default: backend developer.
 *                                   @drSabine
 
-# 1. Map and front end
+# Frontend developer
 /resources/js/                      @drSabine
 /resources/css/                     @drSabine
 
-# 2. Back end, database, and metrics
+# Backend developer
 /app/                               @drSabine
 /routes/                            @drSabine
 /database/                          @drSabine
 /config/                            @drSabine
-/.github/                           @drSabine
 /compose.yaml                       @drSabine
+/docker/                            @drSabine
 
-# 3. Data and content
+# Repository owner
+/.github/                           @drSabine
+
+# Data and content
 /data/                              @drSabine
 /database/seeders/                  @drSabine
 /resources/content/                 @drSabine
 
-# Two reviewers. A mistake here reaches every screen (team-rules.md).
+# Two reviewers. A mistake here reaches every screen (docs/team/workflow.md).
 # List two owners on each line. CODEOWNERS asks both for review; the team rule
 # is that both approve before merging.
 /docs/engineering/metrics.md        @drSabine

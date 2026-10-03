@@ -18,12 +18,12 @@ A diff, a branch name, or a list of changed files. If you were given only file n
 
 ## Method
 
-1. Read `docs/engineering/privacy-rules.md` in full. It is the standard. Read `docs/engineering/data-model.md`, "Visibility classes" and the `businesses` and `business_years` tables, to know which field is public, admin, or never displayed.
+1. Read `docs/engineering/privacy-rules.md` in full. It is the standard. Read `docs/engineering/database.md`, "Visibility classes" and the `businesses` and `business_years` tables, to know which field is public, admin, or never displayed.
 2. Apply every rule, P1 to P14, to the changed code, one rule at a time. For each rule, decide: holds, broken, or does not apply.
 3. Look specifically for:
    - an Eloquent model, collection of models, or `toArray()` / `toJson()` of a model reaching `Inertia::render`, `inertia()`, `Inertia::share`, or the shared props in `app/Http/Middleware/HandleInertiaRequests.php` (P10)
    - any read of `declared_gross_sales` outside `database/sql/metrics/` (P1)
-   - a sales figure not produced by the privacy guard in `app/Services/Privacy/`, or a sales number in a public data object, public JSON, CSV, or PDF (P2 to P7, P11)
+   - a sales figure not produced by the privacy guard in `app/Services/Privacy/` (Queries in `app/Queries/` must call it), or a sales number in a public data object, public JSON, CSV, or PDF (P2 to P7, P11)
    - a filter, breakdown, or derived value (per business, share, change, rank, concentration, outlook) that can show a figure the guard would hide, or reveal a hidden cell by subtraction (P4 to P6)
    - admin fields (owner name, contact number, ownership type, size category, employee count) in a public route, public data object, or public page (P8)
    - a full business record shown without writing a `record_view_logs` row first, or a list view that writes one (P9)
