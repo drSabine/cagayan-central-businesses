@@ -1,0 +1,18 @@
+* text=auto eol=lf
+
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+CHANGELOG.md export-ignore
+README.md export-ignore
+.github/workflows/browser-tests.yml export-ignore
+
+# Hooks and shell scripts must keep LF endings, or Git for Windows cannot run them.
+.githooks/* text eol=lf
+*.sh text eol=lf
+
+# Boundary files are data. Never rewrite their line endings or diff them line by line.
+*.geojson -diff
