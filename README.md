@@ -54,7 +54,7 @@ app/                    PHP: controllers, queries, actions, services, data objec
 config/cagayan.php      Every product threshold
 database/               Migrations, factories, seeders, metric SQL
 data/boundaries/        Barangay and town shapes, with their sources
-compose.yaml, docker/   The database setup. Locked: only the repository owner changes it
+compose.yaml, docker/   The database setup, shared by the whole team and CI
 resources/js/           React: pages, layouts, components, hooks
 resources/css/app.css   Tailwind and the design tokens
 routes/                 URLs, split into public and capitol

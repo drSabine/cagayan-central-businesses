@@ -38,7 +38,7 @@ In Claude Code, /commit prints this template filled in, and /open-pr uses it.
 
 - **Database:** <!-- none / new migration / seeder changed (run composer db:reset) -->
 - **Dependencies:** <!-- none / added or upgraded <package> (why, decisions.md line) -->
-- **Config and env:** <!-- none / new key in config/cagayan.php or .env.example -->
+- **Config, env, and Docker:** <!-- none / new key in config/cagayan.php or .env.example / compose.yaml or docker/ changed -->
 - **.gitignore and public files:** <!-- none / what changed and why -->
 - **Business data and privacy:** <!-- none / yes, see the privacy checklist -->
 - **Breaks or changes for teammates:** <!-- none / what they must change -->

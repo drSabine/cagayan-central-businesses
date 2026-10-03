@@ -37,6 +37,7 @@ Go through each item. Report what you find before committing.
 | Secrets and private data | File names and added lines | Never stage `.env` or `.env.*` (except `.env.example`), keys, tokens, passwords, database dumps, or real business records. A new env key goes in `.env.example` with a safe default. |
 | Generated files | `git status` | `resources/js/routes/`, `resources/js/actions/`, `resources/js/wayfinder/`, `vendor/`, `node_modules/` are never committed. |
 | Debugging leftovers | Added lines | `dd(`, `dump(`, `ray(`, `var_dump(`, `console.log(`. Remove them. |
+| Docker files changed | `git diff HEAD -- compose.yaml docker/` | The whole team and CI use them. Commit only if the task is about Docker, as its own commit. Check the image tag matches `.github/workflows/ci.yml`. Put "run `composer db:up`" in the pull request's "After merging" line. |
 | Edited migration | `git log origin/staging -- database/migrations/<file>` | A merged migration is never edited. Move the change to a new migration. |
 | Docs that should change too | The diff | Schema: `docs/engineering/database.md`. New package or decision: `decisions.md`. Finished feature: `docs/team/roadmap.md`. |
 | UI text and visuals | Changed `.tsx` | No em dashes, middots, or separators in titles. No gradients or raw colors. If unsure, run `/design-check`. |

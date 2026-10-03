@@ -46,7 +46,7 @@ With WAMP, the command line reads `php.ini` and the web server reads `phpForApac
 
 Open Docker Desktop from the Start menu and wait until it says "Engine running". It must be running whenever you work on this project. It runs only the database.
 
-You only start and stop Docker. Never change `compose.yaml` or anything in `docker/`: they are locked to the repository owner, and the hooks and CI refuse changes. Every database setting you may need to change (port, password) lives in your own `.env`.
+The whole team shares this Docker setup, so you only start and stop it (`composer db:up`, `docker compose stop`). Any setting that differs on your laptop, such as the port, goes in your own `.env`, not in `compose.yaml`. See `docs/team/workflow.md`, "The shared database".
 
 **Check:** `docker info` prints details instead of an error.
 
@@ -146,7 +146,7 @@ FORWARD_DB_PORT=5433
 
 **`could not find driver`.** The extensions are on for the web server but not the command line. Redo step 3 with the file `php --ini` shows.
 
-**Something about Docker looks wrong.** Do not edit `compose.yaml` or `docker/`. Run `composer doctor`, then send its output to the repository owner.
+**Something about Docker looks wrong.** Run `composer doctor` and send its output to the backend developer. Fix laptop-only problems in your `.env`, not in `compose.yaml`.
 
 **Docker is not running.** You see `failed to connect to the docker API` or `Cannot connect to the database`. Start Docker Desktop, wait for "Engine running", then `composer db:up`.
 

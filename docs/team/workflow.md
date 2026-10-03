@@ -12,7 +12,7 @@ Every member has one role. The role owner decides on their area and reviews chan
 | Backend developer | ________ | ________ |
 | Data and content | ________ | ________ |
 
-One of the three is also the **repository owner**: GitHub settings, branch protection, releases into `main`, and the Docker files. The Docker files are locked to the owner: the pre-commit hook, CI, and Claude Code all refuse changes to `compose.yaml` and `docker/` from anyone else. The owner commits a Docker change with `git commit --no-verify` after checking it on every laptop.
+One of the three is also the **repository owner**: GitHub settings, branch protection, and releases into `main`.
 
 ### Frontend developer
 
@@ -22,7 +22,7 @@ One of the three is also the **repository owner**: GitHub settings, branch prote
 
 ### Backend developer
 
-- **Owns:** `app/` (controllers, Queries, Actions, Services, Data objects, models), `routes/`, `database/migrations/`, `database/sql/metrics/`, `config/`, the privacy guard, login, exports, CI and deploy.
+- **Owns:** `app/` (controllers, Queries, Actions, Services, Data objects, models), `routes/`, `database/migrations/`, `database/sql/metrics/`, `config/`, the Docker setup (`compose.yaml`, `docker/`), the privacy guard, login, exports, CI and deploy.
 - **Reads first:** `docs/engineering/architecture.md`, `database.md`, `metrics.md`, `privacy-rules.md`.
 - **Uses:** `/db-change`, `/metric-builder`, `/feature-builder` for the server part of a feature, `/privacy-check`.
 
@@ -192,12 +192,22 @@ If a hook fails, fix the cause: `composer lint` for PHP formatting, `npm run che
 - Friday: run `/demo-check`, look at the roadmap, cut scope if needed.
 - A blocker lasting more than half a day goes to the group chat right away.
 
+## The shared database
+
+The database runs in Docker from `compose.yaml`, the same way on every laptop, and CI uses the same image. Everyone needs it working, so:
+
+- **Daily work never touches it.** Start it with `composer db:up`, stop it with `docker compose stop`.
+- **Settings that differ per laptop go in your `.env`:** `DB_PORT` and `FORWARD_DB_PORT` for a port clash, `DB_PASSWORD`. `compose.yaml` reads them from there.
+- **A real change** (a new image version, a new init script) is its own `chore/` pull request, reviewed by the backend developer, with the CI image kept in sync. The pre-commit hook reminds you. The description says what teammates run after merging, usually `composer db:up`.
+- **Something broken?** Run `composer doctor` first, then tell the backend developer.
+- **Never** `docker compose down -v`, `docker volume rm`, or `docker system prune`. They delete your local database.
+
 ## Not allowed
 
 - Committing or pushing directly to `main` or `staging`, or force pushing a shared branch.
 - Opening a work pull request into `main`. Work goes into `staging`, and `main` changes only by release.
 - Skipping hooks with `--no-verify`.
-- Changing the Docker files (`compose.yaml`, `docker/`). Only the repository owner changes them. A database problem on your laptop is fixed in your own `.env` or with `composer doctor`. If the setup itself is wrong, tell the owner.
+- Changing Docker (`compose.yaml`, `docker/`) inside a feature branch. See "The shared database" above.
 - Editing a migration that has been merged.
 - Committing `.env` files, database dumps, or real business records.
 - Adding a package without a line in `decisions.md` and the owner's approval.
