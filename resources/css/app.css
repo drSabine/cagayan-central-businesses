@@ -13,9 +13,19 @@
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
+    /* Motion is short and quiet (design.md, "Shape and spacing"). */
+    --default-transition-duration: 150ms;
+
+    /* Width of the icon rail on laptops (design.md, "App shell"). */
+    --spacing-rail: 4rem;
+
+    /* Square corners everywhere (design.md, "Shape and spacing"). rounded-full is untouched. */
+    --radius-xs: var(--radius);
+    --radius-sm: var(--radius);
+    --radius-md: var(--radius);
     --radius-lg: var(--radius);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
+    --radius-xl: var(--radius);
+    --radius-2xl: var(--radius);
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -58,6 +68,8 @@
     --color-map-5: var(--map-5);
     --color-map-none: var(--map-none);
 
+    --color-highlight: var(--highlight);
+
     --color-status-new: var(--status-new);
     --color-status-renewed: var(--status-renewed);
     --color-status-not-renewed: var(--status-not-renewed);
@@ -74,25 +86,25 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
+    --background: oklch(0.94 0.008 80);
+    --foreground: oklch(0.22 0.005 70);
+    --card: oklch(0.975 0.006 85);
+    --card-foreground: oklch(0.22 0.005 70);
+    --popover: oklch(0.975 0.006 85);
+    --popover-foreground: oklch(0.22 0.005 70);
+    --primary: oklch(0.22 0.005 70);
+    --primary-foreground: oklch(0.975 0.006 85);
+    --secondary: oklch(0.92 0.008 80);
+    --secondary-foreground: oklch(0.22 0.005 70);
+    --muted: oklch(0.92 0.008 80);
+    --muted-foreground: oklch(0.48 0.01 70);
+    --accent: oklch(0.92 0.008 80);
+    --accent-foreground: oklch(0.22 0.005 70);
     --destructive: oklch(0.577 0.245 27.325);
     --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
+    --border: oklch(0.3 0.005 70);
+    --input: oklch(0.3 0.005 70);
+    --ring: oklch(0.22 0.005 70);
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
@@ -104,42 +116,44 @@
     --map-3: oklch(0.72 0.11 236);
     --map-4: oklch(0.58 0.13 242);
     --map-5: oklch(0.45 0.13 248);
-    --map-none: oklch(0.92 0 0);
+    --map-none: oklch(0.9 0.008 80);
+    /* Labels only, never data or buttons. Dark enough for AA text on --card. */
+    --highlight: oklch(0.5 0.16 40);
     --status-new: oklch(0.6 0.15 150);
     --status-renewed: oklch(0.55 0.14 250);
     --status-not-renewed: oklch(0.72 0.15 70);
     --status-closed: oklch(0.55 0.02 260);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
+    --radius: 0;
+    --sidebar: oklch(0.975 0.006 85);
+    --sidebar-foreground: oklch(0.22 0.005 70);
+    --sidebar-primary: oklch(0.22 0.005 70);
+    --sidebar-primary-foreground: oklch(0.975 0.006 85);
+    --sidebar-accent: oklch(0.92 0.008 80);
+    --sidebar-accent-foreground: oklch(0.22 0.005 70);
+    --sidebar-border: oklch(0.3 0.005 70);
+    --sidebar-ring: oklch(0.22 0.005 70);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    --background: oklch(0.17 0.004 70);
+    --foreground: oklch(0.95 0.006 85);
+    --card: oklch(0.21 0.004 70);
+    --card-foreground: oklch(0.95 0.006 85);
+    --popover: oklch(0.21 0.004 70);
+    --popover-foreground: oklch(0.95 0.006 85);
+    --primary: oklch(0.95 0.006 85);
+    --primary-foreground: oklch(0.21 0.004 70);
+    --secondary: oklch(0.27 0.005 70);
+    --secondary-foreground: oklch(0.95 0.006 85);
+    --muted: oklch(0.27 0.005 70);
+    --muted-foreground: oklch(0.72 0.008 75);
+    --accent: oklch(0.27 0.005 70);
+    --accent-foreground: oklch(0.95 0.006 85);
     --destructive: oklch(0.396 0.141 25.723);
     --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
+    --border: oklch(0.5 0.005 70);
+    --input: oklch(0.5 0.005 70);
+    --ring: oklch(0.95 0.006 85);
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
@@ -150,19 +164,64 @@
     --map-3: oklch(0.55 0.11 236);
     --map-4: oklch(0.68 0.12 232);
     --map-5: oklch(0.8 0.11 228);
-    --map-none: oklch(0.26 0 0);
+    --map-none: oklch(0.26 0.004 70);
+    --highlight: oklch(0.76 0.13 50);
     --status-new: oklch(0.7 0.15 150);
     --status-renewed: oklch(0.68 0.13 250);
     --status-not-renewed: oklch(0.78 0.14 70);
     --status-closed: oklch(0.65 0.02 260);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --sidebar: oklch(0.21 0.004 70);
+    --sidebar-foreground: oklch(0.95 0.006 85);
+    --sidebar-primary: oklch(0.95 0.006 85);
+    --sidebar-primary-foreground: oklch(0.21 0.004 70);
+    --sidebar-accent: oklch(0.27 0.005 70);
+    --sidebar-accent-foreground: oklch(0.95 0.006 85);
+    --sidebar-border: oklch(0.5 0.005 70);
+    --sidebar-ring: oklch(0.95 0.006 85);
+}
+
+/*
+ * Type roles from design.md, "Type". Pages use these instead of raw size and
+ * weight classes. Named type-* so tailwind-merge never mistakes them for text colors.
+ */
+@utility type-title {
+    @apply text-2xl font-semibold tracking-tight text-balance lg:text-3xl;
+}
+
+@utility type-subtitle {
+    @apply text-base text-pretty text-muted-foreground;
+}
+
+@utility type-label {
+    @apply text-sm font-medium text-highlight;
+}
+
+@utility type-figure {
+    @apply text-3xl font-normal tabular-nums;
+}
+
+@utility type-panel-title {
+    @apply text-lg font-normal;
+}
+
+@utility type-lead {
+    @apply text-base text-pretty;
+}
+
+@utility type-item {
+    @apply text-base font-medium;
+}
+
+@utility type-body {
+    @apply text-sm text-pretty;
+}
+
+@utility type-meta {
+    @apply text-sm text-muted-foreground;
+}
+
+@utility type-pin {
+    @apply text-xs font-medium;
 }
 
 @layer base {

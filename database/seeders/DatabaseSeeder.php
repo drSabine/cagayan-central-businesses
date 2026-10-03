@@ -13,12 +13,18 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * For now this only creates the demo administrator. The simulated
+     * Towns, business types, and demo wishes so far. The simulated
      * business data comes with roadmap F3 (database.md, "Seeder
      * requirements"), and the capitol_admin role with F1.
      */
     public function run(): void
     {
+        $this->call([
+            MunicipalitySeeder::class,
+            BusinessTypeSeeder::class,
+            WishSeeder::class,
+        ]);
+
         $this->seedDemoAdmin();
     }
 

@@ -91,11 +91,14 @@ CSV and PDF are built from the same guarded data objects as the screens.
 
 ### P12. Wishes collect no identity
 
-No name, no contact, no account. The network address is never stored. Only a one-way daily hash is kept, to block repeats.
+No name, no contact, no account. The network address is never stored. A browser is recognized only by a random token in an encrypted, http-only cookie, and the database keeps only the token's SHA-256 hash (decisions.md, D21). The cookie is set on the first wish, never on a visit.
 
-- The free-text reason is shown to administrators only, because a resident may type something personal. The public sees counts.
-- The wish form is rate limited.
-- Test: the wishes table has no column that could hold an address or a name, and a repeat submission on the same day is rejected.
+- **Cooldown:** one new wish per browser every `wishes.cooldown_days` (3) days.
+- **Edits:** up to `wishes.edits_per_window` (3) edits per browser in any rolling `wishes.edit_window_days` (7) days. Only the browser that made a wish may edit it. Anyone else gets a 404.
+- **Rate limit:** `wishes.per_hour_per_ip` submissions and edits per network address per hour. The address lives only in the rate-limit cache. This still holds when someone clears cookies.
+- A hidden honeypot field rejects simple bots.
+- The free-text reason is shown to administrators only, because a resident may type something personal. The public sees counts. The browser that wrote a reason gets it back so it can edit it. No other browser does.
+- Test: the wishes table has no column that could hold an address or a name. A second wish within the cooldown is rejected. An edit past the limit is rejected. Another browser cannot edit. Another browser's reason never appears in a response.
 
 ### P13. The simulated label is always present
 

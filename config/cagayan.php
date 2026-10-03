@@ -97,6 +97,60 @@ return [
     ],
 
     /*
+    | Dates written into messages, such as a wish cooldown, use residents'
+    | local time. The database stores UTC.
+    */
+    'display_timezone' => 'Asia/Manila',
+
+    'admin' => [
+
+        /*
+        | D20. The login page lives at this path and nowhere else. It is never
+        | linked from a public page. Set a long random value in .env on any
+        | machine others can reach.
+        */
+        'login_path' => env('CAGAYAN_ADMIN_LOGIN_PATH', 'staff-sign-in'),
+
+        /*
+        | Login attempts allowed per email and network address per minute, and
+        | per network address per hour.
+        */
+        'login_per_minute' => 5,
+
+        'login_per_hour_per_ip' => 20,
+
+    ],
+
+    'wishes' => [
+
+        /*
+        | D21 and P12. Days a browser waits between two new wishes.
+        */
+        'cooldown_days' => 3,
+
+        /*
+        | Edits a browser may make within the rolling edit window.
+        */
+        'edits_per_window' => 3,
+
+        'edit_window_days' => 7,
+
+        /*
+        | Wish submissions and edits per network address per hour. The address
+        | is held in the cache only, never written to a table.
+        */
+        'per_hour_per_ip' => 10,
+
+        /*
+        | Lifetime of the anonymous submitter cookie.
+        */
+        'cookie_days' => 30,
+
+        'reason_max' => 280,
+
+    ],
+
+    /*
     | The administrator the seeder creates for the demo. The password comes
     | from .env and is never written in code (database.md, seeder item 11).
     */

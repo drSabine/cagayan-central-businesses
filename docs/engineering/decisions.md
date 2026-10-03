@@ -106,6 +106,21 @@ What the team decided and why. Change a decision only through a pull request tha
 
 **Why:** every laptop and CI depend on the same setup, so a change must be deliberate and announced. Locking it would block the team from fixing it when needed.
 
+## D20. Discreet admin login
+
+**Decided October 3, 2026.** The login page lives only at the path in `CAGAYAN_ADMIN_LOGIN_PATH` (`config('cagayan.admin.login_path')`). No public page links to it. `/login` does not exist, and guests who open any login-only page get a plain 404 instead of a redirect that would reveal the path. The login responses carry `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer`, and the path is not listed in `robots.txt`. Login is limited per email and address per minute and per address per hour. Production refuses to boot with the example path.
+
+- Fortify's own routes are off (`Fortify::ignoreRoutes()`). `routes/web.php` registers Fortify's controller at the secret path for GET and POST, named `capitol.login` and `capitol.login.store`, plus `logout`.
+- The login form posts to the URL it was served from, not a Wayfinder import, and the route names sit outside the `@/routes` index, so the path never reaches the public JavaScript bundle. `LoginPathOutOfBundleTest` checks the build.
+
+**Why:** the people who need the login are a handful of Capitol staff, so there is no reason to advertise it. A hidden path is one layer, not the protection. The protection is the server-side auth check, the rate limits, strong passwords, and HTTPS.
+
+## D21. Wishes recognize a browser, not a person
+
+**Decided October 3, 2026.** Replaces the daily hash in privacy-rules.md, P12. One new wish per browser every 3 days, and up to 3 edits in any 7 days. A browser is recognized by a random token in an encrypted, http-only cookie, stored only as a SHA-256 hash. The network address is used only for an hourly rate limit held in the cache.
+
+**Why:** a cooldown and weekly edits need to recognize the same submitter for a week, which a daily hash cannot do. Keying on the network address would put everyone behind one mobile carrier address, or the booth wifi, under one cooldown. Clearing cookies gets around the cooldown, but the hourly limit still holds, and wishes are counted as interest, not as proof of demand.
+
 ## Open decisions
 
 Each has a default so work is not blocked.
