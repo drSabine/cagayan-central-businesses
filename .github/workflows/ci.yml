@@ -1,0 +1,171 @@
+# CI for Cagayan Business.
+#
+# Built from the starter kit's tests.yml, keeping its pinned action versions.
+# actions/cache was added for the Composer cache; its pin was read from the
+# actions/cache repository tags on October 3, 2026.
+#
+# deploy.yml calls this workflow too, so a tag is deployed only after the
+# same checks pass on that commit.
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_call:
+    inputs:
+      ref:
+        description: The git ref to check. Empty means the commit that triggered the run.
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}-${{ inputs.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_DB: cagayan_business
+          POSTGRES_USER: cagayan
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cagayan -d cagayan_business"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: cagayan
+      PGPASSWORD: secret
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      - name: Create the test database with PostGIS
+        # Locally, docker/db/init/ does this. A service container cannot mount
+        # that file, so CI creates the second database here.
+        run: |
+          psql -d cagayan_business -v ON_ERROR_STOP=1 -c "CREATE DATABASE cagayan_business_test"
+          psql -d cagayan_business_test -v ON_ERROR_STOP=1 -c "CREATE EXTENSION IF NOT EXISTS postgis"
+          psql -d cagayan_business_test -tAc "SELECT PostGIS_Version()"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, pgsql
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Get the Composer cache folder
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install PHP packages
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Create .env and app key
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Migrate
+        run: php artisan migrate --force
+
+      - name: Install Node packages
+        run: npm ci
+
+      - name: Build assets
+        # Also generates the Wayfinder route files that the TypeScript check reads.
+        run: npm run build
+
+      - name: Run CI checks
+        run: composer ci:check
+
+  conventions:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull request title is a Conventional Commit line
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(feat|fix|docs|test|refactor|chore|ci|data)(\((capitol|public|metrics|privacy|data|map|guide|infra)\))?!?: [^ ].*$'
+          if ! printf '%s' "$TITLE" | grep -Eq "$pattern"; then
+            echo "::error::The pull request title must look like 'type(scope): subject'."
+            echo "Types: feat, fix, docs, test, refactor, chore, ci, data."
+            echo "Scopes: capitol, public, metrics, privacy, data, map, guide, infra."
+            echo "Got: $TITLE"
+            exit 1
+          fi
+          if [ "${#TITLE}" -gt 72 ]; then
+            echo "::error::The pull request title is ${#TITLE} characters. Keep it to 72 or fewer."
+            exit 1
+          fi
+          echo "Title ok: $TITLE"
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: No generated attribution in commit messages
+        # Same patterns as .githooks/commit-msg, which strips these locally.
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          ai_names='claude|anthropic|openai|chatgpt|gpt-[0-9]|copilot|gemini|cursor|codex|devin|aider|windsurf|codeium|tabnine|amazon q|bard'
+          found=0
+          for sha in $(git rev-list "$BASE_SHA..$HEAD_SHA"); do
+            if git log -1 --format=%B "$sha" | grep -i -E \
+                -e "^co-authored-by:.*($ai_names)" \
+                -e '^co-authored-by:.*noreply@(anthropic|openai)\.com' \
+                -e 'generated (with|by) .*(\[|\(|https?://|claude|copilot|chatgpt|cursor|codex|gemini|ai\b)' \
+                -e '^[a-z-]*session[a-z-]*: *https?://' \
+                -e 'https?://(www\.)?claude\.ai/(code/)?session' \
+                -e 'https?://chatgpt\.com/'; then
+              echo "::error::Commit $sha contains generated attribution (lines above)."
+              found=1
+            fi
+          done
+          if [ "$found" -ne 0 ]; then
+            echo "Remove the lines with an interactive rebase or by recommitting, then push again."
+            exit 1
+          fi
+          echo "No generated attribution found."
