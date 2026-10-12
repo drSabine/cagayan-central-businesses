@@ -8,9 +8,13 @@ export type SelectOption = {
 export type HomeOverview = {
     townCount: number;
     connectedTownCount: number;
+    connectedTownCodes: string[];
+    businessTypeCount: number;
+    wishCount: number;
     firstYear: number;
     latestYear: number;
     yearCount: number;
+    smallGroupMin: number;
 };
 
 export type WishTally = {

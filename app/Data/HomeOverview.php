@@ -4,11 +4,18 @@ namespace App\Data;
 
 final readonly class HomeOverview
 {
+    /**
+     * @param  list<string>  $connectedTownCodes
+     */
     public function __construct(
         public int $townCount,
         public int $connectedTownCount,
+        public array $connectedTownCodes,
+        public int $businessTypeCount,
+        public int $wishCount,
         public int $firstYear,
         public int $latestYear,
         public int $yearCount,
+        public int $smallGroupMin,
     ) {}
 }

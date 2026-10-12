@@ -13,19 +13,37 @@
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
-    /* Motion is short and quiet (design.md, "Shape and spacing"). */
-    --default-transition-duration: 150ms;
+    /* The formal voice: display headlines and page titles only (design.md, "Type"). */
+    --font-serif: 'Source Serif 4', ui-serif, Georgia, serif;
 
-    /* Width of the icon rail on laptops (design.md, "App shell"). */
-    --spacing-rail: 4rem;
+    --default-transition-duration: 200ms;
+    --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 
-    /* Square corners everywhere (design.md, "Shape and spacing"). rounded-full is untouched. */
-    --radius-xs: var(--radius);
-    --radius-sm: var(--radius);
-    --radius-md: var(--radius);
+    --animate-rise: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    --animate-fade: fade 0.8s ease-out both;
+
+    @keyframes rise {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+    }
+
+    @keyframes fade {
+        from {
+            opacity: 0;
+        }
+    }
+
+    /* Comfortable line length for running text and definition lists (max-w-measure). */
+    --container-measure: 44rem;
+
+    --radius-xs: calc(var(--radius) - 6px);
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
-    --radius-xl: var(--radius);
-    --radius-2xl: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    --radius-2xl: calc(var(--radius) + 10px);
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -35,6 +53,9 @@
 
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
+
+    --color-brand: var(--brand);
+    --color-brand-foreground: var(--brand-foreground);
 
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
@@ -85,26 +106,33 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/*
+ * River ink for actions and the hero, brass for small markers only, and a calm
+ * neutral scale for everything else (design.md, "Color").
+ */
 :root {
-    --background: oklch(0.94 0.008 80);
-    --foreground: oklch(0.22 0.005 70);
-    --card: oklch(0.975 0.006 85);
-    --card-foreground: oklch(0.22 0.005 70);
-    --popover: oklch(0.975 0.006 85);
-    --popover-foreground: oklch(0.22 0.005 70);
-    --primary: oklch(0.22 0.005 70);
-    --primary-foreground: oklch(0.975 0.006 85);
-    --secondary: oklch(0.92 0.008 80);
-    --secondary-foreground: oklch(0.22 0.005 70);
-    --muted: oklch(0.92 0.008 80);
-    --muted-foreground: oklch(0.48 0.01 70);
-    --accent: oklch(0.92 0.008 80);
-    --accent-foreground: oklch(0.22 0.005 70);
+    --background: oklch(0.985 0.003 90);
+    --foreground: oklch(0.23 0.02 250);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.23 0.02 250);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.23 0.02 250);
+    /* The river ink surface for the hero, the login panel, and the logo. Stays dark in both modes. */
+    --brand: oklch(0.36 0.07 245);
+    --brand-foreground: oklch(0.985 0.003 90);
+    --primary: oklch(0.36 0.07 245);
+    --primary-foreground: oklch(0.985 0.003 90);
+    --secondary: oklch(0.955 0.006 90);
+    --secondary-foreground: oklch(0.23 0.02 250);
+    --muted: oklch(0.955 0.006 90);
+    --muted-foreground: oklch(0.5 0.015 250);
+    --accent: oklch(0.95 0.01 245);
+    --accent-foreground: oklch(0.23 0.02 250);
     --destructive: oklch(0.577 0.245 27.325);
     --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.3 0.005 70);
-    --input: oklch(0.3 0.005 70);
-    --ring: oklch(0.22 0.005 70);
+    --border: oklch(0.9 0.008 250);
+    --input: oklch(0.87 0.01 250);
+    --ring: oklch(0.36 0.07 245);
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
@@ -116,44 +144,47 @@
     --map-3: oklch(0.72 0.11 236);
     --map-4: oklch(0.58 0.13 242);
     --map-5: oklch(0.45 0.13 248);
-    --map-none: oklch(0.9 0.008 80);
-    /* Labels only, never data or buttons. Dark enough for AA text on --card. */
-    --highlight: oklch(0.5 0.16 40);
+    --map-none: oklch(0.93 0.006 250);
+    /* Markers only: eyebrow rules, the current nav item, a chosen or connected town. */
+    --highlight: oklch(0.7 0.12 78);
     --status-new: oklch(0.6 0.15 150);
     --status-renewed: oklch(0.55 0.14 250);
     --status-not-renewed: oklch(0.72 0.15 70);
     --status-closed: oklch(0.55 0.02 260);
-    --radius: 0;
-    --sidebar: oklch(0.975 0.006 85);
-    --sidebar-foreground: oklch(0.22 0.005 70);
-    --sidebar-primary: oklch(0.22 0.005 70);
-    --sidebar-primary-foreground: oklch(0.975 0.006 85);
-    --sidebar-accent: oklch(0.92 0.008 80);
-    --sidebar-accent-foreground: oklch(0.22 0.005 70);
-    --sidebar-border: oklch(0.3 0.005 70);
-    --sidebar-ring: oklch(0.22 0.005 70);
+    --radius: 0.625rem;
+    /* shadcn Sidebar follows the base surfaces in both modes. */
+    --sidebar: var(--card);
+    --sidebar-foreground: var(--card-foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
 }
 
 .dark {
-    --background: oklch(0.17 0.004 70);
-    --foreground: oklch(0.95 0.006 85);
-    --card: oklch(0.21 0.004 70);
-    --card-foreground: oklch(0.95 0.006 85);
-    --popover: oklch(0.21 0.004 70);
-    --popover-foreground: oklch(0.95 0.006 85);
-    --primary: oklch(0.95 0.006 85);
-    --primary-foreground: oklch(0.21 0.004 70);
-    --secondary: oklch(0.27 0.005 70);
-    --secondary-foreground: oklch(0.95 0.006 85);
-    --muted: oklch(0.27 0.005 70);
-    --muted-foreground: oklch(0.72 0.008 75);
-    --accent: oklch(0.27 0.005 70);
-    --accent-foreground: oklch(0.95 0.006 85);
+    --background: oklch(0.17 0.015 250);
+    --foreground: oklch(0.95 0.005 90);
+    --card: oklch(0.21 0.017 250);
+    --card-foreground: oklch(0.95 0.005 90);
+    --popover: oklch(0.23 0.017 250);
+    --popover-foreground: oklch(0.95 0.005 90);
+    --brand: oklch(0.27 0.05 245);
+    --brand-foreground: oklch(0.95 0.005 90);
+    --primary: oklch(0.8 0.07 235);
+    --primary-foreground: oklch(0.19 0.02 250);
+    --secondary: oklch(0.25 0.015 250);
+    --secondary-foreground: oklch(0.95 0.005 90);
+    --muted: oklch(0.25 0.015 250);
+    --muted-foreground: oklch(0.72 0.01 250);
+    --accent: oklch(0.27 0.02 250);
+    --accent-foreground: oklch(0.95 0.005 90);
     --destructive: oklch(0.396 0.141 25.723);
     --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.5 0.005 70);
-    --input: oklch(0.5 0.005 70);
-    --ring: oklch(0.95 0.006 85);
+    --border: oklch(0.3 0.015 250);
+    --input: oklch(0.36 0.015 250);
+    --ring: oklch(0.8 0.07 235);
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
@@ -164,44 +195,49 @@
     --map-3: oklch(0.55 0.11 236);
     --map-4: oklch(0.68 0.12 232);
     --map-5: oklch(0.8 0.11 228);
-    --map-none: oklch(0.26 0.004 70);
-    --highlight: oklch(0.76 0.13 50);
+    --map-none: oklch(0.26 0.015 250);
+    --highlight: oklch(0.8 0.11 82);
     --status-new: oklch(0.7 0.15 150);
     --status-renewed: oklch(0.68 0.13 250);
     --status-not-renewed: oklch(0.78 0.14 70);
     --status-closed: oklch(0.65 0.02 260);
-    --sidebar: oklch(0.21 0.004 70);
-    --sidebar-foreground: oklch(0.95 0.006 85);
-    --sidebar-primary: oklch(0.95 0.006 85);
-    --sidebar-primary-foreground: oklch(0.21 0.004 70);
-    --sidebar-accent: oklch(0.27 0.005 70);
-    --sidebar-accent-foreground: oklch(0.95 0.006 85);
-    --sidebar-border: oklch(0.5 0.005 70);
-    --sidebar-ring: oklch(0.95 0.006 85);
 }
 
 /*
  * Type roles from design.md, "Type". Pages use these instead of raw size and
  * weight classes. Named type-* so tailwind-merge never mistakes them for text colors.
  */
+@utility type-display {
+    @apply font-serif text-4xl leading-[1.05] font-semibold tracking-tight text-balance md:text-5xl lg:text-6xl;
+}
+
 @utility type-title {
-    @apply text-2xl font-semibold tracking-tight text-balance lg:text-3xl;
+    @apply font-serif text-3xl leading-tight font-semibold tracking-tight text-balance lg:text-4xl;
+}
+
+@utility type-heading {
+    @apply text-xl font-semibold tracking-tight text-balance lg:text-2xl;
 }
 
 @utility type-subtitle {
-    @apply text-base text-pretty text-muted-foreground;
+    @apply text-base text-pretty text-muted-foreground md:text-lg;
 }
 
-@utility type-label {
-    @apply text-sm font-medium text-highlight;
+@utility type-eyebrow {
+    @apply flex items-center gap-3 text-sm font-medium;
+
+    &::before {
+        content: '';
+        @apply h-px w-6 shrink-0 bg-highlight;
+    }
 }
 
 @utility type-figure {
-    @apply text-3xl font-normal tabular-nums;
+    @apply text-3xl leading-none font-semibold tracking-tight tabular-nums lg:text-4xl;
 }
 
 @utility type-panel-title {
-    @apply text-lg font-normal;
+    @apply text-lg font-semibold tracking-tight;
 }
 
 @utility type-lead {
@@ -224,12 +260,23 @@
     @apply text-xs font-medium;
 }
 
+/* Sections rise into view as they scroll in. No script, and nothing moves for reduced motion. */
+@utility reveal {
+    @supports (animation-timeline: view()) {
+        @media (prefers-reduced-motion: no-preference) {
+            animation: rise linear both;
+            animation-timeline: view();
+            animation-range: entry 0% entry 35%;
+        }
+    }
+}
+
 @layer base {
     * {
         @apply border-border;
     }
 
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground antialiased;
     }
 }

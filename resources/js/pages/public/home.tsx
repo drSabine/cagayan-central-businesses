@@ -1,211 +1,225 @@
 import { Head, Link } from '@inertiajs/react';
-import {
-    CalendarRange,
-    ClipboardList,
-    EyeOff,
-    HandHeart,
-    Layers,
-    Map as MapIcon,
-    MapPinned,
-    PlugZap,
-    UserX,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import { PageHeader } from '@/components/page-header';
-import { FigureCell, RuledCell, RuledGrid } from '@/components/ruled-grid';
-import { SectionHeading } from '@/components/section-heading';
+import { ArrowRight, ClipboardList, Map as MapIcon } from 'lucide-react';
+import { lazy, Suspense } from 'react';
+import { DefinitionList } from '@/components/definition-list';
+import { FigureRow } from '@/components/figure-row';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { formatCount } from '@/lib/format';
-import { index as wishes } from '@/routes/public/wishes';
+import { index as suggestions } from '@/routes/public/wishes';
 import type { HomeOverview } from '@/types/data';
-import type { RouteDefinition } from '@/wayfinder';
+
+const ProvinceMap = lazy(() => import('@/components/province-map'));
 
 type Props = {
     overview: HomeOverview;
 };
 
-type Feature = {
-    icon: LucideIcon;
-    title: string;
-    description: string;
-    href?: RouteDefinition<'get'>;
-    action?: string;
-};
-
-// Explore map (P1) and the guide (P4) get their links when they are built.
-const features: Feature[] = [
+// The business map (P1) and the guide (P4) move into the open card when they are built.
+const upcoming = [
     {
         icon: MapIcon,
-        title: 'Explore the map',
-        description:
-            'See how many registered businesses each barangay has and which types are most common.',
+        title: 'Business map',
+        description: 'Registered businesses in each barangay, by type.',
     },
     {
         icon: ClipboardList,
         title: 'Start a business guide',
         description:
-            'Answer four questions and get a checklist of what to prepare and where to get it.',
-    },
-    {
-        icon: HandHeart,
-        title: 'Wish for a business',
-        description:
-            'Tell the Capitol what kind of business your town is missing. No name or account needed.',
-        href: wishes(),
-        action: 'Make a wish',
+            'The permits and documents your business needs, and where to get them.',
     },
 ];
-
-const protections: { icon: LucideIcon; title: string; description: string }[] =
-    [
-        {
-            icon: Layers,
-            title: 'Sales are shown for areas only',
-            description:
-                'No single business has its sales shown to anyone. The public sees a range for each area.',
-        },
-        {
-            icon: EyeOff,
-            title: 'Small groups are hidden',
-            description:
-                'When too few businesses share an area or type, the figure reads "Hidden to protect individual businesses".',
-        },
-        {
-            icon: UserX,
-            title: 'Wishes are anonymous',
-            description:
-                'Wishes keep no name, contact, or network address. Only the Capitol reads the reasons.',
-        },
-    ];
 
 export default function Home({ overview }: Props) {
     return (
         <>
             <Head title="Home" />
 
-            <PageHeader
-                label="Cagayan Business"
-                title="Businesses in Tuguegarao City"
-                subtitle={
-                    <>
-                        One map of registered businesses for the planners who
-                        decide and the people who want to start. Registered
-                        businesses only.
-                    </>
-                }
-                actions={
-                    <Button asChild>
-                        <Link href={wishes()}>
-                            <HandHeart aria-hidden="true" />
-                            Make a wish
-                        </Link>
-                    </Button>
-                }
-            />
-
-            <section aria-labelledby="features" className="flex flex-col gap-4">
-                <SectionHeading
-                    id="features"
-                    label="What you can do here"
-                    description="No login needed for any of these."
-                />
-                <RuledGrid columns={3}>
-                    {features.map((feature) => (
-                        <RuledCell
-                            key={feature.title}
-                            className="justify-between gap-8 md:min-h-56"
-                        >
-                            <div className="flex items-start justify-between gap-3">
-                                <feature.icon
-                                    className="size-5"
-                                    aria-hidden="true"
+            <div className="flex flex-col">
+                <section className="overflow-hidden rounded-2xl bg-brand text-brand-foreground">
+                    {/* Kept for screen readers and the document outline. The map is the visible hero. */}
+                    <h1 className="sr-only">See where Cagayan does business</h1>
+                    <figure className="flex flex-col gap-4 px-6 pt-10 pb-20 md:px-10 lg:pt-14 lg:pb-24">
+                        <div className="h-64 md:h-96 lg:h-[28rem]">
+                            <Suspense fallback={null}>
+                                <ProvinceMap
+                                    shapes="province"
+                                    label={`Map of the ${overview.townCount} towns of Cagayan, ${overview.connectedTownCount} connected so far`}
+                                    highlight={overview.connectedTownCodes}
+                                    className="size-full"
                                 />
-                                {!feature.href && (
-                                    <Badge variant="outline">
-                                        In preparation
-                                    </Badge>
-                                )}
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <h3 className="type-panel-title">
-                                    {feature.title}
-                                </h3>
-                                <p className="type-meta">
-                                    {feature.description}
-                                </p>
-                                {feature.href && feature.action && (
-                                    <Button
-                                        variant="outline"
-                                        className="mt-2 w-fit"
-                                        asChild
-                                    >
-                                        <Link href={feature.href}>
-                                            {feature.action}
-                                        </Link>
-                                    </Button>
-                                )}
-                            </div>
-                        </RuledCell>
-                    ))}
-                </RuledGrid>
-            </section>
+                            </Suspense>
+                        </div>
+                        <figcaption className="flex flex-wrap justify-center gap-x-6 gap-y-2 type-body text-brand-foreground/80">
+                            <span className="flex items-center gap-2">
+                                <span className="size-3 rounded-xs bg-highlight" />
+                                Connected
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <span className="size-3 rounded-xs border border-current" />
+                                Not yet connected
+                            </span>
+                        </figcaption>
+                    </figure>
+                </section>
 
-            <section aria-labelledby="data" className="flex flex-col gap-4">
-                <SectionHeading
-                    id="data"
-                    label="About the data"
-                    description="Boundaries and population are real. Business records are simulated for this prototype."
+                <FigureRow
+                    className="relative mx-4 -mt-12 motion-safe:animate-rise motion-safe:[animation-delay:320ms] md:mx-10 lg:grid-cols-4"
+                    figures={[
+                        {
+                            value: `${formatCount(overview.connectedTownCount)} of ${formatCount(overview.townCount)}`,
+                            label: 'Towns connected',
+                        },
+                        {
+                            value: formatCount(overview.businessTypeCount),
+                            label: 'Business types',
+                        },
+                        {
+                            value: formatCount(overview.yearCount),
+                            label: 'Years of records',
+                        },
+                        {
+                            value: formatCount(overview.wishCount),
+                            label: 'Suggestions so far',
+                        },
+                    ]}
                 />
-                <RuledGrid columns={3}>
-                    <FigureCell
-                        icon={MapPinned}
-                        figure={formatCount(overview.townCount)}
-                        label="Towns in Cagayan"
-                        caption="All appear on the province map"
-                    />
-                    <FigureCell
-                        icon={PlugZap}
-                        figure={formatCount(overview.connectedTownCount)}
-                        label="Towns connected"
-                        caption="More towns join as their records are shared"
-                    />
-                    <FigureCell
-                        icon={CalendarRange}
-                        figure={formatCount(overview.yearCount)}
-                        label="Years of records"
-                        caption={`${overview.firstYear} to ${overview.latestYear}`}
-                    />
-                </RuledGrid>
-            </section>
+            </div>
 
-            <section aria-labelledby="privacy" className="flex flex-col gap-4">
-                <SectionHeading
-                    id="privacy"
-                    label="How we protect businesses"
+            <section
+                id="about-data"
+                aria-labelledby="about-data-heading"
+                className="grid reveal scroll-mt-24 gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16"
+            >
+                <div className="flex flex-col gap-6">
+                    <h2 id="about-data-heading" className="type-heading">
+                        About the data
+                    </h2>
+                    <div className="h-72 text-primary lg:h-80">
+                        <Suspense fallback={null}>
+                            <ProvinceMap
+                                shapes="tuguegarao"
+                                label="Map of the barangays of Tuguegarao City"
+                                className="size-full"
+                            />
+                        </Suspense>
+                    </div>
+                </div>
+                <DefinitionList
+                    items={[
+                        {
+                            term: 'Records',
+                            description:
+                                'Simulated. Boundaries and population are real.',
+                        },
+                        {
+                            term: 'Area',
+                            description:
+                                'Tuguegarao City. Other towns join as their records are shared.',
+                        },
+                        {
+                            term: 'Period',
+                            description: `${overview.firstYear} to ${overview.latestYear}`,
+                        },
+                        {
+                            term: 'Businesses',
+                            description: 'Registered businesses only',
+                        },
+                        {
+                            term: 'Sales',
+                            description:
+                                'Declared business activity, not the income of residents or of the barangay government. Public pages show a range.',
+                        },
+                        {
+                            term: 'Boundaries',
+                            description:
+                                'Simplified shapes matched to PSA codes. Good for comparing areas, not for surveying.',
+                        },
+                    ]}
                 />
-                <RuledGrid columns={3}>
-                    {protections.map((item) => (
-                        <RuledCell key={item.title}>
-                            <item.icon className="size-5" aria-hidden="true" />
-                            <h3 className="type-item">{item.title}</h3>
-                            <p className="type-meta">{item.description}</p>
-                        </RuledCell>
-                    ))}
-                </RuledGrid>
             </section>
 
-            <footer className="flex flex-col gap-1 border-t pt-6 type-meta">
-                <p>
-                    Barangay names, codes, and population from the Philippine
-                    Statistics Authority. Boundary shapes from
-                    philippines-json-maps by James Faeldon, MIT License.
-                </p>
-                <p>
-                    Built for the Provincial Government of Cagayan Digital
-                    Innovation Challenge.
-                </p>
-            </footer>
+            <section
+                aria-labelledby="protection"
+                className="grid reveal gap-8 rounded-2xl bg-muted p-6 md:p-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16"
+            >
+                <h2 id="protection" className="type-heading">
+                    How businesses are protected
+                </h2>
+                <ol className="flex flex-col gap-6">
+                    {[
+                        'No single business has its sales shown to anyone, Capitol staff included.',
+                        `When fewer than ${formatCount(overview.smallGroupMin)} businesses share an area or type, the figure reads "Hidden to protect individual businesses".`,
+                        'Owner names and contact numbers never appear on public pages. Suggestions store no name, contact, or IP address.',
+                    ].map((point, index) => (
+                        <li key={point} className="flex gap-5">
+                            <span
+                                aria-hidden="true"
+                                className="font-serif text-2xl leading-none text-muted-foreground tabular-nums"
+                            >
+                                {index + 1}
+                            </span>
+                            <p className="type-lead">{point}</p>
+                        </li>
+                    ))}
+                </ol>
+            </section>
+
+            <section
+                aria-labelledby="tasks"
+                className="flex reveal flex-col gap-6"
+            >
+                <h2 id="tasks" className="type-heading">
+                    What you can do
+                </h2>
+                <div className="grid gap-4 lg:grid-cols-3">
+                    <Card className="justify-between lg:col-span-2 lg:row-span-2">
+                        <CardHeader>
+                            <Badge>Open now</Badge>
+                            <CardTitle className="type-title">
+                                Suggestions
+                            </CardTitle>
+                            <CardDescription>
+                                Tell the Capitol which businesses your town is
+                                missing. No account needed.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardFooter>
+                            <Button variant="outline" asChild>
+                                <Link href={suggestions()}>
+                                    Open suggestions
+                                    <ArrowRight aria-hidden="true" />
+                                </Link>
+                            </Button>
+                        </CardFooter>
+                    </Card>
+
+                    {upcoming.map((item) => (
+                        <Card key={item.title} className="bg-muted shadow-none">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <item.icon
+                                        className="size-4"
+                                        aria-hidden="true"
+                                    />
+                                    {item.title}
+                                </CardTitle>
+                                <CardDescription>
+                                    {item.description}
+                                </CardDescription>
+                                <Badge variant="outline">Not open yet</Badge>
+                            </CardHeader>
+                        </Card>
+                    ))}
+                </div>
+            </section>
         </>
     );
 }

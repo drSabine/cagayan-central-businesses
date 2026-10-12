@@ -31,7 +31,7 @@ export function AppearanceToggle() {
                     />
                 </Button>
             </TooltipTrigger>
-            <TooltipContent side="right">Light or dark mode</TooltipContent>
+            <TooltipContent side="bottom">Light or dark mode</TooltipContent>
         </Tooltip>
     );
 }

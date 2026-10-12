@@ -36,7 +36,7 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D6. Supporting libraries
 
-**Decided, updated October 3, 2026.** Charts: Recharts, through shadcn's Chart component. Tables: TanStack Table. PDF: `@react-pdf/renderer`, built in the browser (replaces `barryvdh/laravel-dompdf`, see below). CSV: a streamed Laravel response, no package. Boundary preparation outside the app: QGIS and mapshaper. Each is installed with the first feature that needs it, and its version recorded below.
+**Decided, updated October 3, 2026.** Charts: Recharts, through shadcn's Chart component. Tables: TanStack Table. PDF: `@react-pdf/renderer`, built in the browser (replaces `barryvdh/laravel-dompdf`, see below). CSV: a streamed Laravel response, no package. Boundary preparation outside the app: QGIS and mapshaper. Fonts: Instrument Sans and Source Serif 4 (display and page titles, added October 5, 2026), both through the Vite fonts plugin, so no npm package. Each is installed with the first feature that needs it, and its version recorded below.
 
 **Why `@react-pdf/renderer`:** dompdf supports only old CSS, so a brief laid out with it looks dated and is hard to style. `@react-pdf/renderer` lays out pages with flexbox in React, which the frontend developer already writes, and the server stays free of a PDF engine. The PDF is built from the props the page already has, so it carries the same guarded data as the screen (privacy-rules.md, P11).
 
@@ -138,7 +138,7 @@ Each has a default so work is not blocked.
 - **O5. Hosting for the online version.** Owner: back end member. Default: one small VPS. Not needed for the video or the booth.
 - **O6. Size of the simulated dataset.** Owner: data member. Default: about 4,000 businesses. Replace with a figure grounded in a public count if one is found, and cite it.
 - **O7. Outlook middle estimate.** Default: the average renewal rate of the three most recent years. Confirm with the adviser. See `metrics.md`, M11.
-- **O8. Unused starter kit features.** Decided October 3, 2026: removed before the build starts, so the design system starts from a clean slate. Kept: Fortify login and logout, the shadcn primitives in `components/ui/`, and the hooks they need (`use-mobile`, `use-appearance`, `use-flash-toast`). Removed: registration, password reset, email verification, two-factor login, passkeys, profile, security, and appearance settings, account deletion, the starter layouts and app components, and the `@laravel/passkeys` package. The `passkeys` table and two-factor columns are dropped by a new migration.
+- **O8. Unused starter kit features.** Decided October 3, 2026: removed before the build starts, so the design system starts from a clean slate. Kept: Fortify login and logout, the shadcn primitives in `components/ui/`, and the hooks they need (`use-mobile`, `use-appearance`, `use-flash-toast`). Removed: registration, password reset, email verification, two-factor login, passkeys, profile, security, and appearance settings, account deletion, the starter layouts and app components, and the `@laravel/passkeys` package. The `passkeys` table and two-factor columns are dropped by a new migration. October 5, 2026: the starter kit's own non-shadcn files in `components/ui/` (`placeholder-pattern.tsx`, `icon.tsx`) and its icon rail were removed. Every shadcn primitive stays, including `sidebar` for the Capitol layout.
 
 ## Installed versions
 

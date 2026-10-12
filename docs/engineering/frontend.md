@@ -34,14 +34,14 @@ resources/
     pages/            one file per screen, folders follow the route name
       capitol/          capitol.barangays.show -> capitol/barangays/show.tsx
       public/           public.map -> public/map.tsx
-    layouts/          page shells: sidebar, header, the "Simulated data" label
+    layouts/          page shells: header, bottom bar, footer, the "Simulated data" label
     components/
+      *.tsx             app-wide pieces (page header, figure row, province map)
       ui/               shadcn primitives, added with the shadcn CLI
       map/              the map and its layers
       charts/           chart wrappers
       privacy/          guarded figure, hidden notice, simulated label
     pdf/              PDF templates for @react-pdf/renderer
-      *.tsx             app-wide pieces (layout parts, headings, breadcrumbs), added with the design system
     hooks/            reusable hooks, named use-*.ts
     lib/              plain functions with no React: formatting, cn()
     types/            TypeScript types that mirror app/Data
@@ -109,7 +109,7 @@ export default function Show({ profile }: Props) { ... }
 - Public pages never link to a Capitol page, not even to its login (decisions.md, D20).
 - **One exception to Wayfinder:** the admin login form posts to its own URL (`usePage().url`), and its routes are named `admin.login*` so they sit in a Wayfinder module no page imports. Any import that holds the login path would put it in the public bundle.
 - The server decides access. Hiding a button in React protects nothing; the route must check it.
-- Logout is a `POST` (`<Link method="post" href={logout()} as="button">`).
+- Logout is a `POST`. The Wayfinder route carries the method, so `<Link href={logout()} as="button">` is enough.
 
 ## Performance
 
@@ -163,6 +163,7 @@ async function loadMapStyle() {
 - `mapColor()` reads a token from `app.css` and returns a color MapLibre accepts, because map layers cannot use Tailwind classes. Add it to `lib/` with the first map, and use it for every map color. Never a hex value.
 - The map component lives in `components/map/` and is loaded with `React.lazy` (see "Performance").
 - The map is never the only way to reach a barangay. A list or search does the same job (`design.md`).
+- **The province map is different.** `components/province-map.tsx` is a plain SVG of the 29 towns or the 49 Tuguegarao barangays, drawn from the files in `data/boundaries` that are bundled at build time and loaded with `React.lazy`. It carries no business data, so it needs no props from the server. Use it for illustration and as a place picker beside a real control, never in place of the MapLibre map.
 
 ## Charts
 

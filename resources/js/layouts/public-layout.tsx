@@ -1,64 +1,86 @@
 import { Link, usePage } from '@inertiajs/react';
-import { HandHeart, House, Landmark } from 'lucide-react';
+import { House, MessageSquarePlus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AppBottomBar } from '@/components/app-bottom-bar';
-import { AppRail } from '@/components/app-rail';
 import { AppearanceToggle } from '@/components/appearance-toggle';
 import { SimulatedLabel } from '@/components/privacy/simulated-label';
+import {
+    NavigationMenu,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
+import { isCurrentSection } from '@/lib/navigation';
 import { home } from '@/routes';
-import { index as wishes } from '@/routes/public/wishes';
+import { index as suggestions } from '@/routes/public/wishes';
 import type { NavItem } from '@/types/ui';
 
-// Explore map (P1) and the guide (P4) join this list when they are built.
+// The business map (P1) and the guide (P4) join this list when they are built.
 const items: NavItem[] = [
     { title: 'Home', href: home(), icon: House },
-    { title: 'Wishes', href: wishes(), icon: HandHeart },
+    { title: 'Suggestions', href: suggestions(), icon: MessageSquarePlus },
 ];
 
 // Phone first. No public page links to the Capitol side, not even to its login (decisions.md, D20).
 export default function PublicLayout({ children }: { children: ReactNode }) {
-    const { name } = usePage().props;
+    const { url, props } = usePage();
 
     return (
-        <div className="min-h-screen bg-background">
-            <AppRail
-                items={items}
-                logo={
+        <div className="flex min-h-screen flex-col bg-background pb-14 lg:pb-0">
+            <header className="sticky top-0 z-30 border-b bg-background">
+                <div className="mx-auto flex h-16 max-w-6xl items-center gap-10 px-4 md:px-6">
                     <Link
                         href={home()}
-                        aria-label={name}
-                        className="flex size-10 items-center justify-center outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                        className="flex min-w-0 items-center rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
                     >
-                        <Landmark className="size-5" aria-hidden="true" />
-                    </Link>
-                }
-                footer={<AppearanceToggle />}
-            />
-            <div className="flex min-h-screen flex-col pb-14 lg:pb-0 lg:pl-rail">
-                <header className="border-b bg-card">
-                    <div className="flex h-16 items-center gap-3 px-4 md:px-6">
-                        <Link
-                            href={home()}
-                            className="flex min-h-10 min-w-0 items-center gap-2 type-item"
-                        >
-                            <Landmark
-                                className="size-5 shrink-0 lg:hidden"
-                                aria-hidden="true"
-                            />
-                            <span className="truncate">{name}</span>
-                        </Link>
-                        <div className="ml-auto flex items-center gap-2">
+                        <span className="flex min-w-0 flex-col">
+                            <span className="truncate type-item leading-tight">
+                                {props.name}
+                            </span>
                             <SimulatedLabel />
-                            <div className="lg:hidden">
-                                <AppearanceToggle />
-                            </div>
-                        </div>
+                        </span>
+                    </Link>
+                    <NavigationMenu
+                        viewport={false}
+                        aria-label="Main"
+                        className="hidden lg:flex"
+                    >
+                        <NavigationMenuList>
+                            {items.map((item) => (
+                                <NavigationMenuItem key={item.title}>
+                                    <NavigationMenuLink
+                                        asChild
+                                        active={isCurrentSection(
+                                            url,
+                                            item.href,
+                                        )}
+                                        className={navigationMenuTriggerStyle()}
+                                    >
+                                        <Link href={item.href} prefetch>
+                                            {item.title}
+                                        </Link>
+                                    </NavigationMenuLink>
+                                </NavigationMenuItem>
+                            ))}
+                        </NavigationMenuList>
+                    </NavigationMenu>
+                    <div className="ml-auto shrink-0">
+                        <AppearanceToggle />
                     </div>
-                </header>
-                <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-12 px-4 py-8 md:px-6 lg:py-12">
-                    {children}
-                </main>
-            </div>
+                </div>
+            </header>
+            <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-4 py-8 md:px-6 lg:gap-24 lg:py-12">
+                {children}
+            </main>
+            <footer className="border-t">
+                <div className="mx-auto max-w-6xl px-4 py-8 type-meta md:px-6">
+                    <p>
+                        Prepared for the Provincial Government of Cagayan
+                        Digital Innovation Challenge.
+                    </p>
+                </div>
+            </footer>
             <AppBottomBar items={items} />
         </div>
     );
