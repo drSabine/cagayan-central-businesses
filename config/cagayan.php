@@ -119,6 +119,11 @@ return [
 
         'login_per_hour_per_ip' => 20,
 
+        /*
+        | Lockout. Failed attempts on one account per hour from any address.
+        */
+        'login_per_hour_per_account' => 10,
+
     ],
 
     'wishes' => [

@@ -211,7 +211,7 @@ Laravel's default `users` table (two-factor columns dropped, decisions.md O8), p
 
 | Column | Type | Notes |
 | :- | :- | :- |
-| `role` | enum `capitol_admin` | One value in the MVP. Not fillable. |
+| `role` | enum `capitol_admin`, nullable | One value in the MVP. Not fillable. Null means the account cannot sign in and reaches nothing on the Capitol side. |
 
 ## Summary tables
 

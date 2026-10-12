@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Data\SessionUser;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -39,7 +40,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? SessionUser::from($request->user()) : null,
             ],
             'simulated' => (bool) config('cagayan.simulated'),
         ];

@@ -274,7 +274,7 @@ Route::post('wishes', [WishController::class, 'store'])->middleware('throttle:wi
 
 | Endpoint | Limit | Where |
 | :- | :- | :- |
-| Login | `admin.login_per_minute` per email and IP, `admin.login_per_hour_per_ip` per IP | `FortifyServiceProvider` |
+| Login | `admin.login_per_minute` per email and IP, `admin.login_per_hour_per_ip` per IP, `admin.login_per_hour_per_account` per account (lockout) | `FortifyServiceProvider` |
 | Wish form and edits (P3) | `wishes.per_hour_per_ip` per IP, per hour. The 3 day cooldown and weekly edit limit are separate rules in `WishAllowance` (privacy-rules.md, P12) | `AppServiceProvider` |
 | CSV and PDF exports (C14) | per user, per minute | add with the feature |
 

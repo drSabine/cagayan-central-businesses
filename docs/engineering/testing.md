@@ -168,6 +168,6 @@ Before trusting a new security test, break the protection on purpose (remove the
 From the October 3, 2026 review. To be done later, in this order:
 
 1. Route guard dataset test: guests redirect to login on every `auth` route, and state-changing routes sit in the `web` group.
-2. Replace the full `User` model in the shared `auth.user` prop (`HandleInertiaRequests`) with an explicit array, and lock its keys with a test. Today it sends every non-hidden column to the browser, which will include `role` once it exists (privacy rule P10).
+2. Done October 5, 2026: the shared `auth.user` prop is the `SessionUser` Data object (name only), locked by `CapitolAccessTest`.
 3. Convert the starter kit's class-style tests to Pest (`./vendor/bin/pest --drift`), move `RefreshDatabase` into `tests/Pest.php` once, delete `tests/Unit/ExampleTest.php` and `tests/Feature/ExampleTest.php`.
 4. Rewrite the login rate-limit test to send six bad logins instead of rebuilding the throttle key.

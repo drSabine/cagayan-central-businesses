@@ -108,9 +108,11 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D20. Discreet admin login
 
-**Decided October 3, 2026.** The login page lives only at the path in `CAGAYAN_ADMIN_LOGIN_PATH` (`config('cagayan.admin.login_path')`). No public page links to it. `/login` does not exist, and guests who open any login-only page get a plain 404 instead of a redirect that would reveal the path. The login responses carry `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer`, and the path is not listed in `robots.txt`. Login is limited per email and address per minute and per address per hour. Production refuses to boot with the example path.
+**Decided October 3, 2026.** The login page lives only at the path in `CAGAYAN_ADMIN_LOGIN_PATH` (`config('cagayan.admin.login_path')`). No public page links to it. `/login` does not exist, and guests who open any login-only page get a plain 404 instead of a redirect that would reveal the path. The login responses carry `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer`, and the path is not listed in `robots.txt`. Login is limited per email and address per minute, per address per hour, and per account per hour from any address (a lockout). Only accounts with the `capitol_admin` role can sign in (`Fortify::authenticateUsing`), with the same message as a wrong password. Every Capitol route sits in `routes/capitol.php` behind `auth` and `can:capitol`, and a test checks each one. Production refuses to boot with the example path.
 
-- Fortify's own routes are off (`Fortify::ignoreRoutes()`). `routes/web.php` registers Fortify's controller at the secret path for GET and POST, named `capitol.login` and `capitol.login.store`, plus `logout`.
+- Sessions: passwords are hashed (bcrypt), the session id is regenerated at sign-in, cookies are http-only and SameSite=Lax, CSRF is checked on every web form, and production sets `SESSION_SECURE_COOKIE=true` and `SESSION_ENCRYPT=true` (deployment.md).
+
+- Fortify's own routes are off (`Fortify::ignoreRoutes()`). `routes/web.php` registers Fortify's controller at the secret path for GET and POST, named `admin.login` and `admin.login.store`, plus `logout`. The Capitol home is `capitol.dashboard` at `/capitol`.
 - The login form posts to the URL it was served from, not a Wayfinder import, and the route names sit outside the `@/routes` index, so the path never reaches the public JavaScript bundle. `LoginPathOutOfBundleTest` checks the build.
 
 **Why:** the people who need the login are a handful of Capitol staff, so there is no reason to advertise it. A hidden path is one layer, not the protection. The protection is the server-side auth check, the rate limits, strong passwords, and HTTPS.

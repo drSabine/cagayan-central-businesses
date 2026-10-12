@@ -97,7 +97,7 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 - F4 Metrics refresh: Not started
 - F5 Privacy guard: Not started
 - F6 Map component: Not started
-- F7 Layouts, label, login: In progress (public shell, home page, and discreet admin login done. Capitol layout, role, and gate remain)
+- F7 Layouts, label, login: In progress (public shell, home page, discreet admin login, role, and gate done. Capitol layout remains)
 
 ### Tier 1: in the video
 

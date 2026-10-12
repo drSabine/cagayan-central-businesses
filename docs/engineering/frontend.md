@@ -107,7 +107,7 @@ export default function Show({ profile }: Props) { ... }
 | A form | `<Form {...store.form()}>`. After it succeeds, the server redirects; do not navigate in `onSuccess`. |
 | A file download (CSV, server export) | a plain `<a href={exportCsv().url}>`, because the response is not an Inertia page |
 - Public pages never link to a Capitol page, not even to its login (decisions.md, D20).
-- **One exception to Wayfinder:** the admin login form posts to its own URL (`usePage().url`), and its routes are named `capitol.login*` so they stay out of the `@/routes` index. Any import that holds the login path would put it in the public bundle.
+- **One exception to Wayfinder:** the admin login form posts to its own URL (`usePage().url`), and its routes are named `admin.login*` so they sit in a Wayfinder module no page imports. Any import that holds the login path would put it in the public bundle.
 - The server decides access. Hiding a button in React protects nothing; the route must check it.
 - Logout is a `POST` (`<Link method="post" href={logout()} as="button">`).
 

@@ -26,6 +26,6 @@ Full rules and reasons: `docs/engineering/privacy-rules.md`. Read it before chan
 - **P13** The "Simulated data" label is in the shared layout and every export.
 - **P14** No sales, owner names, or contact numbers in logs or exception text.
 
-Known gap: `HandleInertiaRequests` still shares the full `User` model as `auth.user`. Fix planned in `docs/engineering/testing.md`, "Audit backlog". Do not copy that pattern.
+`auth.user` is the `SessionUser` Data object (name only). Keep it that way.
 
 Before committing, run `/privacy-check` or the `privacy-reviewer` agent.
