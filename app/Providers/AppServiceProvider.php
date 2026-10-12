@@ -47,10 +47,15 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * The example login path is public in the repository, so production refuses it (decisions.md, D20).
+     * The example login path is public in the repository, so production refuses to serve it (decisions.md, D20).
      */
     protected function guardAdminLoginPath(): void
     {
+        // CI and `composer setup` boot the app from the console before `.env` exists.
+        if (app()->runningInConsole()) {
+            return;
+        }
+
         $path = config('cagayan.admin.login_path');
 
         if (app()->isProduction() && (blank($path) || $path === 'staff-sign-in')) {
