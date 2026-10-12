@@ -24,9 +24,9 @@ final class WishController extends Controller
 
     public function store(StoreWishRequest $request, SubmitWish $submitWish): RedirectResponse
     {
-        $submitWish->handle($request->town(), $request->type(), $request->reason(), $request->submitterHashOrStart());
+        $submitWish->handle($request->town(), $request->type(), $request->reason(), $request->submitterHashOrStart(), $request->networkHash());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Wish recorded.')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Suggestion sent.')]);
 
         return to_route('public.wishes.index', ['town' => $request->string('town')->toString(), 'type' => $request->string('type')->toString()]);
     }
@@ -35,7 +35,7 @@ final class WishController extends Controller
     {
         $editWish->handle($wish, $request->town(), $request->type(), $request->reason());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Wish updated.')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Suggestion updated.')]);
 
         return to_route('public.wishes.index', ['town' => $request->string('town')->toString(), 'type' => $request->string('type')->toString()]);
     }

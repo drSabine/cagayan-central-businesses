@@ -119,9 +119,13 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D21. Wishes recognize a browser, not a person
 
-**Decided October 3, 2026.** Replaces the daily hash in privacy-rules.md, P12. One new wish per browser every 3 days, and up to 3 edits in any 7 days. A browser is recognized by a random token in an encrypted, http-only cookie, stored only as a SHA-256 hash. The network address is used only for an hourly rate limit held in the cache.
+**Decided October 3, 2026, updated October 5, 2026.** Replaces the daily hash in privacy-rules.md, P12. Wishes are called suggestions on screen. One new suggestion per browser every 3 days, and up to 3 edits in any 7 days. A browser is recognized by a random token in an encrypted, signed, http-only cookie, stored only as a SHA-256 hash. The token enforces the cooldown and the edits.
 
-**Why:** a cooldown and weekly edits need to recognize the same submitter for a week, which a daily hash cannot do. Keying on the network address would put everyone behind one mobile carrier address, or the booth wifi, under one cooldown. Clearing cookies gets around the cooldown, but the hourly limit still holds, and wishes are counted as interest, not as proof of demand.
+- **Network hash (October 5):** each suggestion also stores an HMAC of the network address and the date, keyed with the app key. It changes every day, so it never links one day to the next, and the raw address is never stored. It caps how many new respondents (browsers with no earlier suggestion) one network can bring in per day (`wishes.new_respondents_per_network_per_day`), so clearing cookies stops being a way around the cooldown, while a school or the booth wifi still works.
+- **Bot checks:** a hidden honeypot field, and a signed timestamp issued with the form (`FormTimer`) that must be at least `wishes.min_fill_seconds` and at most `wishes.max_fill_minutes` old when the form returns.
+- **Input:** reasons are stripped of tags and control characters, spaces are collapsed, links are rejected, and the length is capped. The hourly rate limit per address stays.
+
+**Why:** a cooldown and weekly edits need to recognize the same submitter for a week, which a daily hash cannot do. Keying the cooldown on the network address would put everyone behind one mobile carrier address, or the booth wifi, under one cooldown, so the network hash only caps new respondents. Suggestions are counted as interest, not as proof of demand.
 
 ## Open decisions
 

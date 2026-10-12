@@ -21,7 +21,7 @@ final class EditWish
 
             if ($nextEditAt !== null) {
                 throw ValidationException::withMessages([
-                    'wish' => __('You have used your :count edits this week. You can edit again on :date.', [
+                    'wish' => __('You have used your :count edits for this week. You can edit again on :date.', [
                         'count' => config('cagayan.wishes.edits_per_window'),
                         'date' => $this->allowance->forDisplay($nextEditAt),
                     ]),

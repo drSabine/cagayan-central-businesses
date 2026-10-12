@@ -176,9 +176,10 @@ What residents say their town lacks. No name, no contact, no network address.
 | `business_type_id` | foreign key | |
 | `reason` | string(280), nullable | Shown to administrators only, and to the browser that wrote it |
 | `submitter_hash` | string(64) | SHA-256 of the anonymous browser token in the `wish_submitter` cookie (decisions.md, D21). Never the token itself, never a network address. |
+| `network_hash` | string(64), nullable | HMAC of the network address and the date, keyed with the app key. Changes daily, so it never links days. Null for seeded rows. Caps new respondents per network per day. |
 | `created_at`, `updated_at` | timestamps | `updated_at` changes on an edit |
 
-Index `(municipality_id, business_type_id)` for counts, and `(submitter_hash, created_at)` for the cooldown. The cooldown and edit checks run under a cache lock per `submitter_hash`, so two quick requests cannot both pass.
+Index `(municipality_id, business_type_id)` for counts, `(submitter_hash, created_at)` for the cooldown, and `(network_hash, created_at)` for the new respondent cap. The cooldown and edit checks run under a cache lock per `submitter_hash`, so two quick requests cannot both pass.
 
 ### wish_edits
 

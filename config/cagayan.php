@@ -147,6 +147,22 @@ return [
         'per_hour_per_ip' => 10,
 
         /*
+        | New respondents (browsers with no earlier suggestion) one network may
+        | create per day, counted by the daily network hash. Stops clearing
+        | cookies from becoming a way around the cooldown, while a shared
+        | network such as a school or the booth wifi still works.
+        */
+        'new_respondents_per_network_per_day' => 25,
+
+        /*
+        | Bot check. A signed timestamp issued with the form must be at least
+        | this old when the form comes back, and not older than the maximum.
+        */
+        'min_fill_seconds' => 3,
+
+        'max_fill_minutes' => 120,
+
+        /*
         | Lifetime of the anonymous submitter cookie.
         */
         'cookie_days' => 30,

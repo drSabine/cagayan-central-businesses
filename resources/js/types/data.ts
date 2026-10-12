@@ -43,4 +43,5 @@ export type WishPage = {
     editsPerWindow: number;
     editWindowDays: number;
     reasonMax: number;
+    formToken: string;
 };

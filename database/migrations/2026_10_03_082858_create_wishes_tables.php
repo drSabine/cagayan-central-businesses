@@ -18,10 +18,13 @@ return new class extends Migration
             $table->foreignId('business_type_id')->constrained()->restrictOnDelete();
             $table->string('reason', 280)->nullable();
             $table->string('submitter_hash', 64);
+            // Keyed hash of the network address and the day. Changes every day, so it never links days (D21).
+            $table->string('network_hash', 64)->nullable();
             $table->timestamps();
 
             $table->index(['municipality_id', 'business_type_id']);
             $table->index(['submitter_hash', 'created_at']);
+            $table->index(['network_hash', 'created_at']);
         });
 
         Schema::create('wish_edits', function (Blueprint $table) {

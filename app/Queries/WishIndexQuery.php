@@ -9,11 +9,15 @@ use App\Data\WishTally;
 use App\Models\BusinessType;
 use App\Models\Municipality;
 use App\Models\Wish;
+use App\Services\FormTimer;
 use App\Services\WishAllowance;
 
 final class WishIndexQuery
 {
-    public function __construct(private WishAllowance $allowance) {}
+    public function __construct(
+        private WishAllowance $allowance,
+        private FormTimer $formTimer,
+    ) {}
 
     public function get(?string $submitterHash, ?Municipality $town, ?BusinessType $type): WishPage
     {
@@ -31,6 +35,7 @@ final class WishIndexQuery
             editsPerWindow: (int) config('cagayan.wishes.edits_per_window'),
             editWindowDays: (int) config('cagayan.wishes.edit_window_days'),
             reasonMax: (int) config('cagayan.wishes.reason_max'),
+            formToken: $this->formTimer->issue(),
         );
     }
 

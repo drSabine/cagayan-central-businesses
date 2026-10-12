@@ -3,6 +3,7 @@
 use App\Models\BusinessType;
 use App\Models\Municipality;
 use App\Models\Wish;
+use App\Services\FormTimer;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Testing\TestResponse;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -17,9 +18,18 @@ beforeEach(function () {
     $this->bakery = BusinessType::factory()->create(['code' => 'bakery', 'name' => 'Bakery']);
 });
 
+/**
+ * A valid submission, with a form token issued as if the page was opened a little while ago.
+ */
 function wishPayload(array $overrides = []): array
 {
-    return ['town' => '0201529000', 'type' => 'pharmacy', 'reason' => null, ...$overrides];
+    return [
+        'town' => '0201529000',
+        'type' => 'pharmacy',
+        'reason' => null,
+        'form_token' => app(FormTimer::class)->issue(now()->subSeconds(30)),
+        ...$overrides,
+    ];
 }
 
 function submitterToken(TestResponse $response): string
@@ -42,7 +52,65 @@ test('a wish is stored with only a hash of the browser token', function () {
 
 test('the wishes table has nowhere to keep a name, contact, or network address', function () {
     expect(Schema::getColumnListing('wishes'))
-        ->toEqualCanonicalizing(['id', 'municipality_id', 'business_type_id', 'reason', 'submitter_hash', 'created_at', 'updated_at']);
+        ->toEqualCanonicalizing(['id', 'municipality_id', 'business_type_id', 'reason', 'submitter_hash', 'network_hash', 'created_at', 'updated_at']);
+});
+
+test('the network is kept only as a keyed hash that changes every day', function () {
+    $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.7'])
+        ->post(route('public.wishes.store'), wishPayload());
+
+    $first = Wish::query()->sole()->network_hash;
+
+    expect($first)->toHaveLength(64)
+        ->and($first)->not->toContain('203.0.113.7')
+        ->and($first)->not->toBe(hash('sha256', '203.0.113.7'));
+
+    $this->travel(1)->day();
+    $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.7'])
+        ->post(route('public.wishes.store'), wishPayload());
+
+    expect(Wish::query()->latest('id')->first()->network_hash)->not->toBe($first);
+});
+
+test('one network can bring in only so many new respondents a day', function () {
+    config(['cagayan.wishes.new_respondents_per_network_per_day' => 2]);
+
+    // Each request has no cookie, as when someone clears cookies between submissions.
+    foreach (range(1, 2) as $respondent) {
+        $this->post(route('public.wishes.store'), wishPayload())->assertSessionHasNoErrors();
+    }
+
+    $this->post(route('public.wishes.store'), wishPayload())->assertSessionHasErrors('wish');
+
+    expect(Wish::query()->count())->toBe(2);
+});
+
+test('a form sent back too quickly, too late, or with a forged token is rejected', function (Closure $token) {
+    $this->post(route('public.wishes.store'), wishPayload(['form_token' => $token()]))
+        ->assertSessionHasErrors('form_token');
+
+    expect(Wish::query()->count())->toBe(0);
+})->with([
+    'too quickly' => fn () => app(FormTimer::class)->issue(now()),
+    'too late' => fn () => app(FormTimer::class)->issue(now()->subMinutes(config('cagayan.wishes.max_fill_minutes') + 1)),
+    'forged' => fn () => base64_encode((string) now()->subMinute()->getTimestamp()),
+    'missing' => fn () => null,
+]);
+
+test('reasons are stored as plain text', function () {
+    $this->post(route('public.wishes.store'), wishPayload(['reason' => "  <script>alert(1)</script>No   pharmacy\u{0007} nearby  "]));
+
+    expect(Wish::query()->sole()->reason)->toBe('alert(1)No pharmacy nearby');
+});
+
+test('reasons with links are rejected', function (string $reason) {
+    $this->post(route('public.wishes.store'), wishPayload(['reason' => $reason]))
+        ->assertSessionHasErrors('reason');
+})->with(['Visit https://spam.test', 'cheap pills at www.example', 'see example.com']);
+
+test('a reason over the length limit is rejected', function () {
+    $this->post(route('public.wishes.store'), wishPayload(['reason' => str_repeat('a', config('cagayan.wishes.reason_max') + 1)]))
+        ->assertSessionHasErrors('reason');
 });
 
 test('reading the page does not hand out a cookie', function () {

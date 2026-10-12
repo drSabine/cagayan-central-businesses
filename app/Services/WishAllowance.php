@@ -30,6 +30,20 @@ final class WishAllowance
         return $next->isFuture() ? $next : null;
     }
 
+    /**
+     * Whether this network may still bring in a respondent who has never submitted.
+     * The network hash already changes every day, so this counts today only.
+     */
+    public function networkAcceptsNewRespondent(string $networkHash): bool
+    {
+        $respondentsToday = Wish::query()
+            ->where('network_hash', $networkHash)
+            ->distinct()
+            ->count('submitter_hash');
+
+        return $respondentsToday < (int) config('cagayan.wishes.new_respondents_per_network_per_day');
+    }
+
     public function editsLeft(string $submitterHash): int
     {
         return max(0, (int) config('cagayan.wishes.edits_per_window') - $this->recentEdits($submitterHash)->count());

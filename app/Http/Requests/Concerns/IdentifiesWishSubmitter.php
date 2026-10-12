@@ -6,12 +6,23 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 
 /**
- * An anonymous browser token in an encrypted, http-only cookie (decisions.md, D21).
- * Only its SHA-256 hash is stored. No name, contact, or network address (P12).
+ * A respondent is an anonymous browser token in an encrypted, signed, http-only
+ * cookie, stored only as its SHA-256 hash, plus a keyed hash of the network
+ * address that changes every day (decisions.md, D21). No raw address, name, or
+ * contact is ever stored (P12).
  */
 trait IdentifiesWishSubmitter
 {
     public const string SUBMITTER_COOKIE = 'wish_submitter';
+
+    /**
+     * HMAC of the address and today's date with the app key. It cannot be reversed
+     * without the key, and the same address gives a different hash each day.
+     */
+    public function networkHash(): string
+    {
+        return hash_hmac('sha256', 'wish-network|'.now()->toDateString().'|'.$this->ip(), (string) config('app.key'));
+    }
 
     public function submitterHash(): ?string
     {
