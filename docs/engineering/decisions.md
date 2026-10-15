@@ -36,7 +36,7 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D6. Supporting libraries
 
-**Decided, updated October 3, 2026.** Charts: Recharts, through shadcn's Chart component. Tables: TanStack Table. PDF: `@react-pdf/renderer`, built in the browser (replaces `barryvdh/laravel-dompdf`, see below). CSV: a streamed Laravel response, no package. Boundary preparation outside the app: QGIS and mapshaper. Each is installed with the first feature that needs it, and its version recorded below.
+**Decided, updated October 3, 2026.** Charts: Recharts, through shadcn's Chart component. Tables: TanStack Table. PDF: `@react-pdf/renderer`, built in the browser (replaces `barryvdh/laravel-dompdf`, see below). CSV: a streamed Laravel response, no package. Boundary preparation outside the app: QGIS and mapshaper. Fonts: Instrument Sans and Source Serif 4 (display and page titles, added October 5, 2026), both through the Vite fonts plugin, so no npm package. Each is installed with the first feature that needs it, and its version recorded below.
 
 **Why `@react-pdf/renderer`:** dompdf supports only old CSS, so a brief laid out with it looks dated and is hard to style. `@react-pdf/renderer` lays out pages with flexbox in React, which the frontend developer already writes, and the server stays free of a PDF engine. The PDF is built from the props the page already has, so it carries the same guarded data as the screen (privacy-rules.md, P11).
 
@@ -106,6 +106,27 @@ What the team decided and why. Change a decision only through a pull request tha
 
 **Why:** every laptop and CI depend on the same setup, so a change must be deliberate and announced. Locking it would block the team from fixing it when needed.
 
+## D20. Discreet admin login
+
+**Decided October 3, 2026.** The login page lives only at the path in `CAGAYAN_ADMIN_LOGIN_PATH` (`config('cagayan.admin.login_path')`). No public page links to it. `/login` does not exist, and guests who open any login-only page get a plain 404 instead of a redirect that would reveal the path. The login responses carry `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer`, and the path is not listed in `robots.txt`. Login is limited per email and address per minute, per address per hour, and per account per hour from any address (a lockout). Only accounts with the `capitol_admin` role can sign in (`Fortify::authenticateUsing`), with the same message as a wrong password. Every Capitol route sits in `routes/capitol.php` behind `auth` and `can:capitol`, and a test checks each one. Production refuses to serve web requests with the example path. Console commands skip the check, because CI and `composer setup` run them before `.env` exists.
+
+- Sessions: passwords are hashed (bcrypt), the session id is regenerated at sign-in, cookies are http-only and SameSite=Lax, CSRF is checked on every web form, and production sets `SESSION_SECURE_COOKIE=true` and `SESSION_ENCRYPT=true` (deployment.md).
+
+- Fortify's own routes are off (`Fortify::ignoreRoutes()`). `routes/web.php` registers Fortify's controller at the secret path for GET and POST, named `admin.login` and `admin.login.store`, plus `logout`. The Capitol home is `capitol.dashboard` at `/capitol`.
+- The login form posts to the URL it was served from, not a Wayfinder import, and the route names sit outside the `@/routes` index, so the path never reaches the public JavaScript bundle. `LoginPathOutOfBundleTest` checks the build.
+
+**Why:** the people who need the login are a handful of Capitol staff, so there is no reason to advertise it. A hidden path is one layer, not the protection. The protection is the server-side auth check, the rate limits, strong passwords, and HTTPS.
+
+## D21. Wishes recognize a browser, not a person
+
+**Decided October 3, 2026, updated October 5, 2026.** Replaces the daily hash in privacy-rules.md, P12. Wishes are called suggestions on screen. One new suggestion per browser every 3 days, and up to 3 edits in any 7 days. A browser is recognized by a random token in an encrypted, signed, http-only cookie, stored only as a SHA-256 hash. The token enforces the cooldown and the edits.
+
+- **Network hash (October 5):** each suggestion also stores an HMAC of the network address and the date, keyed with the app key. It changes every day, so it never links one day to the next, and the raw address is never stored. It caps how many new respondents (browsers with no earlier suggestion) one network can bring in per day (`wishes.new_respondents_per_network_per_day`), so clearing cookies stops being a way around the cooldown, while a school or the booth wifi still works.
+- **Bot checks:** a hidden honeypot field, and a signed timestamp issued with the form (`FormTimer`) that must be at least `wishes.min_fill_seconds` and at most `wishes.max_fill_minutes` old when the form returns.
+- **Input:** reasons are stripped of tags and control characters, spaces are collapsed, links are rejected, and the length is capped. The hourly rate limit per address stays.
+
+**Why:** a cooldown and weekly edits need to recognize the same submitter for a week, which a daily hash cannot do. Keying the cooldown on the network address would put everyone behind one mobile carrier address, or the booth wifi, under one cooldown, so the network hash only caps new respondents. Suggestions are counted as interest, not as proof of demand.
+
 ## Open decisions
 
 Each has a default so work is not blocked.
@@ -117,7 +138,7 @@ Each has a default so work is not blocked.
 - **O5. Hosting for the online version.** Owner: back end member. Default: one small VPS. Not needed for the video or the booth.
 - **O6. Size of the simulated dataset.** Owner: data member. Default: about 4,000 businesses. Replace with a figure grounded in a public count if one is found, and cite it.
 - **O7. Outlook middle estimate.** Default: the average renewal rate of the three most recent years. Confirm with the adviser. See `metrics.md`, M11.
-- **O8. Unused starter kit features.** Decided October 3, 2026: removed before the build starts, so the design system starts from a clean slate. Kept: Fortify login and logout, the shadcn primitives in `components/ui/`, and the hooks they need (`use-mobile`, `use-appearance`, `use-flash-toast`). Removed: registration, password reset, email verification, two-factor login, passkeys, profile, security, and appearance settings, account deletion, the starter layouts and app components, and the `@laravel/passkeys` package. The `passkeys` table and two-factor columns are dropped by a new migration.
+- **O8. Unused starter kit features.** Decided October 3, 2026: removed before the build starts, so the design system starts from a clean slate. Kept: Fortify login and logout, the shadcn primitives in `components/ui/`, and the hooks they need (`use-mobile`, `use-appearance`, `use-flash-toast`). Removed: registration, password reset, email verification, two-factor login, passkeys, profile, security, and appearance settings, account deletion, the starter layouts and app components, and the `@laravel/passkeys` package. The `passkeys` table and two-factor columns are dropped by a new migration. October 5, 2026: the starter kit's own non-shadcn files in `components/ui/` (`placeholder-pattern.tsx`, `icon.tsx`) and its icon rail were removed. Every shadcn primitive stays, including `sidebar` for the Capitol layout.
 
 ## Installed versions
 

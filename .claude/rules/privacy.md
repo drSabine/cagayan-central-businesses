@@ -22,10 +22,10 @@ Full rules and reasons: `docs/engineering/privacy-rules.md`. Read it before chan
 - **P9** Opening a full business record writes one `record_view_logs` row before responding. The list view writes none.
 - **P10** Pages get Data objects from `app/Data/`, never models, collections, or `->toArray()` of a model, including shared props in `HandleInertiaRequests`. Separate public and admin objects.
 - **P11** CSV and PDF are built from the same guarded Data objects.
-- **P12** Wishes store no name, contact, or network address, only a one-way daily hash. Reasons are admin only. The form is rate limited.
+- **P12** Wishes store no name, contact, or raw network address. A browser is the SHA-256 hash of an anonymous signed cookie token, plus a daily keyed network hash used only to cap new respondents (D21). One new wish per 3 days, 3 edits per 7 days, from `cagayan.wishes`. Honeypot, signed form timer, plain-text reasons with no links. Reasons are admin only, plus the browser that wrote them. Rate limited per IP per hour.
 - **P13** The "Simulated data" label is in the shared layout and every export.
 - **P14** No sales, owner names, or contact numbers in logs or exception text.
 
-Known gap: `HandleInertiaRequests` still shares the full `User` model as `auth.user`. Fix planned in `docs/engineering/testing.md`, "Audit backlog". Do not copy that pattern.
+`auth.user` is the `SessionUser` Data object (name only). Keep it that way.
 
 Before committing, run `/privacy-check` or the `privacy-reviewer` agent.

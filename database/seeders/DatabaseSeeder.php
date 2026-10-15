@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -13,12 +14,18 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * For now this only creates the demo administrator. The simulated
+     * Towns, business types, and demo wishes so far. The simulated
      * business data comes with roadmap F3 (database.md, "Seeder
-     * requirements"), and the capitol_admin role with F1.
+     * requirements").
      */
     public function run(): void
     {
+        $this->call([
+            MunicipalitySeeder::class,
+            BusinessTypeSeeder::class,
+            WishSeeder::class,
+        ]);
+
         $this->seedDemoAdmin();
     }
 
@@ -39,6 +46,7 @@ class DatabaseSeeder extends Seeder
 
         $admin = User::query()->firstOrNew(['email' => $email]);
         $admin->fill(['name' => 'Capitol Administrator', 'password' => $password]);
-        $admin->forceFill(['email_verified_at' => now()])->save();
+        // role is never fillable (D9), so it is forced here.
+        $admin->forceFill(['email_verified_at' => now(), 'role' => UserRole::CapitolAdmin])->save();
     }
 }

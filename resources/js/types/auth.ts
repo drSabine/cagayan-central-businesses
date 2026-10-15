@@ -1,13 +1,8 @@
-export type User = {
-    id: number;
+// Mirrors app/Data/SessionUser. Only these fields of the account reach the browser (P10).
+export type SessionUser = {
     name: string;
-    email: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-    [key: string]: unknown;
 };
 
 export type Auth = {
-    user: User;
+    user: SessionUser | null;
 };

@@ -97,6 +97,81 @@ return [
     ],
 
     /*
+    | Dates written into messages, such as a wish cooldown, use residents'
+    | local time. The database stores UTC.
+    */
+    'display_timezone' => 'Asia/Manila',
+
+    'admin' => [
+
+        /*
+        | D20. The login page lives at this path and nowhere else. It is never
+        | linked from a public page. Set a long random value in .env on any
+        | machine others can reach.
+        */
+        'login_path' => env('CAGAYAN_ADMIN_LOGIN_PATH', 'staff-sign-in'),
+
+        /*
+        | Login attempts allowed per email and network address per minute, and
+        | per network address per hour.
+        */
+        'login_per_minute' => 5,
+
+        'login_per_hour_per_ip' => 20,
+
+        /*
+        | Lockout. Failed attempts on one account per hour from any address.
+        */
+        'login_per_hour_per_account' => 10,
+
+    ],
+
+    'wishes' => [
+
+        /*
+        | D21 and P12. Days a browser waits between two new wishes.
+        */
+        'cooldown_days' => 3,
+
+        /*
+        | Edits a browser may make within the rolling edit window.
+        */
+        'edits_per_window' => 3,
+
+        'edit_window_days' => 7,
+
+        /*
+        | Wish submissions and edits per network address per hour. The address
+        | is held in the cache only, never written to a table.
+        */
+        'per_hour_per_ip' => 10,
+
+        /*
+        | New respondents (browsers with no earlier suggestion) one network may
+        | create per day, counted by the daily network hash. Stops clearing
+        | cookies from becoming a way around the cooldown, while a shared
+        | network such as a school or the booth wifi still works.
+        */
+        'new_respondents_per_network_per_day' => 25,
+
+        /*
+        | Bot check. A signed timestamp issued with the form must be at least
+        | this old when the form comes back, and not older than the maximum.
+        */
+        'min_fill_seconds' => 3,
+
+        'max_fill_minutes' => 120,
+
+        /*
+        | Lifetime of the anonymous submitter cookie.
+        */
+        'cookie_days' => 30,
+
+        'reason_max' => 280,
+
+    ],
+
+    /*
     | The administrator the seeder creates for the demo. The password comes
     | from .env and is never written in code (database.md, seeder item 11).
     */

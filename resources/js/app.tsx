@@ -8,8 +8,7 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    layout: (name) =>
-        name === 'welcome' || name.startsWith('public/') ? PublicLayout : null,
+    layout: (name) => (name.startsWith('public/') ? PublicLayout : null),
     strictMode: true,
     withApp(app) {
         return (

@@ -91,13 +91,13 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 
 ### Foundation
 
-- F1 Core schema: Not started
+- F1 Core schema: In progress (towns and business types done)
 - F2 Boundaries and population: Not started
 - F3 Seeder: Not started
 - F4 Metrics refresh: Not started
 - F5 Privacy guard: Not started
 - F6 Map component: Not started
-- F7 Layouts, label, login: In progress
+- F7 Layouts, label, login: In progress (public shell, home page, discreet admin login, role, and gate done. Capitol layout remains)
 
 ### Tier 1: in the video
 
@@ -111,7 +111,7 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 - C13 Business directory with view log: Not started
 - P1 Explore map: Not started
 - P2 Business listing: Not started
-- P3 I wish there was this business here: Not started
+- P3 I wish there was this business here: In progress (form, cooldown, edits, and count done. The registered count waits on F3 and F4)
 - P4 Start a business guide, first path: Not started
 
 ### Tier 2: as many as time allows, in this order
@@ -142,4 +142,4 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 - M14 Early warning: Not started
 - M15 Public sales band: Not started
 - M16 Peer group: Not started
-- M17 Wish count: Not started
+- M17 Wish count: In progress (count done. The registered count beside it waits on F4)

@@ -60,6 +60,8 @@ Do this once, by hand, as the deploy user:
    - the real database host, name, user, and password
    - a strong `DEMO_ADMIN_PASSWORD`, or none, and create administrators with an Artisan command instead
    - `CAGAYAN_SIMULATED=true` while the data is simulated
+   - `CAGAYAN_ADMIN_LOGIN_PATH` set to a long random value (`php -r "echo bin2hex(random_bytes(12));"`). Production refuses to boot with the example value (decisions.md, D20). Share it with administrators directly, never in the repository or a public channel.
+   - `SESSION_SECURE_COOKIE=true` and `SESSION_ENCRYPT=true` once the site runs on HTTPS
 3. Run `composer install --no-dev`, `php artisan key:generate`, `php artisan migrate --force`, `php artisan db:seed --force`, and `php artisan metrics:refresh`.
 4. Make `storage/` and `bootstrap/cache/` writable by the PHP-FPM user.
 5. Copy a built `public/build` folder once, or let the first deploy do it.

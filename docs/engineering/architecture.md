@@ -70,7 +70,7 @@ Always redirect to a route name, never to a typed path, so renaming a URL never 
 | To a page outside Inertia (a file download, another site) | `return Inertia::location($url);` |
 | A URL was renamed and old links exist | `Route::permanentRedirect('old-path', 'new-path');` in the route file |
 | Where login sends people | `'home'` in `config/fortify.php` |
-| Where guests are sent when they open a Capitol page | the `login` route, which Laravel uses by default |
+| Where guests are sent when they open a Capitol page | nowhere: a plain 404, so the login path stays hidden (decisions.md, D20) |
 
 Do not use `redirect('/some/path')` or `redirect()->to(...)` with a typed path. Validation failures redirect back on their own through the Form Request.
 
@@ -274,8 +274,8 @@ Route::post('wishes', [WishController::class, 'store'])->middleware('throttle:wi
 
 | Endpoint | Limit | Where |
 | :- | :- | :- |
-| Login | 5 per minute per email and IP | `FortifyServiceProvider` (exists) |
-| Wish form (P3) | per IP, per hour | add with the feature |
+| Login | `admin.login_per_minute` per email and IP, `admin.login_per_hour_per_ip` per IP, `admin.login_per_hour_per_account` per account (lockout) | `FortifyServiceProvider` |
+| Wish form and edits (P3) | `wishes.per_hour_per_ip` per IP, per hour. The 3 day cooldown and weekly edit limit are separate rules in `WishAllowance` (privacy-rules.md, P12) | `AppServiceProvider` |
 | CSV and PDF exports (C14) | per user, per minute | add with the feature |
 
 Limits live in `AppServiceProvider` (or `FortifyServiceProvider` for login), named, and applied with `throttle:<name>`. The limiter key may use the IP. That is held briefly in the cache, never written to a table.

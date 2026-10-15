@@ -83,6 +83,8 @@ The cities and municipalities of Cagayan. All appear on the province map. Only c
 | `is_connected` | boolean, default false | True for Tuguegarao City only in the MVP. Others are drawn grey as "Not yet connected". |
 | `boundary` | geometry(MultiPolygon, 4326), nullable | Nullable until loaded. Spatial index. |
 
+`MunicipalitySeeder` reads codes, names, and kinds from `data/boundaries/cagayan-municipalities.geojson`. The shapes are loaded with roadmap F2.
+
 ### barangays
 
 | Column | Type | Notes |
@@ -112,6 +114,8 @@ The list a resident picks from and the level every breakdown uses. Friendly name
 | `sort_order` | smallint | |
 
 Aim for 25 to 35 types a resident would recognize: sari-sari store, grocery, pharmacy, hardware store, coffee shop, restaurant, bakery, salon or barbershop, repair shop, boarding house, bank or lending, clinic, tutorial center. Check each PSIC section against the PSA classification before seeding.
+
+`BusinessTypeSeeder` holds a starter list of 25. Its PSIC sections are not yet verified by the data member.
 
 ### businesses
 
@@ -170,11 +174,24 @@ What residents say their town lacks. No name, no contact, no network address.
 | `id` | id | |
 | `municipality_id` | foreign key | |
 | `business_type_id` | foreign key | |
-| `reason` | string(280), nullable | Shown to administrators only |
-| `dedupe_hash` | string(64) | unique. HMAC of a server secret, the date, the network address, the town, and the type. Blocks a repeat on the same day without storing the address. |
-| `created_at` | timestamp | no `updated_at` |
+| `reason` | string(280), nullable | Shown to administrators only, and to the browser that wrote it |
+| `submitter_hash` | string(64) | SHA-256 of the anonymous browser token in the `wish_submitter` cookie (decisions.md, D21). Never the token itself, never a network address. |
+| `network_hash` | string(64), nullable | HMAC of the network address and the date, keyed with the app key. Changes daily, so it never links days. Null for seeded rows. Caps new respondents per network per day. |
+| `created_at`, `updated_at` | timestamps | `updated_at` changes on an edit |
 
-Index `(municipality_id, business_type_id)`. The unique `dedupe_hash` makes the one-per-day rule hold even when two requests arrive at once.
+Index `(municipality_id, business_type_id)` for counts, `(submitter_hash, created_at)` for the cooldown, and `(network_hash, created_at)` for the new respondent cap. The cooldown and edit checks run under a cache lock per `submitter_hash`, so two quick requests cannot both pass.
+
+### wish_edits
+
+One row per edit of a wish, so the weekly edit limit can be counted. Insert only.
+
+| Column | Type | Notes |
+| :- | :- | :- |
+| `id` | id | |
+| `wish_id` | foreign key, cascade on delete | |
+| `edited_at` | timestamp | no `created_at` or `updated_at` |
+
+Index `(wish_id, edited_at)`.
 
 ### record_view_logs
 
@@ -195,7 +212,7 @@ Laravel's default `users` table (two-factor columns dropped, decisions.md O8), p
 
 | Column | Type | Notes |
 | :- | :- | :- |
-| `role` | enum `capitol_admin` | One value in the MVP. Not fillable. |
+| `role` | enum `capitol_admin`, nullable | One value in the MVP. Not fillable. Null means the account cannot sign in and reaches nothing on the Capitol side. |
 
 ## Summary tables
 
