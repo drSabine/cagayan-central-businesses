@@ -23,7 +23,7 @@ Scope given by the person, if any: $ARGUMENTS. Otherwise the changed files under
    - a page with business data that does not use the shared layout with the "Simulated data" label
    - icon-only buttons without `aria-label`, inputs without a visible label
    - a component that only wraps one element or passes props through, or a new file for markup used once
-3. **Check behavior by reading the routes and pages:** filters and tabs in the URL, redirect and toast after a write, guests sent to login on Capitol pages, public pages without admin fields.
+3. **Check behavior by reading the routes and pages:** filters and tabs in the URL, redirect and toast after a write, guests get a plain 404 on Capitol pages and nothing public links to the admin login (decisions.md, D20), public pages without admin fields.
 4. **Report** findings grouped as must fix (breaks a written rule) and should fix (polish). With no findings, say which checks ran.
 5. **Fix only when asked.**
 

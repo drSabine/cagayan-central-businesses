@@ -1,8 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowRight, ClipboardList, Map as MapIcon } from 'lucide-react';
-import { lazy, Suspense } from 'react';
 import { DefinitionList } from '@/components/definition-list';
 import { FigureRow } from '@/components/figure-row';
+import { LazyProvinceMap } from '@/components/lazy-province-map';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,8 +15,6 @@ import {
 import { formatCount } from '@/lib/format';
 import { index as suggestions } from '@/routes/public/wishes';
 import type { HomeOverview } from '@/types/data';
-
-const ProvinceMap = lazy(() => import('@/components/province-map'));
 
 type Props = {
     overview: HomeOverview;
@@ -48,14 +46,12 @@ export default function Home({ overview }: Props) {
                     <h1 className="sr-only">See where Cagayan does business</h1>
                     <figure className="flex flex-col gap-4 px-6 pt-10 pb-20 md:px-10 lg:pt-14 lg:pb-24">
                         <div className="h-64 md:h-96 lg:h-[28rem]">
-                            <Suspense fallback={null}>
-                                <ProvinceMap
-                                    shapes="province"
-                                    label={`Map of the ${overview.townCount} towns of Cagayan, ${overview.connectedTownCount} connected so far`}
-                                    highlight={overview.connectedTownCodes}
-                                    className="size-full"
-                                />
-                            </Suspense>
+                            <LazyProvinceMap
+                                shapes="province"
+                                label={`Map of the ${overview.townCount} towns of Cagayan, ${overview.connectedTownCount} connected so far`}
+                                highlight={overview.connectedTownCodes}
+                                className="size-full"
+                            />
                         </div>
                         <figcaption className="flex flex-wrap justify-center gap-x-6 gap-y-2 type-body text-brand-foreground/80">
                             <span className="flex items-center gap-2">
@@ -103,13 +99,11 @@ export default function Home({ overview }: Props) {
                         About the data
                     </h2>
                     <div className="h-72 text-primary lg:h-80">
-                        <Suspense fallback={null}>
-                            <ProvinceMap
-                                shapes="tuguegarao"
-                                label="Map of the barangays of Tuguegarao City"
-                                className="size-full"
-                            />
-                        </Suspense>
+                        <LazyProvinceMap
+                            shapes="tuguegarao"
+                            label="Map of the barangays of Tuguegarao City"
+                            className="size-full"
+                        />
                     </div>
                 </div>
                 <DefinitionList

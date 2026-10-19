@@ -51,7 +51,7 @@ const maps = {
     tuguegarao: draw(barangaysSource),
 };
 
-type Props = {
+export type ProvinceMapProps = {
     shapes: keyof typeof maps;
     label: string;
     // Filled in brass: the connected towns, or the town a visitor chose.
@@ -60,7 +60,7 @@ type Props = {
     className?: string;
 };
 
-// Drawn from data/boundaries and loaded with React.lazy (frontend.md, "The map").
+// Drawn from data/boundaries. Pages use LazyProvinceMap (frontend.md, "The map").
 // Colors follow the parent's text color. Never the only way to pick a place.
 export default function ProvinceMap({
     shapes,
@@ -68,7 +68,7 @@ export default function ProvinceMap({
     highlight = [],
     onSelect,
     className,
-}: Props) {
+}: ProvinceMapProps) {
     const { height, shapes: list } = maps[shapes];
 
     return (

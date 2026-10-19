@@ -44,7 +44,7 @@ Tokens are CSS variables in `resources/css/app.css`, mapped to Tailwind classes 
 | Token | Tailwind class | Use |
 | :- | :- | :- |
 | `--brand`, `--brand-foreground` | `bg-brand`, `text-brand-foreground` | River ink surface: the Home hero and the login panel. Dark in both modes |
-| `--highlight` | `bg-highlight`, `fill-highlight` | Brass markers only: the eyebrow rule, a connected or chosen town |
+| `--highlight` | `bg-highlight`, `fill-highlight` | Brass markers only: a connected or chosen town |
 | `--map-1` to `--map-5` | `bg-map-1` to `bg-map-5`, `fill-map-*` | Choropleth scale, low to high |
 | `--map-none` | `bg-map-none` | Towns not yet connected, areas with no data |
 | `--status-new` | `bg-status-new`, `text-status-new` | New registrations |
@@ -65,24 +65,22 @@ Formal and businesslike, built around what the visitor came to do. Cagayan is th
 
 - **Surfaces.** The page is `bg-background`. Cards, inputs, and menus are `bg-card` with a light border and the shadcn `Card` shadow. The brand surface (`bg-brand`) is only for the Home hero and the login panel.
 - **One primary button per screen or area.** "Suggest a business" and "Export CSV" are primary. "Cancel", "Share", and "Edit suggestion" are outline buttons.
-- **Brass for markers only.** The eyebrow rule and a connected or chosen town. Never text, buttons, links, or data.
+- **Brass for markers only.** A connected or chosen town. Never text, buttons, links, or data.
 - **Other color is kept for data.** Only the map scale (`map-*`), statuses (`status-*`), and charts (`chart-*`) carry hue. A colored shape always means something.
 
 ### Type
 
-- **Two families.** Source Serif 4 (`font-serif`) for the display headline and page titles: the formal voice. Instrument Sans (`font-sans`) for everything else. The Vite fonts plugin serves both from our own build, so the booth demo works offline.
+- **Two families.** Source Serif 4 (`font-serif`) for page titles: the formal voice. Instrument Sans (`font-sans`) for everything else. The Vite fonts plugin serves both from our own build, so the booth demo works offline.
 - **Weights:** regular for body. Medium for names, labels, and buttons. Semibold for titles, section headings, and figures.
 
 | Role | Classes | Example |
 | :- | :- | :- |
-| Display (Home only) | `type-display`: serif, `text-4xl` to `text-6xl`, semibold | See where Cagayan does business |
 | Page title | `type-title`: serif, `text-3xl`, `text-4xl` from `lg`, semibold | Suggest a business for your town |
 | Section heading | `type-heading`: `text-xl`, `text-2xl` from `lg`, semibold | What you can do |
 | Page subtitle | `type-subtitle`: `text-base`, `text-lg` from `md`, muted | No account, name, or contact is collected. |
-| Eyebrow | `type-eyebrow`: `text-sm font-medium` after a short brass rule | Province of Cagayan |
 | Headline figure | `type-figure`: `text-3xl`, `text-4xl` from `lg`, semibold, `tabular-nums` | 1,204 |
 | Lead text | `type-lead`: `text-base` | How businesses are protected, point by point |
-| Panel title and item name | `type-panel-title` (`text-lg font-semibold`) or `type-item` (`text-base font-medium`) | Business map |
+| Item name | `type-item`: `text-base font-medium` | Business map |
 | Body and controls | `type-body`: `text-sm` | Search, filter labels |
 | Meta and figure label | `type-meta`: `text-sm text-muted-foreground` | Towns connected |
 | Map pin and small badge | `type-pin`: `text-xs font-medium` | 38 |
@@ -102,7 +100,7 @@ A page title may lead with the count, because the count is the answer. It is sti
 ### Motion
 
 - Color, shadow, and position transitions of 200 ms, easing out.
-- On Home, the hero rises in a short stagger on load (`motion-safe:animate-rise`) and the map's shapes fade in one after another. Sections below rise as they scroll into view (`reveal`, CSS only).
+- On Home, the map's shapes fade in one after another and the figure row rises on load (`motion-safe:animate-rise`). Sections below rise as they scroll into view (`reveal`, CSS only).
 - Everything that moves sits behind `motion-safe:` or a reduced-motion check. No bounce and no loops.
 
 ### Dark mode
@@ -176,7 +174,7 @@ Used by Explore map (P1) and Business listing (P2), and by the Capitol directory
 
 ### Province map
 
-- `components/province-map.tsx` draws the 29 towns of Cagayan or the 49 barangays of Tuguegarao City as SVG from `data/boundaries`, loaded with `React.lazy`.
+- `components/province-map.tsx` draws the 29 towns of Cagayan or the 49 barangays of Tuguegarao City as SVG from `data/boundaries`. Pages use `LazyProvinceMap`, which shows a skeleton while it loads.
 - Shapes follow the parent's text color. Connected or chosen places fill brass. Hovering names a place in a shadcn `Tooltip`.
 - It is an illustration and a picker, never the only control, and it never shows business data. Where business data is shown, the MapLibre map (F6) is used instead.
 
@@ -188,11 +186,11 @@ Used by Explore map (P1) and Business listing (P2), and by the Capitol directory
   - `page-header.tsx`: the one-name title and an optional subtitle.
   - `figure-row.tsx`: headline figures in one card.
   - `definition-list.tsx`: term and description rows, for notes, limits, and status.
-  - `province-map.tsx`: the SVG province or city map.
+  - `province-map.tsx` and `lazy-province-map.tsx`: the SVG province or city map, and the lazy loader pages use.
   - `components/ui/table.tsx` (shadcn): any table of figures.
   - `app-bottom-bar.tsx`, `appearance-toggle.tsx`: the shell.
 - **Public pages lead with the task.** The first screen says what the visitor can do and holds one primary button. Hierarchy comes from the type scale and card size: what is open now is the biggest thing. A feature not built yet is a quiet muted card with a "Not open yet" badge. Plain labels ("Suggest a business", not metaphors).
-- **Home page:** the brand hero (eyebrow, display headline, one line, the primary button, and the province map with "Connected" and "Not yet connected"). Then a figure row over the hero's bottom edge, "What you can do" as one large open card beside smaller muted cards, "About the data" with the Tuguegarao barangay map beside a definition list of limits, and "How businesses are protected" as three numbered points.
+- **Home page:** the brand hero is the province map alone, with a "Connected" and "Not yet connected" key under it. The page title stays in the document for screen readers only. Then a figure row over the hero's bottom edge, "About the data" with the Tuguegarao barangay map beside a definition list of limits, "How businesses are protected" as three numbered points, and "What you can do" last, as one large open card beside smaller muted cards.
 - **The "Simulated data" label** is small muted text under the app name in the header, on every public page. Home explains it under "About the data".
 - The toast (`components/ui/sonner.tsx`) shows flashed messages, above the phone bottom bar.
 - A screen that shows business data includes the "Simulated data" label from the shared layout. Never add it page by page.
