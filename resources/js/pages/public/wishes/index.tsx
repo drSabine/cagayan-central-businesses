@@ -1,7 +1,8 @@
 import { Form, Head, router, usePage } from '@inertiajs/react';
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
 import { DefinitionList } from '@/components/definition-list';
 import { FigureRow } from '@/components/figure-row';
+import { LazyProvinceMap } from '@/components/lazy-province-map';
 import { PageHeader } from '@/components/page-header';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -27,13 +28,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { formatCount, formatDateTime } from '@/lib/format';
 import { index, store, update } from '@/routes/public/wishes';
 import type { SelectOption, WishPage } from '@/types/data';
-
-const ProvinceMap = lazy(() => import('@/components/province-map'));
 
 type Props = {
     page: WishPage;
@@ -46,6 +46,7 @@ export default function SuggestionsIndex({ page }: Props) {
         params.get('town') ?? page.defaultTown ?? '',
     );
     const [type, setType] = useState(params.get('type') ?? '');
+    const [counting, setCounting] = useState(false);
     // Kept from the first render. Partial reloads for the count issue a fresh
     // token, which would make a quick submit look like a bot.
     const [formToken] = useState(page.formToken);
@@ -61,6 +62,8 @@ export default function SuggestionsIndex({ page }: Props) {
                 preserveScroll: true,
                 replace: true,
                 only: ['page'],
+                onStart: () => setCounting(true),
+                onFinish: () => setCounting(false),
             });
         }
     };
@@ -300,19 +303,17 @@ export default function SuggestionsIndex({ page }: Props) {
 
                 <div className="flex flex-col gap-6 lg:sticky lg:top-24">
                     <div className="hidden h-80 text-primary lg:block">
-                        <Suspense fallback={null}>
-                            <ProvinceMap
-                                shapes="province"
-                                label="Map of the towns of Cagayan with the chosen town filled"
-                                highlight={town ? [town] : []}
-                                onSelect={
-                                    showForm
-                                        ? (code) => choose({ town: code, type })
-                                        : undefined
-                                }
-                                className="size-full"
-                            />
-                        </Suspense>
+                        <LazyProvinceMap
+                            shapes="province"
+                            label="Map of the towns of Cagayan with the chosen town filled"
+                            highlight={town ? [town] : []}
+                            onSelect={
+                                showForm
+                                    ? (code) => choose({ town: code, type })
+                                    : undefined
+                            }
+                            className="size-full"
+                        />
                     </div>
 
                     {(page.tally || showForm) && (
@@ -323,7 +324,13 @@ export default function SuggestionsIndex({ page }: Props) {
                             <h2 id="count-heading" className="type-heading">
                                 Suggestions so far
                             </h2>
-                            {page.tally ? (
+                            {counting ? (
+                                <Skeleton
+                                    role="status"
+                                    aria-label="Loading the count"
+                                    className="h-28 rounded-xl"
+                                />
+                            ) : page.tally ? (
                                 <>
                                     <FigureRow
                                         figures={[

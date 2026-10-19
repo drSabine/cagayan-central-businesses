@@ -163,7 +163,7 @@ async function loadMapStyle() {
 - `mapColor()` reads a token from `app.css` and returns a color MapLibre accepts, because map layers cannot use Tailwind classes. Add it to `lib/` with the first map, and use it for every map color. Never a hex value.
 - The map component lives in `components/map/` and is loaded with `React.lazy` (see "Performance").
 - The map is never the only way to reach a barangay. A list or search does the same job (`design.md`).
-- **The province map is different.** `components/province-map.tsx` is a plain SVG of the 29 towns or the 49 Tuguegarao barangays, drawn from the files in `data/boundaries` that are bundled at build time and loaded with `React.lazy`. It carries no business data, so it needs no props from the server. Use it for illustration and as a place picker beside a real control, never in place of the MapLibre map.
+- **The province map is different.** `components/province-map.tsx` is a plain SVG of the 29 towns or the 49 Tuguegarao barangays, drawn from the files in `data/boundaries` that are bundled at build time. Pages use `LazyProvinceMap` (`components/lazy-province-map.tsx`), which loads it with `React.lazy` in the browser only and shows a skeleton until then, because a lazy component cannot finish during server rendering. It carries no business data, so it needs no props from the server. Use it for illustration and as a place picker beside a real control, never in place of the MapLibre map.
 
 ## Charts
 
