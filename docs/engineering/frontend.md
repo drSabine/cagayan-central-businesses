@@ -163,7 +163,7 @@ async function loadMapStyle() {
 - `mapColor()` reads a token from `app.css` and returns a color MapLibre accepts, because map layers cannot use Tailwind classes. Add it to `lib/` with the first map, and use it for every map color. Never a hex value.
 - The map component lives in `components/map/` and is loaded with `React.lazy` (see "Performance").
 - The map is never the only way to reach a barangay. A list or search does the same job (`design.md`).
-- **The province map is different.** `components/province-map.tsx` is a plain SVG of the 29 towns or the 49 Tuguegarao barangays, drawn from the files in `data/boundaries` that are bundled at build time. Pages use `LazyProvinceMap` (`components/lazy-province-map.tsx`), which loads it with `React.lazy` in the browser only and shows a skeleton until then, because a lazy component cannot finish during server rendering. It carries no business data, so it needs no props from the server. Use it for illustration and as a place picker beside a real control, never in place of the MapLibre map.
+- **The province map is different.** `components/province-map.tsx` is a plain SVG of the 29 towns by default, with optional `source` geometry for each town's barangays. Only the province boundary is bundled with the component; barangay datasets load on demand. Pages use `LazyProvinceMap` (`components/lazy-province-map.tsx`), which loads it with `React.lazy` in the browser only and shows a skeleton until then, because a lazy component cannot finish during server rendering. It draws a halftone: same-size dots on one grid (`lib/halftone.ts`), colored by an optional shade per place (`shades`), brass for `highlight`, with `onSelect` on click or keyboard, `water` for sea dots, and `zoomable` for zoom and pan. It never carries business data. The Home hero (`components/town-atlas.tsx`) passes it the public town shades from `TownAtlasQuery`, computed in SQL. Use it for illustration and as a place picker beside a real control, never in place of the MapLibre map.
 
 ## Charts
 
@@ -220,3 +220,11 @@ The exact words are in `privacy-rules.md`, "Words on screen".
 ## Checks
 
 `npm run check:fix` formats and lints. `npm run types:check` runs TypeScript. Both run in the pre-commit hook.
+
+About the Data loads one `data/barangays/maps/<town-code>.json` chunk per selected town. The `barangayTown` URL filter selects among all 29 Cagayan towns. The current boundary and its population properties are passed to the shared SVG map through its optional `source` prop. Population shades are prepared in the dataset, not calculated in the browser.
+
+The Home maps share a Dotted/Solid presentation preference, stored as `map-style` in browser storage. One icon-only control beside the main town selector changes both maps. Changing it updates component state only; it does not navigate, reload datasets, or reset selections. Both styles use `ProvinceMap` and its existing geometry, motion, and interaction behavior.
+
+The barangay explorer caches parsed census data, lookups, and pending imports per town for the browser session. Revisiting a town uses its cached data immediately, without a loading skeleton or repeated parsing. Prepared SVG geometry and dot grids are also cached by the shared map; only a first visit animates in. Town filters remain client-side Inertia replacements and do not request the Home data again.
+
+The wish form updates selection state immediately. It requests only the optional `tally` prop in the background when both codes are present; that response replaces the URL. Incomplete or cached selections replace the URL locally. The main `page` prop is lazy, so count requests skip rebuilding form options, allowances, and form tokens. Repeated selections are ignored, counts are cached for the current visit, and superseded requests are cancelled. A successful form response clears the count cache. Business Type is shown by default; the Specify a Business control reveals the optional company field, including automatically when editing a wish with a company name.

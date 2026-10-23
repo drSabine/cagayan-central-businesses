@@ -69,7 +69,7 @@ The public side has five features and needs no login.
 
 1. **Explore map.** The same barangay map, with declared sales shown only as a band: how many registered businesses, what types, and the most common types in each barangay.
 2. **Business listing.** For each business the public sees only its name, type, a brief description, the year it was first established, and its barangay. No owner name, no contact number, no income.
-3. **I wish there was this business here.** A resident picks their town and a business type, adds a short reason if they want, and submits. The page then shows how many others wished for the same thing and how many such businesses are already registered in that town. Wishes are counted, not treated as proof of demand.
+3. **I wish there was this business here.** A resident picks their town and may choose a business type, name a specific business, or do both. They can add a short reason of up to 255 characters. Wishes are counted, not treated as proof of demand.
 4. **Start a business in Cagayan.** Four questions produce a personal checklist in the order to do things, with where to get each document. Every item links to its official source and shows the date it was last verified. The guide is read-only: it shows what to prepare and where to get it, with no forms, uploads, or submission. The application itself stays in the city's own online system.
    - Ownership: solo owner, partnership or corporation, or cooperative
    - Activity: food, retail, services, manufacturing, and others
@@ -110,7 +110,7 @@ The frame is real and the business records are simulated. Every screen that show
 - **Admin-only fields:** owner name, contact number, ownership type, size category (micro, small, medium), number of employees
 - **Status per year:** new, renewed, not renewed, or closed
 - **Declared gross sales per year:** never shown for one business, used only inside area totals
-- **Citizen wish record:** town, business type wished for, optional short reason, date. No name or contact is collected.
+- **Citizen wish record:** town, optional business type, optional specific business name, optional short reason, date. The form requires a type or a specific business, or both. No resident name or contact is collected.
 
 **Privacy rules built into the product**
 
@@ -147,7 +147,7 @@ Every number on screen has a plain definition the team can state in the question
 - **Public sales band:** the band that contains an area's total declared sales. The team sets the band edges with the adviser.
 - **Peer group:** barangays of the same urban or rural class.
 - **Below peer average:** business density lower than the peer group's median by a margin the team sets and states.
-- **Wish count:** the number of wishes for a business type in a town. It shows interest from the people who chose to answer, not measured demand.
+- **Wish count:** the number of wishes for a business type, a specific company, or both in a town. It shows interest from the people who chose to answer, not measured demand.
 
 ## Suggested build approach
 

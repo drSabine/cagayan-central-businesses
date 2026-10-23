@@ -36,7 +36,7 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D6. Supporting libraries
 
-**Decided, updated October 3, 2026.** Charts: Recharts, through shadcn's Chart component. Tables: TanStack Table. PDF: `@react-pdf/renderer`, built in the browser (replaces `barryvdh/laravel-dompdf`, see below). CSV: a streamed Laravel response, no package. Boundary preparation outside the app: QGIS and mapshaper. Fonts: Instrument Sans and Source Serif 4 (display and page titles, added October 5, 2026), both through the Vite fonts plugin, so no npm package. Each is installed with the first feature that needs it, and its version recorded below.
+**Decided, updated October 3, 2026.** Charts: Recharts, through shadcn's Chart component. Tables: TanStack Table. PDF: `@react-pdf/renderer`, built in the browser (replaces `barryvdh/laravel-dompdf`, see below). CSV: a streamed Laravel response, no package. Boundary preparation outside the app: QGIS and mapshaper. Fonts: IBM Plex Sans and IBM Plex Mono (replaced Instrument Sans and Source Serif 4 on October 19, 2026, see D22), both through the Vite fonts plugin, so no npm package. Each is installed with the first feature that needs it, and its version recorded below.
 
 **Why `@react-pdf/renderer`:** dompdf supports only old CSS, so a brief laid out with it looks dated and is hard to style. `@react-pdf/renderer` lays out pages with flexbox in React, which the frontend developer already writes, and the server stays free of a PDF engine. The PDF is built from the props the page already has, so it carries the same guarded data as the screen (privacy-rules.md, P11).
 
@@ -127,6 +127,35 @@ What the team decided and why. Change a decision only through a pull request tha
 
 **Why:** a cooldown and weekly edits need to recognize the same submitter for a week, which a daily hash cannot do. Keying the cooldown on the network address would put everyone behind one mobile carrier address, or the booth wifi, under one cooldown, so the network hash only caps new respondents. Suggestions are counted as interest, not as proof of demand.
 
+## D22. Design system: halftone, Plex, square corners, Title Case
+
+**Decided October 19, 2026.** The interface follows one written design system, `docs/engineering/design.md`, built from tokens in `resources/css/app.css`. Claude starts UI work with `/ui-builder` and checks it with `/design-check`.
+
+- **Fonts:** IBM Plex Sans for words and IBM Plex Mono for numbers, labels, and the map, through the Vite fonts plugin. They replace Instrument Sans and Source Serif 4 (D6). Plex is open-license, very legible, and reads as institutional, which suits a provincial government.
+- **Corners:** `--radius` is 2px, and every `rounded-*` step resolves to about that.
+- **Halftone:** map values are drawn as same-size SVG dots on one shared grid, shaded by value. Dots carry data only, so this keeps the "no decoration" rule. No CSS gradients are used to draw them. Sizing dots by value was tried and dropped, because small towns vanished.
+- **Capitalization:** Title Case for titles, headings, buttons, tabs, badges, labels, and legends. Sentence case for sentences. This replaces the sentence case rule.
+- **Shell:** public pages have no top bar. A slim line with the app name, the "Simulated data" tag, and the light and dark switch scrolls away with the page. Phones keep the bottom bar.
+- **Home keeps its layout:** the ink hero now holds the shaded town map. A click picks a town, a double click opens its population, revenue, and expenditure.
+
+**Why:** the team lead asked for a technical, trustworthy look for government users, less empty space, and a map that invites exploring, built on the existing design rather than replacing it.
+
+## D23. Town figures from a CSV, on a hand-drawn SVG map
+
+**Decided October 19, 2026.** Population and economic figures for the 29 towns live in `data/towns/town-facts.csv`, one row per town, measure, and year, with a source for each. `towns:import` loads it into `town_facts`. The Home map stays our own SVG (`province-map.tsx`) instead of a map package.
+
+**Why:**
+- PSA and DOF publish no public API, and their sites block automated reads, so "live" updates mean editing one reviewed file and rerunning one command.
+- Long format means a new census year is new rows, not new columns or code.
+- A package such as react-simple-maps is unmaintained and does not support React 19. MapLibre stays for the business map (D5, F6), where a basemap and zoom are needed.
+- The SVG map is a few kilobytes with no dependency and draws the halftone directly.
+
+## D24. Geist typography, simple town details, and flexible wishes
+
+**Decided October 23, 2026.** Geist is the interface face and Geist Mono is used for numbers and labels. Both variable fonts are self-hosted from `resources/fonts/` with the OFL license from `drSabine/personal-fonts-repo`, so pages work offline. Clicking a town shows all its figures beside the map; there is no double-click action or details dialog. The wish form accepts a business type, a specific company, or both, and shares one canvas with the map.
+
+**Why:** the UI should use the user's Geist collection, keep map details visible in place, and let residents express a wish at the type or company level.
+
 ## Open decisions
 
 Each has a default so work is not blocked.
@@ -162,3 +191,19 @@ Recorded October 3, 2026, from `composer.lock`, `package-lock.json`, and the run
 - `composer types:check` runs PHPStan with `--memory-limit=1G`, because WAMP's default limit crashes it.
 - Public registration is off: the Fortify feature, its page, and its links were removed. `tests/Feature/Auth/RegistrationDisabledTest.php` checks it.
 - Boost's `infer-conventions` skill was removed. The team records conventions in these docs instead.
+
+## D25. Preserve Map Panel Scope and Expand Census Explorer
+
+October 23, 2026. The Home map panel is restricted to population, revenue, and expenditure and their sources, following the user’s correction. Barangay count, income class, and poverty incidence are excluded. Remove the unsolicited right-panel legend and zoom instruction. Sources are stacked one per line, with readable foreground text. About the Data offers all 29 Cagayan towns, loading one local geometry/population chunk on selection. The PSA 2024 Cagayan workbook provides population; existing documented 2023 boundary sources provide shapes. This extends D24 without changing the wish form layout.
+
+## D26. Map Presentation and Explorer Caching
+
+October 23, 2026. The user requested an alternative to the dotted map and removal of repeated explorer reloads. Dotted remains the default; Solid uses the same local geometry, blue population scale, brass selection, tooltip, and keyboard interactions. Both Home map toolbars expose the shared browser preference beside their town selectors. Visited census datasets, pending imports, SVG projections, and dot grids are reused rather than rebuilt on every change. Cached towns do not replay their entry animation. Public data and privacy copy states existing disclosure and hashing practices formally, without asserting legal compliance. Population references use the PSA 2024 release supplied with the Cagayan workbook.
+
+Follow-up: the user requested one central icon control beside the main town selector, replacing the duplicated text controls. The hero map is taller with reduced bottom padding. The unused starter Sidebar, its sole mobile hook, and its unused CSS tokens were removed. The form selection reload was audited only: both selectors and map clicks call an Inertia GET for the entire `page` prop, with a count skeleton while pending; optimizing that request remains separate work.
+
+The next cleanup lightens dark mode to soft neutral charcoal with progressively lighter card and control surfaces. Nine unused starter primitives (avatar, breadcrumb, checkbox, collapsible, dialog, dropdown menu, one-time-code input, navigation menu, and sheet) were removed after checking their references. The shared map no longer bundles or prepares a second static Tuguegarao map: its barangay geometry now comes exclusively from the existing on-demand census dataset. The redundant `shapes` selector prop was removed from callers.
+
+Color correction: replace the neutral charcoal with muted blue slate surfaces sharing the river ink hue. Retain the lighter base and readable text and field borders, so dark mode complements the blue map without returning to near-black.
+
+The form reload fix keeps selections and drafts local, requests only an optional category tally, and lazily resolves the full form payload. Repeated selections make no request; recent counts are reused, superseded requests are cancelled, and submission invalidates cached counts. Business Type is shown first, with an explicit control to reveal Specific Business. Either field or both remain valid, and editing a company wish opens its field automatically.

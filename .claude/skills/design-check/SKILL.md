@@ -1,6 +1,6 @@
 ---
 name: design-check
-description: Use before committing a change to pages, components, layouts, CSS, or UI text. Checks the diff against docs/engineering/design.md (writing rules, no gradients, tokens, states, routes and auth behavior) and reports findings with file and line.
+description: Use before committing a change to pages, components, layouts, CSS, or UI text. Checks the diff against the design system in docs/engineering/design.md (capitalization, writing rules, tokens, type, radius, halftone, states, routes and auth behavior) and reports findings with file and line.
 argument-hint: "[optional file list]"
 ---
 
@@ -16,14 +16,20 @@ Scope given by the person, if any: $ARGUMENTS. Otherwise the changed files under
    - a title, heading, `<Head title>`, breadcrumb label, or tab label joining parts with a comma, dash, middot, or pipe
    - `gradient` in a class (`bg-gradient-*`, `from-*`, `via-*`, `to-*`) or in CSS (`linear-gradient`, `radial-gradient`)
    - raw colors: hex values, `rgb(`, or palette classes like `bg-blue-500`, `text-red-600` instead of tokens
-   - Title Case labels where sentence case is the rule, exclamation marks, or emoji in UI text
+   - capitalization (design.md, "Capitalization"): page titles, headings, card titles, buttons, tabs, badges, nav items, legend titles, and table headers not in Title Case; sentences (subtitles, descriptions, toasts, errors, empty states) not in sentence case; a proper noun or acronym written wrong (Tuguegarao City, Peñablanca, PSA, PSGC, DTI)
+   - exclamation marks or emoji in UI text
+   - raw type classes (`text-2xl font-bold`) where a `type-*` role exists, a font other than `font-sans` and `font-mono`, numbers or figures not in `font-mono` with `tabular-nums`
+   - radius other than the `rounded-*` scale or `rounded-full` (no `rounded-[...]`), and `rounded-full` on anything but dots, avatars, and round icon buttons
+   - dots or a dotted pattern used as decoration, or map dots that change size; check map keys against the screen's approved scope instead of adding an unsolicited Home legend
+   - raw durations or easings where a motion token exists, and motion without `motion-safe:` or a reduced-motion fallback
+   - a year or source repeated on every row instead of once per group of figures
    - a hard-coded URL instead of a Wayfinder import, or `<a href>` for in-app navigation
    - a data view missing one of its states: loading, empty, not available, hidden, error
    - "not available" or "hidden" rendered as `0`, a dash, or blank
    - a page with business data that does not use the shared layout with the "Simulated data" label
    - icon-only buttons without `aria-label`, inputs without a visible label
    - a component that only wraps one element or passes props through, or a new file for markup used once
-3. **Check behavior by reading the routes and pages:** filters and tabs in the URL, redirect and toast after a write, guests get a plain 404 on Capitol pages and nothing public links to the admin login (decisions.md, D20), public pages without admin fields.
+3. **Check scope and copy against design.md, "Working on Existing Screens":** no unrequested redesign, dangling statistics, repeated helper paragraphs, decorative link arrows, restored modals or map CTAs, duplicate style controls, or section overlap. Confirm bounded dropdowns, the Specific Business reveal control, draft preservation, and count-only updates. Check behavior by reading the routes and pages: filters and tabs in the URL, redirect and toast after a write, guests get a plain 404 on Capitol pages and nothing public links to the admin login (decisions.md, D20), public pages without admin fields.
 4. **Report** findings grouped as must fix (breaks a written rule) and should fix (polish). With no findings, say which checks ran.
 5. **Fix only when asked.**
 

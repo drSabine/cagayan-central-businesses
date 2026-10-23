@@ -92,7 +92,7 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 ### Foundation
 
 - F1 Core schema: In progress (towns and business types done)
-- F2 Boundaries and population: Not started
+- F2 Boundaries and population: In progress (town population, income class, poverty, and budgets from `data/towns/`; the `barangays` table with Tuguegarao's 2024 barangay population from `data/barangays/`. Shapes in PostGIS and urban or rural class remain)
 - F3 Seeder: Not started
 - F4 Metrics refresh: Not started
 - F5 Privacy guard: Not started
@@ -111,7 +111,7 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 - C13 Business directory with view log: Not started
 - P1 Explore map: Not started
 - P2 Business listing: Not started
-- P3 I wish there was this business here: In progress (form, cooldown, edits, and count done. The registered count waits on F3 and F4)
+- P3 I wish there was this business here: In progress (form, cooldown, edits, category/company choices, 255-character reason, and count-only background updates done. The registered count waits on F3 and F4)
 - P4 Start a business guide, first path: Not started
 
 ### Tier 2: as many as time allows, in this order
@@ -143,3 +143,14 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 - M15 Public sales band: Not started
 - M16 Peer group: Not started
 - M17 Wish count: In progress (count done. The registered count beside it waits on F4)
+
+## Handoff for the Next Session
+
+October 23, 2026. The user's UI corrections are recorded in `docs/engineering/design.md`, "Working on Existing Screens", and summarized in `CLAUDE.md` and `.claude/rules/frontend.md`. Read that section before proposing further public UI changes.
+
+- Home has one shared icon style control, three measures in the main panel, a cached town/barangay explorer, Geist typography, and a muted blue slate dark theme. The shared SVG map supports both dotted and solid presentation.
+- The population datasets cover Cagayan only: 29 towns and 820 barangays from the workbook's Cagayan sheet. Database barangay population currently covers Tuguegarao's 49 barangays. Browser geometry covers all 29 towns; loading PostGIS boundaries for the future business map is still F2/F6 work.
+- The wish form shows Business Type first and reveals Specific Business on request. Town and map selection preserve drafts; only category counts load in the background. The registered-business count remains "Not available" until F3/F4 supplies records and metrics.
+- COA revenue and expenditure rows without a `checked_on` date still require a team member's source review, as recorded in `data/towns/README.md`.
+- The production and SSR builds pass with the existing Inertia sourcemap warning. Refresh a running development preview after rebuilding before checking count requests, because an old asset version can cause a discarded background response.
+- Continue with a focused task and commit by concern. Do not restore removed helper copy, modals, map CTAs, legends, or duplicate controls as part of unrelated work.
