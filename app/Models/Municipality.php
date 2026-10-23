@@ -33,6 +33,14 @@ class Municipality extends Model
     }
 
     /**
+     * @return HasMany<Barangay, $this>
+     */
+    public function barangays(): HasMany
+    {
+        return $this->hasMany(Barangay::class);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

@@ -66,6 +66,10 @@
             "@php artisan migrate:fresh --seed --force",
             "@php artisan metrics:refresh"
         ],
+        "data:towns": [
+            "@php artisan towns:import",
+            "@php artisan barangays:import"
+        ],
         "doctor": [
             "@php artisan app:doctor"
         ],

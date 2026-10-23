@@ -85,6 +85,22 @@ The cities and municipalities of Cagayan. All appear on the province map. Only c
 
 `MunicipalitySeeder` reads codes, names, and kinds from `data/boundaries/cagayan-municipalities.geojson`. The shapes are loaded with roadmap F2.
 
+### town_facts
+
+Real public figures per town and year: population, land area, barangays, income class, poverty incidence, revenue, and expenditure. Loaded from `data/towns/town-facts.csv` by `php artisan towns:import`, which replaces the whole table with the file. Read by `TownAtlasQuery` (metrics.md, "Town figures"). Public, so no visibility class applies.
+
+| Column | Type | Notes |
+| :- | :- | :- |
+| `id` | id | |
+| `municipality_id` | foreign key | cascade on delete |
+| `measure` | enum `population`, `land_area_km2`, `barangay_count`, `income_class`, `poverty_incidence`, `revenue`, `expenditure` | `App\Enums\TownMeasure` |
+| `year` | smallint | The year the figure is for |
+| `value` | decimal(16, 2) | Pesos, residents, km², percent, or the class number |
+| `source_url` | string(500) | Required |
+| `checked_on` | date, nullable | When a team member checked it against the official release |
+
+Unique `(municipality_id, measure, year)`, which also serves the lookups. A new census or budget year is new rows, never a schema change.
+
 ### barangays
 
 | Column | Type | Notes |
@@ -93,12 +109,13 @@ The cities and municipalities of Cagayan. All appear on the province map. Only c
 | `municipality_id` | foreign key | indexed |
 | `psgc_code` | string(10) | unique |
 | `name` | string | |
-| `urban_rural` | enum `urban`, `rural` | From the PSA listing. This is the peer group. |
-| `population` | integer | 2024 census |
-| `population_year` | smallint | |
-| `boundary` | geometry(MultiPolygon, 4326) | Spatial index |
+| `urban_rural` | enum `urban`, `rural`, nullable | From the PSA listing. This is the peer group. Null until entered (F2). |
+| `population` | unsigned integer, nullable | From `data/barangays/tuguegarao-population.csv` (2024 census) |
+| `population_year` | smallint, nullable | |
+| `population_source` | string(500), nullable | The official release the figure comes from |
+| `boundary` | geometry(MultiPolygon, 4326), nullable | Spatial index. Loaded with F2. |
 
-Index `(municipality_id, urban_rural)` for peer groups. Tuguegarao City is PSGC `0201529000` with 49 barangays. Shapes are in `data/boundaries/` and load by `psgc_code`.
+Index `(municipality_id, urban_rural)` for peer groups. Tuguegarao City is PSGC `0201529000` with 49 barangays. `BarangaySeeder` reads codes and names from `data/boundaries/tuguegarao-barangays.geojson`, and `php artisan barangays:import` loads population from the CSV (`composer data:towns` runs it with `towns:import`). Shapes load by `psgc_code` with F2.
 
 ### business_types
 
@@ -167,19 +184,20 @@ Two checks follow, for every year after the first, each worth a test:
 
 ### wishes
 
-What residents say their town lacks. No name, no contact, no network address.
+What residents wish their town had. No resident name, contact, or raw network address.
 
 | Column | Type | Notes |
 | :- | :- | :- |
 | `id` | id | |
 | `municipality_id` | foreign key | |
-| `business_type_id` | foreign key | |
-| `reason` | string(280), nullable | Shown to administrators only, and to the browser that wrote it |
+| `business_type_id` | foreign key, nullable | Optional when a specific business is named |
+| `specific_business` | string(120), nullable | Requested company name, hidden from all users except the browser that sent it |
+| `reason` | string(255), nullable | Shown only to the browser that wrote it |
 | `submitter_hash` | string(64) | SHA-256 of the anonymous browser token in the `wish_submitter` cookie (decisions.md, D21). Never the token itself, never a network address. |
 | `network_hash` | string(64), nullable | HMAC of the network address and the date, keyed with the app key. Changes daily, so it never links days. Null for seeded rows. Caps new respondents per network per day. |
 | `created_at`, `updated_at` | timestamps | `updated_at` changes on an edit |
 
-Index `(municipality_id, business_type_id)` for counts, `(submitter_hash, created_at)` for the cooldown, and `(network_hash, created_at)` for the new respondent cap. The cooldown and edit checks run under a cache lock per `submitter_hash`, so two quick requests cannot both pass.
+Index `(municipality_id, business_type_id)` for type counts, `(municipality_id, specific_business)` for named business counts, `(submitter_hash, created_at)` for the cooldown, and `(network_hash, created_at)` for the new respondent cap. The cooldown and edit checks run under a cache lock per `submitter_hash`, so two quick requests cannot both pass.
 
 ### wish_edits
 

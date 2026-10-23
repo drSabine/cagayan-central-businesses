@@ -13,10 +13,10 @@ final class SubmitWish
 {
     public function __construct(private WishAllowance $allowance) {}
 
-    public function handle(Municipality $town, BusinessType $type, ?string $reason, string $submitterHash, string $networkHash): Wish
+    public function handle(Municipality $town, ?BusinessType $type, ?string $specificBusiness, ?string $reason, string $submitterHash, string $networkHash): Wish
     {
         // The lock stops two quick requests from both passing the checks.
-        return Cache::lock('wish:'.$submitterHash, 10)->block(5, function () use ($town, $type, $reason, $submitterHash, $networkHash): Wish {
+        return Cache::lock('wish:'.$submitterHash, 10)->block(5, function () use ($town, $type, $specificBusiness, $reason, $submitterHash, $networkHash): Wish {
             $nextWishAt = $this->allowance->nextWishAt($submitterHash);
 
             if ($nextWishAt !== null) {
@@ -35,7 +35,8 @@ final class SubmitWish
 
             return Wish::query()->create([
                 'municipality_id' => $town->id,
-                'business_type_id' => $type->id,
+                'business_type_id' => $type?->id,
+                'specific_business' => $specificBusiness,
                 'reason' => $reason,
                 'submitter_hash' => $submitterHash,
                 'network_hash' => $networkHash,

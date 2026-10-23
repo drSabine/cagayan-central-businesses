@@ -20,7 +20,9 @@ export function FigureRow({ figures, className }: Props) {
                     key={figure.label}
                     className="flex flex-col-reverse justify-end gap-2 bg-card p-5 lg:p-6"
                 >
-                    <dt className="type-meta">{figure.label}</dt>
+                    <dt className="type-label text-muted-foreground">
+                        {figure.label}
+                    </dt>
                     <dd className="type-figure">{figure.value}</dd>
                 </dl>
             ))}

@@ -9,6 +9,11 @@ use App\Models\Wish;
 
 final class HomeOverviewQuery
 {
+    public function __construct(
+        private TownAtlasQuery $atlas,
+        private BarangayAtlasQuery $barangays,
+    ) {}
+
     public function get(): HomeOverview
     {
         /** @var object{total: int|string|null, connected: int|string|null}|null $towns */
@@ -34,6 +39,8 @@ final class HomeOverviewQuery
             latestYear: (int) config('cagayan.data.latest_year'),
             yearCount: (int) config('cagayan.data.latest_year') - (int) config('cagayan.data.first_year') + 1,
             smallGroupMin: (int) config('cagayan.privacy.small_group_min'),
+            atlas: $this->atlas->get(),
+            barangays: $this->barangays->get(),
         );
     }
 }

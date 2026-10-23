@@ -1,11 +1,13 @@
-import { Form, Head, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { Form, Head, Link, router, usePage } from '@inertiajs/react';
+import { ArrowLeft } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { DefinitionList } from '@/components/definition-list';
 import { FigureRow } from '@/components/figure-row';
 import { LazyProvinceMap } from '@/components/lazy-province-map';
 import { PageHeader } from '@/components/page-header';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
     Card,
     CardContent,
@@ -16,7 +18,6 @@ import {
 } from '@/components/ui/card';
 import {
     Field,
-    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
@@ -28,12 +29,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { formatCount, formatDateTime } from '@/lib/format';
+import { home } from '@/routes';
 import { index, store, update } from '@/routes/public/wishes';
-import type { SelectOption, WishPage } from '@/types/data';
+import type { SelectOption, WishPage, WishTally } from '@/types/data';
 
 type Props = {
     page: WishPage;
@@ -46,24 +47,88 @@ export default function SuggestionsIndex({ page }: Props) {
         params.get('town') ?? page.defaultTown ?? '',
     );
     const [type, setType] = useState(params.get('type') ?? '');
+    const [specificBusiness, setSpecificBusiness] = useState(
+        page.myWish?.specificBusiness ?? '',
+    );
     const [counting, setCounting] = useState(false);
-    // Kept from the first render. Partial reloads for the count issue a fresh
-    // token, which would make a quick submit look like a bot.
+    const [countFailed, setCountFailed] = useState(false);
+    const [tally, setTally] = useState(page.tally);
+    const [showSpecificBusiness, setShowSpecificBusiness] = useState(false);
+    const tallyCache = useRef(new Map<string, WishTally | null>());
+    const cancelCount = useRef<(() => void) | null>(null);
+    const countVersion = useRef(0);
+    useEffect(() => () => cancelCount.current?.(), []);
+    useEffect(() => {
+        tallyCache.current.clear();
+        setTally(page.tally);
+    }, [page]);
+    // Keep the original timer while the visitor changes their selection.
     const [formToken] = useState(page.formToken);
 
-    // The count follows the chosen town and type, and the choice lives in the URL.
-    const choose = (next: { town: string; type: string }) => {
+    // The town and type selection lives in the URL.
+    const choose = (next: { town: string; type: string }, retry = false) => {
+        if (!retry && next.town === town && next.type === type) return;
         setTown(next.town);
         setType(next.type);
-
-        if (next.town && next.type) {
-            router.get(index(), next, {
+        const version = ++countVersion.current;
+        cancelCount.current?.();
+        cancelCount.current = null;
+        setCountFailed(false);
+        const query = {
+            ...(next.town ? { town: next.town } : {}),
+            ...(next.type ? { type: next.type } : {}),
+        };
+        const key = `${next.town}:${next.type}`;
+        if (
+            !next.town ||
+            !next.type ||
+            (!retry && tallyCache.current.has(key))
+        ) {
+            router.replace({
+                url: index({ query }).url,
+                preserveState: true,
+                preserveScroll: true,
+            });
+        }
+        if (!next.town || !next.type) {
+            setTally(null);
+            setCounting(false);
+        } else if (!retry && tallyCache.current.has(key)) {
+            setTally(tallyCache.current.get(key) ?? null);
+            setCounting(false);
+        } else {
+            setTally(null);
+            setCounting(true);
+            const fail = () => {
+                if (version === countVersion.current) setCountFailed(true);
+                return false;
+            };
+            router.get(index(), query, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true,
-                only: ['page'],
-                onStart: () => setCounting(true),
-                onFinish: () => setCounting(false),
+                only: ['tally'],
+                async: true,
+                showProgress: false,
+                onCancelToken: ({ cancel }) => {
+                    cancelCount.current = cancel;
+                },
+                onSuccess: ({ props }) => {
+                    if (version !== countVersion.current) return;
+                    if (!('tally' in props)) {
+                        fail();
+                        return;
+                    }
+                    const result = props.tally as WishTally | null;
+                    tallyCache.current.set(key, result);
+                    setTally(result);
+                },
+                onError: fail,
+                onHttpException: fail,
+                onNetworkError: fail,
+                onFinish: () => {
+                    if (version === countVersion.current) setCounting(false);
+                },
             });
         }
     };
@@ -77,72 +142,95 @@ export default function SuggestionsIndex({ page }: Props) {
         <>
             <Head title="Suggestions" />
 
-            <PageHeader
-                title="Suggest a business for your town"
-                subtitle="No account, name, or contact is collected."
-            />
+            <div className="flex flex-col gap-4 pt-2">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="self-start"
+                    asChild
+                >
+                    <Link href={home()} aria-label="Back to Home">
+                        <ArrowLeft aria-hidden="true" />
+                    </Link>
+                </Button>
+                <PageHeader title="What Business Do You Wish for Your Town?" />
+            </div>
 
-            <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-12">
-                <div className="flex flex-col gap-6">
-                    {wish && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Your suggestion</CardTitle>
-                                <CardDescription>
-                                    {wish.typeName} in {wish.townName}
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <DefinitionList
-                                    items={[
-                                        {
-                                            term: 'Next new suggestion',
-                                            description: page.nextWishAt
-                                                ? formatDateTime(
-                                                      page.nextWishAt,
-                                                  )
-                                                : 'You can send one now',
-                                        },
-                                        {
-                                            term: 'Edits left',
-                                            description: wish.nextEditAt
-                                                ? `None until ${formatDateTime(wish.nextEditAt)}`
-                                                : `${wish.editsLeft} of ${page.editsPerWindow} in ${page.editWindowDays} days`,
-                                        },
-                                    ]}
-                                />
-                            </CardContent>
-                            {!editing && wish.editsLeft > 0 && (
-                                <CardFooter>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => {
-                                            setEditing(true);
-                                            choose({
-                                                town: wish.townCode,
-                                                type: wish.typeCode,
-                                            });
-                                        }}
-                                    >
-                                        Edit suggestion
-                                    </Button>
-                                </CardFooter>
-                            )}
-                        </Card>
-                    )}
-
-                    {showForm && (
-                        <Card>
-                            {editing && (
+            <Card className="overflow-hidden">
+                <CardContent className="grid gap-0 p-0 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+                    <div className="flex flex-col gap-6 p-5 md:p-8">
+                        {wish && (
+                            <Card>
                                 <CardHeader>
-                                    <CardTitle>Edit your suggestion</CardTitle>
+                                    <CardTitle>Your Suggestion</CardTitle>
+                                    <CardDescription>
+                                        {[wish.typeName, wish.specificBusiness]
+                                            .filter(Boolean)
+                                            .join(' and ')}{' '}
+                                        in {wish.townName}
+                                    </CardDescription>
                                 </CardHeader>
-                            )}
-                            <CardContent>
+                                <CardContent>
+                                    <DefinitionList
+                                        items={[
+                                            {
+                                                term: 'Next new suggestion',
+                                                description: page.nextWishAt
+                                                    ? formatDateTime(
+                                                          page.nextWishAt,
+                                                      )
+                                                    : 'You can send one now',
+                                            },
+                                            {
+                                                term: 'Edits left',
+                                                description: wish.nextEditAt
+                                                    ? `None until ${formatDateTime(wish.nextEditAt)}`
+                                                    : `${wish.editsLeft} of ${page.editsPerWindow} in ${page.editWindowDays} days`,
+                                            },
+                                        ]}
+                                    />
+                                </CardContent>
+                                {!editing && wish.editsLeft > 0 && (
+                                    <CardFooter>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => {
+                                                setEditing(true);
+                                                setSpecificBusiness(
+                                                    wish.specificBusiness ?? '',
+                                                );
+                                                setShowSpecificBusiness(
+                                                    !!wish.specificBusiness,
+                                                );
+                                                choose({
+                                                    town: wish.townCode,
+                                                    type: wish.typeCode ?? '',
+                                                });
+                                            }}
+                                        >
+                                            Edit Suggestion
+                                        </Button>
+                                    </CardFooter>
+                                )}
+                            </Card>
+                        )}
+
+                        {showForm && (
+                            <div className="flex flex-col gap-5">
+                                {editing && (
+                                    <h2 className="type-heading">
+                                        Edit Your Suggestion
+                                    </h2>
+                                )}
                                 <Form
                                     key={editing ? 'edit' : 'new'}
                                     {...formAction}
                                     options={{ preserveScroll: true }}
+                                    onBefore={() => {
+                                        ++countVersion.current;
+                                        cancelCount.current?.();
+                                        setCounting(false);
+                                    }}
                                     onSuccess={() => setEditing(false)}
                                 >
                                     {({ processing, errors }) => {
@@ -157,7 +245,10 @@ export default function SuggestionsIndex({ page }: Props) {
                                                     data-invalid={!!errors.town}
                                                 >
                                                     <FieldLabel htmlFor="town">
-                                                        Town
+                                                        Town{' '}
+                                                        <span aria-hidden="true">
+                                                            *
+                                                        </span>
                                                     </FieldLabel>
                                                     <OptionSelect
                                                         id="town"
@@ -165,6 +256,7 @@ export default function SuggestionsIndex({ page }: Props) {
                                                         options={page.towns}
                                                         value={town}
                                                         invalid={!!errors.town}
+                                                        required
                                                         onChange={(value) =>
                                                             choose({
                                                                 town: value,
@@ -181,7 +273,7 @@ export default function SuggestionsIndex({ page }: Props) {
                                                     data-invalid={!!errors.type}
                                                 >
                                                     <FieldLabel htmlFor="type">
-                                                        Business type
+                                                        Business Type
                                                     </FieldLabel>
                                                     <OptionSelect
                                                         id="type"
@@ -201,13 +293,77 @@ export default function SuggestionsIndex({ page }: Props) {
                                                     </FieldError>
                                                 </Field>
 
+                                                <Button
+                                                    type="button"
+                                                    variant="link"
+                                                    className="h-auto self-start p-0 text-left whitespace-normal"
+                                                    aria-expanded={
+                                                        showSpecificBusiness
+                                                    }
+                                                    aria-controls="specific-business-field"
+                                                    onClick={() => {
+                                                        setShowSpecificBusiness(
+                                                            !showSpecificBusiness,
+                                                        );
+                                                        if (
+                                                            showSpecificBusiness
+                                                        )
+                                                            setSpecificBusiness(
+                                                                '',
+                                                            );
+                                                    }}
+                                                >
+                                                    {showSpecificBusiness
+                                                        ? 'Use Business Type Only'
+                                                        : 'Not on the List? Specify a Business'}
+                                                </Button>
+
+                                                {showSpecificBusiness && (
+                                                    <Field
+                                                        id="specific-business-field"
+                                                        data-invalid={
+                                                            !!errors.specific_business
+                                                        }
+                                                    >
+                                                        <FieldLabel htmlFor="specific_business">
+                                                            Specific Business
+                                                        </FieldLabel>
+                                                        <Input
+                                                            id="specific_business"
+                                                            name="specific_business"
+                                                            value={
+                                                                specificBusiness
+                                                            }
+                                                            maxLength={
+                                                                page.specificBusinessMax
+                                                            }
+                                                            placeholder="Jollibee or Krispy Kreme"
+                                                            aria-invalid={
+                                                                !!errors.specific_business
+                                                            }
+                                                            onChange={(event) =>
+                                                                setSpecificBusiness(
+                                                                    event.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                        />
+                                                        <FieldError>
+                                                            {
+                                                                errors.specific_business
+                                                            }
+                                                        </FieldError>
+                                                    </Field>
+                                                )}
+
                                                 <Field
                                                     data-invalid={
                                                         !!errors.reason
                                                     }
                                                 >
                                                     <FieldLabel htmlFor="reason">
-                                                        Reason (optional)
+                                                        Why Do You Wish to Have
+                                                        This in Your Area?
                                                     </FieldLabel>
                                                     <Textarea
                                                         id="reason"
@@ -222,16 +378,10 @@ export default function SuggestionsIndex({ page }: Props) {
                                                                   '')
                                                                 : ''
                                                         }
-                                                        placeholder="The nearest one is across the river."
                                                         aria-invalid={
                                                             !!errors.reason
                                                         }
                                                     />
-                                                    <FieldDescription>
-                                                        Only Capitol staff read
-                                                        this. No names, phone
-                                                        numbers, or links.
-                                                    </FieldDescription>
                                                     <FieldError>
                                                         {errors.reason}
                                                     </FieldError>
@@ -275,8 +425,8 @@ export default function SuggestionsIndex({ page }: Props) {
                                                             <Spinner />
                                                         )}
                                                         {editing
-                                                            ? 'Save changes'
-                                                            : 'Send suggestion'}
+                                                            ? 'Save Changes'
+                                                            : 'Send Your Wishes'}
                                                     </Button>
                                                     {editing && (
                                                         <Button
@@ -296,81 +446,102 @@ export default function SuggestionsIndex({ page }: Props) {
                                         );
                                     }}
                                 </Form>
-                            </CardContent>
-                        </Card>
-                    )}
-                </div>
-
-                <div className="flex flex-col gap-6 lg:sticky lg:top-24">
-                    <div className="hidden h-80 text-primary lg:block">
-                        <LazyProvinceMap
-                            shapes="province"
-                            label="Map of the towns of Cagayan with the chosen town filled"
-                            highlight={town ? [town] : []}
-                            onSelect={
-                                showForm
-                                    ? (code) => choose({ town: code, type })
-                                    : undefined
-                            }
-                            className="size-full"
-                        />
+                            </div>
+                        )}
                     </div>
 
-                    {(page.tally || showForm) && (
-                        <section
-                            aria-labelledby="count-heading"
-                            className="flex flex-col gap-4"
-                        >
-                            <h2 id="count-heading" className="type-heading">
-                                Suggestions so far
-                            </h2>
-                            {counting ? (
-                                <Skeleton
-                                    role="status"
-                                    aria-label="Loading the count"
-                                    className="h-28 rounded-xl"
-                                />
-                            ) : page.tally ? (
-                                <>
-                                    <FigureRow
-                                        figures={[
-                                            {
-                                                value: formatCount(
-                                                    page.tally.wishCount,
-                                                ),
-                                                label: 'Suggestions',
-                                            },
-                                            {
-                                                value:
-                                                    page.tally
-                                                        .registeredCount ===
-                                                    null
-                                                        ? 'Not available'
-                                                        : formatCount(
-                                                              page.tally
-                                                                  .registeredCount,
-                                                          ),
-                                                label: 'Registered now',
-                                            },
-                                        ]}
-                                    />
-                                    <p className="type-meta">
-                                        {page.tally.typeName} in{' '}
-                                        {page.tally.townName}. Interest from
-                                        people who chose to answer, not measured
-                                        demand
+                    <aside className="flex flex-col gap-6 border-t bg-muted p-5 md:p-8 lg:border-t-0 lg:border-l">
+                        <div className="h-72 rounded-lg border bg-background p-4 text-primary md:h-96">
+                            <LazyProvinceMap
+                                water
+                                label="Map of the towns of Cagayan with the chosen town filled"
+                                highlight={town ? [town] : []}
+                                onSelect={
+                                    showForm
+                                        ? (code) => choose({ town: code, type })
+                                        : undefined
+                                }
+                                className="size-full"
+                            />
+                        </div>
+
+                        {(tally || counting || countFailed) && (
+                            <section
+                                aria-labelledby="count-heading"
+                                className="flex flex-col gap-4"
+                            >
+                                <h2 id="count-heading" className="type-heading">
+                                    Suggestions So Far
+                                </h2>
+                                {counting ? (
+                                    <p
+                                        role="status"
+                                        className="flex items-center gap-2 type-meta"
+                                    >
+                                        <Spinner /> Updating Count
                                     </p>
-                                </>
-                            ) : (
-                                <p className="type-meta">
-                                    Choose a town and business type to see the
-                                    count.
-                                </p>
-                            )}
-                        </section>
-                    )}
-                </div>
-            </div>
+                                ) : tally ? (
+                                    <>
+                                        <FigureRow
+                                            figures={[
+                                                {
+                                                    value: formatCount(
+                                                        tally.wishCount,
+                                                    ),
+                                                    label: 'Suggestions',
+                                                },
+                                                ...(tally.typeName
+                                                    ? [
+                                                          {
+                                                              value:
+                                                                  tally.registeredCount ===
+                                                                  null
+                                                                      ? 'Not available'
+                                                                      : formatCount(
+                                                                            tally.registeredCount,
+                                                                        ),
+                                                              label: 'Registered Now',
+                                                          },
+                                                      ]
+                                                    : []),
+                                            ]}
+                                        />
+                                        <p className="type-meta">
+                                            {[
+                                                tally.typeName,
+                                                tally.specificBusiness,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' and ')}{' '}
+                                            in {tally.townName}. Interest from
+                                            people who chose to answer, not
+                                            measured demand
+                                        </p>
+                                    </>
+                                ) : (
+                                    <div
+                                        role="alert"
+                                        className="flex flex-col items-start gap-2"
+                                    >
+                                        <p className="type-body">
+                                            The count is not available.
+                                        </p>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() =>
+                                                choose({ town, type }, true)
+                                            }
+                                        >
+                                            Try Again
+                                        </Button>
+                                    </div>
+                                )}
+                            </section>
+                        )}
+                    </aside>
+                </CardContent>
+            </Card>
         </>
     );
 }
@@ -382,6 +553,7 @@ type OptionSelectProps = {
     value: string;
     invalid: boolean;
     onChange: (value: string) => void;
+    required?: boolean;
 };
 
 function OptionSelect({
@@ -391,10 +563,21 @@ function OptionSelect({
     value,
     invalid,
     onChange,
+    required = false,
 }: OptionSelectProps) {
     return (
-        <Select name={id} value={value} onValueChange={onChange}>
-            <SelectTrigger id={id} className="w-full" aria-invalid={invalid}>
+        <Select
+            name={id}
+            value={value}
+            onValueChange={onChange}
+            required={required}
+        >
+            <SelectTrigger
+                id={id}
+                className="w-full"
+                aria-invalid={invalid}
+                aria-required={required}
+            >
                 <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>

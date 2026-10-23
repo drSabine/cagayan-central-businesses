@@ -96,6 +96,16 @@ return [
 
     ],
 
+    'towns' => [
+
+        /*
+        | Map shades. Towns are split into this many equal-count groups by
+        | population, and the dots get darker with the group (metrics.md, M18).
+        */
+        'shades' => 5,
+
+    ],
+
     /*
     | Dates written into messages, such as a wish cooldown, use residents'
     | local time. The database stores UTC.
@@ -167,7 +177,9 @@ return [
         */
         'cookie_days' => 30,
 
-        'reason_max' => 280,
+        'reason_max' => 255,
+
+        'specific_business_max' => 120,
 
     ],
 

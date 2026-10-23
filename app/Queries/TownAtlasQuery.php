@@ -1,0 +1,106 @@
+<?php
+
+namespace App\Queries;
+
+use App\Data\TownAtlas;
+use App\Data\TownFigure;
+use App\Data\TownProfile;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Town figures for the home page map: the newest year of population, revenue,
+ * and expenditure, plus the M18 shade, all computed in SQL
+ * (metrics.md, "Town figures").
+ */
+final class TownAtlasQuery
+{
+    private const array MEASURES = ['population', 'revenue', 'expenditure', 'barangay_count', 'income_class', 'poverty_incidence'];
+
+    public function get(): TownAtlas
+    {
+        $pivot = collect(self::MEASURES)->map(fn (string $measure) => <<<SQL
+            max(l.value) filter (where l.measure = '{$measure}') as {$measure},
+            max(l.year) filter (where l.measure = '{$measure}') as {$measure}_year,
+            max(l.source_url) filter (where l.measure = '{$measure}') as {$measure}_source
+            SQL)->implode(",\n");
+
+        // Province totals only when every town has the figure, so a partial sum is never shown.
+        $totals = collect(['population', 'revenue', 'expenditure', 'barangay_count'])->map(fn (string $measure) => <<<SQL
+            case when count({$measure}) over () = count(*) over () then sum({$measure}) over () end as total_{$measure},
+            max({$measure}_year) over () as total_{$measure}_year,
+            case when min({$measure}_source) over () = max({$measure}_source) over () then max({$measure}_source) over () end as total_{$measure}_source
+            SQL)->implode(",\n");
+
+        /** @var list<object> $rows */
+        $rows = DB::select(<<<SQL
+            with latest as (
+                select distinct on (municipality_id, measure) municipality_id, measure, year, value, source_url
+                from town_facts
+                where measure in ('population', 'revenue', 'expenditure', 'barangay_count', 'income_class', 'poverty_incidence')
+                order by municipality_id, measure, year desc
+            ),
+            facts as (
+                select m.psgc_code, m.name, m.kind, {$pivot}
+                from municipalities m
+                left join latest l on l.municipality_id = m.id
+                group by m.id
+            )
+            select *,
+                case when population is not null
+                    then ntile(?) over (partition by population is null order by population) end as shade,
+                {$totals}
+            from facts
+            order by name
+            SQL, [(int) config('cagayan.towns.shades')]);
+
+        return new TownAtlas(
+            towns: array_map(fn (object $row) => $this->profile((array) $row), $rows),
+            province: $this->province(isset($rows[0]) ? (array) $rows[0] : []),
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    private function profile(array $row): TownProfile
+    {
+        return new TownProfile(
+            code: (string) $row['psgc_code'],
+            name: (string) $row['name'],
+            kind: (string) $row['kind'],
+            population: $this->figure($row['population'], $row['population_year'], $row['population_source']),
+            revenue: $this->figure($row['revenue'], $row['revenue_year'], $row['revenue_source']),
+            expenditure: $this->figure($row['expenditure'], $row['expenditure_year'], $row['expenditure_source']),
+            shade: $row['shade'] === null ? null : (int) $row['shade'],
+            barangayCount: $this->figure($row['barangay_count'], $row['barangay_count_year'], $row['barangay_count_source']),
+            incomeClass: $this->figure($row['income_class'], $row['income_class_year'], $row['income_class_source']),
+            povertyIncidence: $this->figure($row['poverty_incidence'], $row['poverty_incidence_year'], $row['poverty_incidence_source']),
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    private function province(array $row): TownProfile
+    {
+        $total = fn (string $measure) => $this->figure($row["total_{$measure}"] ?? null, $row["total_{$measure}_year"] ?? null, $row["total_{$measure}_source"] ?? null);
+
+        return new TownProfile(
+            code: '0201500000',
+            name: 'Cagayan',
+            kind: 'province',
+            population: $total('population'),
+            revenue: $total('revenue'),
+            expenditure: $total('expenditure'),
+            shade: null,
+            barangayCount: $total('barangay_count'),
+        );
+    }
+
+    private function figure(mixed $value, mixed $year, mixed $sourceUrl): ?TownFigure
+    {
+        return $value === null || $year === null
+            ? null
+            : new TownFigure((string) $value, (int) $year, is_string($sourceUrl) ? $sourceUrl : null);
+    }
+}

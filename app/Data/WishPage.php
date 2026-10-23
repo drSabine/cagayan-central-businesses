@@ -19,6 +19,7 @@ final readonly class WishPage
         public int $editsPerWindow,
         public int $editWindowDays,
         public int $reasonMax,
+        public int $specificBusinessMax,
         public string $formToken,
     ) {}
 }

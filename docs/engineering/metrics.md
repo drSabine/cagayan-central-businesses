@@ -168,6 +168,19 @@ Each flag states which condition raised it.
 - Shown beside `Active(town, t, Y)`, the number of such businesses already registered there.
 - On-screen note: it shows interest from the people who chose to answer, not measured demand.
 
+## Town figures (home page map)
+
+Public figures per town from `town_facts`, loaded from `data/towns/town-facts.csv` (`data/towns/README.md`). They are real published figures, not business records, so no privacy rule applies. The page shows population, revenue, and expenditure, each the value of the newest year for that town.
+
+### M18. Map shade
+
+- On the province map, towns. On the About the Data map, the selected Cagayan town's barangays. Each set is shaded on its own.
+- Places with a population are split into `towns.shades` equal-count groups by population, lowest first (`ntile`). Shade 1 is the fewest people.
+- On the map every dot is the same size. The shade sets the dot color, from `--map-1` to `--map-5`.
+- A place without a population has no shade.
+
+Province totals (population, revenue, expenditure) are shown only when every town has the figure. A partial sum is never shown as a total.
+
 ## Config values
 
 All thresholds live in `config/cagayan.php`, never in code or SQL literals.
@@ -181,6 +194,7 @@ All thresholds live in `config/cagayan.php`, never in code or SQL literals.
 - `specialization.min_type_count`: 3
 - `data.first_year`: 2020
 - `data.latest_year`: 2026
+- `towns.shades`: 5
 
 ## How each metric is tested
 

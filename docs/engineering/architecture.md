@@ -142,20 +142,7 @@ final class BarangayProfileQuery
 
 One class, one public `handle()` method, one use case. Wrap more than one write in a transaction.
 
-```php
-final class SubmitWish
-{
-    public function handle(Municipality $town, BusinessType $type, ?string $reason, string $ip): Wish
-    {
-        return Wish::create([
-            'municipality_id' => $town->id,
-            'business_type_id' => $type->id,
-            'reason' => $reason,
-            'dedupe_hash' => hash_hmac('sha256', implode('|', [today()->toDateString(), $ip, $town->id, $type->id]), config('app.key')),
-        ]);
-    }
-}
-```
+For example, `SubmitWish::handle()` receives the validated town, optional business type, optional company name, reason, and the submitter and network hashes. It acquires a lock per submitter, checks the cooldown and network allowance, and writes the wish. `EditWish` applies the edit allowance and records the edit in a transaction. See those Actions for the complete implementation; raw network addresses and the removed `dedupe_hash` design must not be copied into new code.
 
 ## Services hold shared domain rules
 

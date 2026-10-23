@@ -1,8 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowRight, ClipboardList, Map as MapIcon } from 'lucide-react';
+import { ClipboardList, Map as MapIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { MapStyle } from '@/components/province-map';
 import { DefinitionList } from '@/components/definition-list';
-import { FigureRow } from '@/components/figure-row';
-import { LazyProvinceMap } from '@/components/lazy-province-map';
+import { BarangayAtlas } from '@/components/barangay-atlas';
+import { TownAtlas } from '@/components/town-atlas';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,18 +26,35 @@ type Props = {
 const upcoming = [
     {
         icon: MapIcon,
-        title: 'Business map',
+        title: 'Business Map',
         description: 'Registered businesses in each barangay, by type.',
     },
     {
         icon: ClipboardList,
-        title: 'Start a business guide',
+        title: 'Start a Business Guide',
         description:
             'The permits and documents your business needs, and where to get them.',
     },
 ];
 
 export default function Home({ overview }: Props) {
+    const [mapStyle, setMapStyle] = useState<MapStyle>('dotted');
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem('map-style');
+            if (stored === 'solid' || stored === 'dotted') setMapStyle(stored);
+        } catch {
+            /* Storage may be disabled; the control still works for this visit. */
+        }
+    }, []);
+    const chooseMapStyle = (style: MapStyle) => {
+        setMapStyle(style);
+        try {
+            localStorage.setItem('map-style', style);
+        } catch {
+            /* Keep the in-memory preference. */
+        }
+    };
     return (
         <>
             <Head title="Home" />
@@ -44,83 +63,68 @@ export default function Home({ overview }: Props) {
                 <section className="overflow-hidden rounded-2xl bg-brand text-brand-foreground">
                     {/* Kept for screen readers and the document outline. The map is the visible hero. */}
                     <h1 className="sr-only">See where Cagayan does business</h1>
-                    <figure className="flex flex-col gap-4 px-6 pt-10 pb-20 md:px-10 lg:pt-14 lg:pb-24">
-                        <div className="h-64 md:h-96 lg:h-[28rem]">
-                            <LazyProvinceMap
-                                shapes="province"
-                                label={`Map of the ${overview.townCount} towns of Cagayan, ${overview.connectedTownCount} connected so far`}
-                                highlight={overview.connectedTownCodes}
-                                className="size-full"
-                            />
-                        </div>
-                        <figcaption className="flex flex-wrap justify-center gap-x-6 gap-y-2 type-body text-brand-foreground/80">
-                            <span className="flex items-center gap-2">
-                                <span className="size-3 rounded-xs bg-highlight" />
-                                Connected
-                            </span>
-                            <span className="flex items-center gap-2">
-                                <span className="size-3 rounded-xs border border-current" />
-                                Not yet connected
-                            </span>
-                        </figcaption>
-                    </figure>
+                    <div className="px-5 py-6 md:px-8">
+                        <TownAtlas
+                            atlas={overview.atlas}
+                            mapStyle={mapStyle}
+                            onMapStyleChange={chooseMapStyle}
+                        />
+                    </div>
                 </section>
-
-                <FigureRow
-                    className="relative mx-4 -mt-12 motion-safe:animate-rise motion-safe:[animation-delay:320ms] md:mx-10 lg:grid-cols-4"
-                    figures={[
-                        {
-                            value: `${formatCount(overview.connectedTownCount)} of ${formatCount(overview.townCount)}`,
-                            label: 'Towns connected',
-                        },
-                        {
-                            value: formatCount(overview.businessTypeCount),
-                            label: 'Business types',
-                        },
-                        {
-                            value: formatCount(overview.yearCount),
-                            label: 'Years of records',
-                        },
-                        {
-                            value: formatCount(overview.wishCount),
-                            label: 'Suggestions so far',
-                        },
-                    ]}
-                />
             </div>
 
             <section
                 id="about-data"
                 aria-labelledby="about-data-heading"
-                className="grid reveal scroll-mt-24 gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16"
+                className="grid reveal scroll-mt-6 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-10"
             >
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4">
                     <h2 id="about-data-heading" className="type-heading">
-                        About the data
+                        About the Data
                     </h2>
-                    <div className="h-72 text-primary lg:h-80">
-                        <LazyProvinceMap
-                            shapes="tuguegarao"
-                            label="Map of the barangays of Tuguegarao City"
-                            className="size-full"
-                        />
-                    </div>
+                    <BarangayAtlas
+                        towns={overview.atlas.towns}
+                        mapStyle={mapStyle}
+                    />
                 </div>
                 <DefinitionList
                     items={[
                         {
+                            term: 'Town Figures',
+                            description: (
+                                <>
+                                    Population:{' '}
+                                    <a
+                                        href="https://psa.gov.ph/statistics/population-and-housing/node/1684077888"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="underline underline-offset-2"
+                                    >
+                                        PSA 2024 Census of Population
+                                        <span className="sr-only">
+                                            {' '}
+                                            (opens in a new tab)
+                                        </span>
+                                    </a>
+                                    . Revenue and expenditure: municipal and
+                                    city financial statements published by the
+                                    Commission on Audit.
+                                </>
+                            ),
+                        },
+                        {
                             term: 'Records',
                             description:
-                                'Simulated. Boundaries and population are real.',
+                                'Business records are simulated. Population figures and geographic boundaries are drawn from published sources.',
                         },
                         {
                             term: 'Area',
                             description:
-                                'Tuguegarao City. Other towns join as their records are shared.',
+                                'Population covers Cagayan’s 28 municipalities and Tuguegarao City. Demonstration business records cover Tuguegarao City only.',
                         },
                         {
                             term: 'Period',
-                            description: `${overview.firstYear} to ${overview.latestYear}`,
+                            description: `${overview.firstYear} to ${overview.latestYear} for demonstration records. Official statistics retain their respective reference years.`,
                         },
                         {
                             term: 'Businesses',
@@ -129,12 +133,12 @@ export default function Home({ overview }: Props) {
                         {
                             term: 'Sales',
                             description:
-                                'Declared business activity, not the income of residents or of the barangay government. Public pages show a range.',
+                                'Declared business activity, not the income of residents or of the barangay government. Public sales figures are presented as ranges, subject to disclosure controls.',
                         },
                         {
                             term: 'Boundaries',
                             description:
-                                'Simplified shapes matched to PSA codes. Good for comparing areas, not for surveying.',
+                                'Simplified 2023 PSGC boundaries paired with 2024 census populations. For geographic comparison only; not for surveying or determining legal boundaries.',
                         },
                     ]}
                 />
@@ -142,21 +146,21 @@ export default function Home({ overview }: Props) {
 
             <section
                 aria-labelledby="protection"
-                className="grid reveal gap-8 rounded-2xl bg-muted p-6 md:p-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16"
+                className="grid reveal gap-6 rounded-2xl bg-muted p-6 md:p-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-10"
             >
                 <h2 id="protection" className="type-heading">
-                    How businesses are protected
+                    How Businesses Are Protected
                 </h2>
-                <ol className="flex flex-col gap-6">
+                <ol className="flex flex-col gap-4">
                     {[
-                        'No single business has its sales shown to anyone, Capitol staff included.',
-                        `When fewer than ${formatCount(overview.smallGroupMin)} businesses share an area or type, the figure reads "Hidden to protect individual businesses".`,
-                        'Owner names and contact numbers never appear on public pages. Suggestions store no name, contact, or IP address.',
+                        'Individual business sales are excluded from public and administrative responses. Only aggregates that satisfy disclosure controls may be published.',
+                        `Aggregate sales for fewer than ${formatCount(overview.smallGroupMin)} businesses are withheld. Additional controls prevent disclosure through dominant contributions or related totals.`,
+                        'Public pages exclude owner names and contact details. Suggestions do not request these details; submission records use hashed identifiers instead of raw IP addresses.',
                     ].map((point, index) => (
                         <li key={point} className="flex gap-5">
                             <span
                                 aria-hidden="true"
-                                className="font-serif text-2xl leading-none text-muted-foreground tabular-nums"
+                                className="font-mono text-2xl leading-none text-muted-foreground tabular-nums"
                             >
                                 {index + 1}
                             </span>
@@ -168,47 +172,48 @@ export default function Home({ overview }: Props) {
 
             <section
                 aria-labelledby="tasks"
-                className="flex reveal flex-col gap-6"
+                className="flex reveal flex-col gap-5"
             >
                 <h2 id="tasks" className="type-heading">
-                    What you can do
+                    What You Can Do
                 </h2>
                 <div className="grid gap-4 lg:grid-cols-3">
-                    <Card className="justify-between lg:col-span-2 lg:row-span-2">
+                    <Card className="gap-5 lg:col-span-2 lg:row-span-2">
                         <CardHeader>
-                            <Badge>Open now</Badge>
                             <CardTitle className="type-title">
-                                Suggestions
+                                What Business Do You Wish for Your Town?
                             </CardTitle>
-                            <CardDescription>
-                                Tell the Capitol which businesses your town is
-                                missing. No account needed.
-                            </CardDescription>
                         </CardHeader>
-                        <CardFooter>
-                            <Button variant="outline" asChild>
+                        <CardFooter className="flex flex-wrap gap-3">
+                            <Button asChild>
                                 <Link href={suggestions()}>
-                                    Open suggestions
-                                    <ArrowRight aria-hidden="true" />
+                                    Share Your Wish
                                 </Link>
                             </Button>
                         </CardFooter>
                     </Card>
 
                     {upcoming.map((item) => (
-                        <Card key={item.title} className="bg-muted shadow-none">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <item.icon
-                                        className="size-4"
-                                        aria-hidden="true"
-                                    />
-                                    {item.title}
-                                </CardTitle>
+                        <Card
+                            key={item.title}
+                            className="gap-3 bg-muted py-5 shadow-none"
+                        >
+                            <CardHeader className="px-5">
+                                <div className="flex items-center justify-between gap-3">
+                                    <CardTitle className="flex items-center gap-2">
+                                        <item.icon
+                                            className="size-4"
+                                            aria-hidden="true"
+                                        />
+                                        {item.title}
+                                    </CardTitle>
+                                    <Badge variant="outline">
+                                        Not Open Yet
+                                    </Badge>
+                                </div>
                                 <CardDescription>
                                     {item.description}
                                 </CardDescription>
-                                <Badge variant="outline">Not open yet</Badge>
                             </CardHeader>
                         </Card>
                     ))}

@@ -21,9 +21,11 @@ All work in PowerShell. Add new tasks as Composer scripts, never as bash or Powe
 - `composer setup`: first-time setup on a fresh clone. Safe to rerun.
 - `composer dev`: run the app at http://localhost:8000 (server, queue, Vite).
 - `composer ci:check`: everything CI runs: front end format and lint, TypeScript, Pint, PHPStan, Pest.
+- For every task that changes `resources/js/`, `resources/css/`, or Vite configuration, run `npm run check`, `npm run types:check`, and `npm run build` before reporting the work done. `npm run check` formats and lints but does not type-check; the TypeScript command catches unresolved names and imports. The build catches bundling errors. If formatting needs fixes, run `npm run check:fix`, then rerun all three checks.
 - `php artisan test --compact tests/Feature/PostgisTest.php`: one file. Add `--filter="name"` for one test.
 - `composer lint`: fix PHP formatting. `npm run check:fix`: fix front end formatting and lint.
 - `composer db:up`: start the database. `composer db:reset`: rebuild the demo dataset.
+- `composer data:towns`: reload town figures (`data/towns/`) and Tuguegarao barangay population (`data/barangays/`).
 - `php artisan metrics:refresh`: rebuild every `stats_` summary table.
 - `composer doctor`: check this machine and the database, with a fix for each failure.
 
@@ -56,11 +58,20 @@ Details and examples: `docs/engineering/architecture.md` (back end) and `docs/en
 
 ## UI rules
 
+- Start UI work with `/ui-builder`. The design system is `docs/engineering/design.md`: tokens, Geist for words and Geist Mono for numbers, 2px corners, halftone dots for map data.
+- Title Case for titles, headings, buttons, tabs, and badges. Sentence case for sentences. Proper nouns right.
 - No em dashes, en dashes, or middots anywhere in the interface.
 - Titles and headings are one name with no separators: no commas, dashes, middots, or pipes.
 - No gradients. Colors from tokens only (`bg-primary`, `bg-map-3`, `text-status-closed`), never raw hex or palette classes.
+- Dark mode uses muted blue slate surfaces that complement the map's river ink blue, with a lighter base than the original near-black theme. Keep text and control borders readable.
 - Every data view handles loading, empty, not available, hidden, and error. "Not available" and "hidden" are never shown as `0`.
 - Filters and tabs live in the URL. After a write, redirect and show a toast. Links use Wayfinder imports, never hard-coded URLs.
+- The Home map right panel shows only population, revenue, and expenditure and their sources. Do not add other measures or sources without an explicit request.
+- Home maps share one icon-only style control beside the main town selector. Do not repeat it in About the Data. Reuse cached census data and geometry when revisiting towns; style changes must not reload data or clear selection.
+- Wish form selections update locally. Fetch only the optional tally in the background, never the entire form payload. Business Type is visible by default; reveal Specific Business only through its control or when editing an existing company wish.
+- Preserve existing layouts when adding information. Do not add instructions, legends, containers, or explanatory copy unless requested or necessary for the requested interaction.
+- Keep interface copy concise. Do not add helper descriptions that repeat a heading, label, placeholder, or button, or examples that restate what a field already accepts. Add explanatory text only when it clarifies an action, requirement, or consequence the control itself does not communicate.
+- Before changing an existing screen, follow `docs/engineering/design.md`, "Working on Existing Screens". It records the user's layout, copy, map, form, source, and validation corrections. Do not reintroduce removed statistics, helper paragraphs, legends, modals, map CTAs, or duplicated controls under another label. Use underlined links without decorative arrows.
 
 Full rules: `docs/engineering/design.md`.
 
@@ -97,6 +108,8 @@ If a product rule, metric, or privacy rule looks wrong, or two docs disagree, st
 | Branches, commits, pull requests | `docs/team/workflow.md` |
 | Feature status | `docs/team/roadmap.md` |
 | Boundary files | `data/boundaries/README.md` |
+| Town figures (population, budgets) | `data/towns/README.md` |
+| Barangay population | `data/barangays/README.md` |
 
 ## Skills
 
@@ -109,6 +122,7 @@ Start each task from one:
 - `/commit`: run the checks, review the diff, commit, and print the pull request description.
 - `/open-pr`: push and open the pull request into `staging`.
 - `/privacy-check` or the `privacy-reviewer` agent: before committing anything that touches business data.
+- `/ui-builder <screen>`: build or restyle a screen from the design system.
 - `/design-check`: before committing a UI change.
 - `/demo-check`: before recording or the booth.
 

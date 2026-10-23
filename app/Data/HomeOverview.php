@@ -6,6 +6,7 @@ final readonly class HomeOverview
 {
     /**
      * @param  list<string>  $connectedTownCodes
+     * @param  list<BarangayProfile>  $barangays
      */
     public function __construct(
         public int $townCount,
@@ -17,5 +18,7 @@ final readonly class HomeOverview
         public int $latestYear,
         public int $yearCount,
         public int $smallGroupMin,
+        public TownAtlas $atlas,
+        public array $barangays,
     ) {}
 }

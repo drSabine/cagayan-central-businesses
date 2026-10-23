@@ -26,7 +26,13 @@ class StoreWishRequest extends FormRequest
     {
         return [
             'town' => ['required', 'string', 'max:10', 'exists:municipalities,psgc_code'],
-            'type' => ['required', 'string', 'max:64', 'exists:business_types,code'],
+            'type' => ['nullable', 'required_without:specific_business', 'string', 'max:64', 'exists:business_types,code'],
+            'specific_business' => [
+                'nullable',
+                'string',
+                'max:'.config('cagayan.wishes.specific_business_max'),
+                'not_regex:/(https?:\/\/|www\.|\.(com|net|org|ph|xyz|ru)\b)/i',
+            ],
             'reason' => [
                 'nullable',
                 'string',
@@ -58,6 +64,9 @@ class StoreWishRequest extends FormRequest
             'town.exists' => __('Choose a town from the list.'),
             'type.required' => __('Choose a business type.'),
             'type.exists' => __('Choose a business type from the list.'),
+            'type.required_without' => __('Choose a business type or name a specific business.'),
+            'specific_business.max' => __('Keep the specific business name under :max characters.'),
+            'specific_business.not_regex' => __('Enter a business name, not a web address.'),
             'reason.max' => __('Keep the reason under :max characters.'),
             'reason.not_regex' => __('Remove links and web addresses from the reason.'),
             'website.prohibited' => __('Leave the hidden field empty.'),
@@ -71,16 +80,21 @@ class StoreWishRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if (! is_string($this->input('reason'))) {
-            return;
+        $clean = [];
+
+        foreach (['reason', 'specific_business'] as $field) {
+            if (! is_string($this->input($field))) {
+                continue;
+            }
+
+            $value = strip_tags($this->input($field));
+            $value = (string) preg_replace('/(?!\n)\p{C}/u', '', $value);
+            $value = (string) preg_replace('/[^\S\n]+/u', ' ', $value);
+            $value = (string) preg_replace('/\n{3,}/', "\n\n", $value);
+            $clean[$field] = trim($value);
         }
 
-        $reason = strip_tags($this->input('reason'));
-        $reason = (string) preg_replace('/(?!\n)\p{C}/u', '', $reason);
-        $reason = (string) preg_replace('/[^\S\n]+/u', ' ', $reason);
-        $reason = (string) preg_replace('/\n{3,}/', "\n\n", $reason);
-
-        $this->merge(['reason' => trim($reason)]);
+        $this->merge($clean);
     }
 
     public function town(): Municipality
@@ -88,9 +102,18 @@ class StoreWishRequest extends FormRequest
         return Municipality::query()->where('psgc_code', $this->string('town')->toString())->firstOrFail();
     }
 
-    public function type(): BusinessType
+    public function type(): ?BusinessType
     {
-        return BusinessType::query()->where('code', $this->string('type')->toString())->firstOrFail();
+        return $this->filled('type')
+            ? BusinessType::query()->where('code', $this->string('type')->toString())->firstOrFail()
+            : null;
+    }
+
+    public function specificBusiness(): ?string
+    {
+        $specificBusiness = $this->string('specific_business')->toString();
+
+        return $specificBusiness === '' ? null : $specificBusiness;
     }
 
     public function reason(): ?string

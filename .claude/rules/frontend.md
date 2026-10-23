@@ -8,6 +8,8 @@ paths:
 
 Full guides: `docs/engineering/frontend.md` (structure and data) and `docs/engineering/design.md` (look and words).
 
+Before editing an existing page, read design.md, "Working on Existing Screens". That section is the canonical record of the user's corrections. Preserve the requested structure, remove copy that repeats a control, and do not restore removed features under a new label.
+
 ## Structure
 
 - **Data comes from props.** No API calls for page data, no Redux, Zustand, React Query, or Axios. Filters change the URL with `router.get(..., { preserveState: true })`.
@@ -25,11 +27,32 @@ Full guides: `docs/engineering/frontend.md` (structure and data) and `docs/engin
 
 ## Look and words
 
-- No em dashes, en dashes, or middots in UI text. Titles and headings have no separators (commas, dashes, middots, pipes).
-- No gradients, glows, or decorative effects.
-- Colors from tokens only (`bg-primary`, `bg-map-3`, `text-status-closed`). Never hex values or palette classes like `bg-blue-500`.
+The design system is `docs/engineering/design.md`. Start UI work with `/ui-builder`, finish with `/design-check`.
+
+Do:
+
+- Token classes for every color, space, radius, and motion value (`bg-primary`, `fill-map-3`, `gap-section`, `ease-out-soft`).
+- `type-*` roles. Sans for words, `font-mono tabular-nums` for numbers, `type-label` for small uppercase labels.
+- 2px corners through the `rounded-*` scale. `rounded-full` only for dots, avatars, and round icon buttons.
+- Halftone dots (`lib/halftone.ts`) for map values: every dot the same size, color depth for the value. Add a key only where the approved screen requires it; Home does not have a legend.
+- **Title Case** for page titles, headings, card titles, buttons, tabs, badges, nav items, form field labels, legend titles, and table headers. **Sentence case** for subtitles, descriptions, body, toasts, errors, and empty states. Proper nouns and acronyms right (Tuguegarao City, Peñablanca, PSA, PSGC).
+- The year and source once per group of figures, never repeated on every row. Numbers right-aligned.
+- Build on the existing layout. Change what was asked, do not redesign a page unasked.
+- Fit additions within their section. Keep form and map in one shared canvas, bound dropdown heights globally, and avoid blank hero padding or vertical overlap.
+- Use one shared icon control for Home map styles. Keep only population, revenue, expenditure, and their relevant sources in the main map panel.
+- Keep Business Type visible by default and reveal Specific Business through its explicit control. Preserve drafts on selection changes; update only the count in the background.
+- Write formal, accurate data and privacy explanations. Keep helper copy only when the control cannot communicate the requirement itself. Underline links without decorative arrows.
 - Every data view: loading, empty, not available, hidden, error. Exact phrases from `docs/engineering/privacy-rules.md`, "Words on screen". Never show hidden or not available as `0`.
-- The "Simulated data" label comes from the shared layout, never page by page.
-- Sentence case. Numbers right-aligned with `tabular-nums`. Light and dark mode both work.
+- Phone first, then desktop. Light and dark mode both work.
+
+Don't:
+
+- Em dashes, en dashes, or middots in UI text. Separators (commas, dashes, middots, pipes) in titles and headings.
+- Gradients, glows, decorative patterns, dots as decoration, hex values, or palette classes like `bg-blue-500`.
+- Raw `text-2xl font-bold` where a role exists, a third font, or `rounded-[...]`.
+- A top nav bar on public pages, or the "Simulated data" label added page by page (it comes from the shared layout).
+- Color as the only signal, or a map as the only way to pick a place.
+- Dangling dashboard statistics, suggestion-count badges, numbered form instructions, repeated company examples or privacy assurances, and unrequested legends or zoom hints.
+- More Details modals, Suggest a Business Here on maps, double-click requirements, duplicate style controls, or the extra barangay dropdown.
 
 Run `npm run check:fix` after editing. The pre-commit hook runs the lint and TypeScript checks.
