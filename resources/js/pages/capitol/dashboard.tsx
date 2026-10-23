@@ -12,12 +12,12 @@ export default function Dashboard() {
             <Head title="Capitol" />
             <main className="mx-auto flex max-w-measure flex-col gap-6 px-4 py-12">
                 <PageHeader
-                    title="Capitol dashboard"
+                    title="Capitol Dashboard"
                     subtitle={`Signed in as ${auth.user?.name ?? 'administrator'}.`}
                 />
                 <Button variant="outline" className="w-fit" asChild>
                     <Link href={logout()} as="button">
-                        Sign out
+                        Sign Out
                     </Link>
                 </Button>
             </main>

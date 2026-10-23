@@ -453,7 +453,6 @@ export default function SuggestionsIndex({ page }: Props) {
                     <aside className="flex flex-col gap-6 border-t bg-muted p-5 md:p-8 lg:border-t-0 lg:border-l">
                         <div className="h-72 rounded-lg border bg-background p-4 text-primary md:h-96">
                             <LazyProvinceMap
-                                shapes="province"
                                 water
                                 label="Map of the towns of Cagayan with the chosen town filled"
                                 highlight={town ? [town] : []}

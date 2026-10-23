@@ -26,7 +26,7 @@ export default function Login() {
 
     return (
         <>
-            <Head title="Sign in">
+            <Head title="Sign In">
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
             <main className="grid min-h-screen bg-background lg:grid-cols-2">
@@ -37,7 +37,6 @@ export default function Login() {
                     </p>
                     <Suspense fallback={null}>
                         <ProvinceMap
-                            shapes="province"
                             label="Map of the towns of Cagayan"
                             className="max-h-[70vh] w-full"
                         />
@@ -47,7 +46,7 @@ export default function Login() {
                     <Card className="w-full max-w-sm">
                         <CardHeader>
                             <CardTitle className="type-title">
-                                Sign in
+                                Sign In
                             </CardTitle>
                             <CardDescription className="lg:hidden">
                                 {props.name}
@@ -64,7 +63,7 @@ export default function Login() {
                                     <FieldGroup className="gap-6">
                                         <Field data-invalid={!!errors.email}>
                                             <FieldLabel htmlFor="email">
-                                                Email address
+                                                Email Address
                                             </FieldLabel>
                                             <Input
                                                 id="email"
@@ -101,7 +100,7 @@ export default function Login() {
                                             disabled={processing}
                                         >
                                             {processing && <Spinner />}
-                                            Sign in
+                                            Sign In
                                         </Button>
                                     </FieldGroup>
                                 )}
