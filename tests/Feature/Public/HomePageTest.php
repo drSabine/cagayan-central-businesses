@@ -1,7 +1,10 @@
 <?php
 
+use App\Enums\TownMeasure;
+use App\Models\Barangay;
 use App\Models\BusinessType;
 use App\Models\Municipality;
+use App\Models\TownFact;
 use App\Models\Wish;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -26,10 +29,45 @@ test('the home page shows the towns, types, and years behind the data', function
             ->where('simulated', true));
 });
 
+test('the home page gives every town its public figures', function () {
+    $town = Municipality::factory()->create();
+    TownFact::factory()->for($town)->measure(TownMeasure::Population, 2024, 5000)->create();
+    TownFact::factory()->for($town)->measure(TownMeasure::BarangayCount, 2020, 20)->create();
+    TownFact::factory()->for($town)->measure(TownMeasure::IncomeClass, 2024, 2)->create();
+    TownFact::factory()->for($town)->measure(TownMeasure::PovertyIncidence, 2023, 12.5)->create();
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('overview.atlas.towns.0.code', $town->psgc_code)
+            ->where('overview.atlas.towns.0.population.value', '5000.00')
+            ->where('overview.atlas.towns.0.revenue', null)
+            ->where('overview.atlas.towns.0.barangayCount.value', '20.00')
+            ->where('overview.atlas.towns.0.incomeClass.value', '2.00')
+            ->where('overview.atlas.towns.0.povertyIncidence.value', '12.50')
+            ->where('overview.atlas.province.barangayCount.value', '20.00')
+            ->where('overview.atlas.province.population.value', '5000.00'));
+});
+
+test('the home page gives Tuguegarao barangays their population, and no others', function () {
+    $tuguegarao = Municipality::factory()->create(['psgc_code' => '0201529000']);
+    $inCity = Barangay::factory()->for($tuguegarao)->withPopulation(4945)->create();
+    Barangay::factory()->withPopulation(100)->create();
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('overview.barangays', 1)
+            ->where('overview.barangays.0.code', $inCity->psgc_code)
+            ->where('overview.barangays.0.population.value', '4945'));
+});
+
 test('the home page works before any town is loaded', function () {
     $this->get(route('home'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->where('overview.townCount', 0)
-            ->where('overview.connectedTownCodes', []));
+            ->where('overview.connectedTownCodes', [])
+            ->where('overview.atlas.towns', [])
+            ->where('overview.atlas.province.population', null));
 });

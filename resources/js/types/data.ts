@@ -15,6 +15,8 @@ export type HomeOverview = {
     latestYear: number;
     yearCount: number;
     smallGroupMin: number;
+    atlas: TownAtlas;
+    barangays: BarangayProfile[];
 };
 
 export type WishTally = {
@@ -48,4 +50,39 @@ export type WishPage = {
     editWindowDays: number;
     reasonMax: number;
     formToken: string;
+};
+
+export type TownFigure = {
+    value: string;
+    year: number;
+    // Null for province totals, which are sums.
+    sourceUrl: string | null;
+};
+
+// A town or the whole province. Null figures read "Not available", never 0.
+export type TownProfile = {
+    code: string;
+    name: string;
+    kind: 'city' | 'municipality' | 'province';
+    barangayCount: TownFigure | null;
+    incomeClass: TownFigure | null;
+    povertyIncidence: TownFigure | null;
+    population: TownFigure | null;
+    revenue: TownFigure | null;
+    expenditure: TownFigure | null;
+    // Map shade by population, 1 to 5 (metrics.md, M18).
+    shade: number | null;
+};
+
+// A Tuguegarao City barangay. Null population reads "Not available", never 0.
+export type BarangayProfile = {
+    code: string;
+    name: string;
+    population: TownFigure | null;
+    shade: number | null;
+};
+
+export type TownAtlas = {
+    towns: TownProfile[];
+    province: TownProfile;
 };

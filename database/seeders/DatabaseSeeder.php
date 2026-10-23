@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * Towns, business types, and demo wishes so far. The simulated
+     * Towns and their public figures, business types, and demo wishes so far. The simulated
      * business data comes with roadmap F3 (database.md, "Seeder
      * requirements").
      */
@@ -22,9 +22,14 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             MunicipalitySeeder::class,
+            BarangaySeeder::class,
             BusinessTypeSeeder::class,
             WishSeeder::class,
         ]);
+
+        // Real public figures per town and per Tuguegarao barangay, from data/towns and data/barangays.
+        $this->command->call('towns:import');
+        $this->command->call('barangays:import');
 
         $this->seedDemoAdmin();
     }
