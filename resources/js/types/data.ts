@@ -21,7 +21,8 @@ export type HomeOverview = {
 
 export type WishTally = {
     townName: string;
-    typeName: string;
+    typeName: string | null;
+    specificBusiness: string | null;
     wishCount: number;
     // Null means "Not available", never zero.
     registeredCount: number | null;
@@ -31,8 +32,9 @@ export type MyWish = {
     id: number;
     townCode: string;
     townName: string;
-    typeCode: string;
-    typeName: string;
+    typeCode: string | null;
+    typeName: string | null;
+    specificBusiness: string | null;
     reason: string | null;
     editsLeft: number;
     nextEditAt: string | null;
@@ -49,6 +51,7 @@ export type WishPage = {
     editsPerWindow: number;
     editWindowDays: number;
     reasonMax: number;
+    specificBusinessMax: number;
     formToken: string;
 };
 

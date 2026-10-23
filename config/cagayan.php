@@ -177,7 +177,9 @@ return [
         */
         'cookie_days' => 30,
 
-        'reason_max' => 280,
+        'reason_max' => 255,
+
+        'specific_business_max' => 120,
 
     ],
 

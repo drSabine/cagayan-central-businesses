@@ -89,18 +89,18 @@ CSV and PDF are built from the same guarded data objects as the screens.
 - The MVP has no bulk export of owner names or contact numbers.
 - Test: a CSV of an area with a hidden figure contains the hidden marker, not a number.
 
-### P12. Wishes collect no identity
+### P12. Wishes collect no resident identity
 
-No name, no contact, no account. The raw network address is never stored. A browser is recognized by a random token in an encrypted, signed, http-only cookie, and the database keeps only the token's SHA-256 hash (decisions.md, D21). The cookie is set on the first wish, never on a visit. Each wish also keeps a keyed hash of the network address and the date, which changes every day, cannot be reversed without the app key, and is used only to cap new respondents per network per day.
+The form collects no resident name, contact, or account. It may store the named business the resident wishes their area had. That value is hidden from everyone except the browser that sent it; public pages show only aggregate counts. The raw network address is never stored. A browser is recognized by a random token in an encrypted, signed, http-only cookie, and the database keeps only the token's SHA-256 hash (decisions.md, D21). The cookie is set on the first wish, never on a visit. Each wish also keeps a keyed hash of the network address and the date, which changes every day, cannot be reversed without the app key, and is used only to cap new respondents per network per day.
 
 - **Cooldown:** one new wish per browser every `wishes.cooldown_days` (3) days.
 - **Edits:** up to `wishes.edits_per_window` (3) edits per browser in any rolling `wishes.edit_window_days` (7) days. Only the browser that made a wish may edit it. Anyone else gets a 404.
 - **Rate limit:** `wishes.per_hour_per_ip` submissions and edits per network address per hour. The address lives only in the rate-limit cache. This still holds when someone clears cookies.
 - **Bots:** a hidden honeypot field and a signed form timestamp (too fast, too old, or forged is rejected).
-- **Input:** the reason is plain text. Tags and control characters are removed, links are rejected, and the length is capped at `wishes.reason_max`.
+- **Input:** the specific business name and reason are plain text. Tags and control characters are removed, links are rejected, and their lengths are capped by `wishes.specific_business_max` and `wishes.reason_max` (255 characters).
 - **New respondents:** at most `wishes.new_respondents_per_network_per_day` per network hash per day.
 - The free-text reason is shown to administrators only, because a resident may type something personal. The public sees counts. The browser that wrote a reason gets it back so it can edit it. No other browser does.
-- Test: the wishes table has no column that could hold a raw address or a name, and the stored network hash does not contain the address and changes the next day. A second wish within the cooldown is rejected. An edit past the limit is rejected. Another browser cannot edit. Another browser's reason never appears in a response.
+- Test: the wishes table has no column for a resident name, contact, or raw network address, and the stored network hash does not contain the address and changes the next day. A second wish within the cooldown is rejected. An edit past the limit is rejected. Another browser cannot edit. Another browser's company name and reason never appear in a response.
 
 ### P13. The simulated label is always present
 

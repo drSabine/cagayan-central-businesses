@@ -14,9 +14,9 @@ final class EditWish
 {
     public function __construct(private WishAllowance $allowance) {}
 
-    public function handle(Wish $wish, Municipality $town, BusinessType $type, ?string $reason): void
+    public function handle(Wish $wish, Municipality $town, ?BusinessType $type, ?string $specificBusiness, ?string $reason): void
     {
-        Cache::lock('wish:'.$wish->submitter_hash, 10)->block(5, function () use ($wish, $town, $type, $reason): void {
+        Cache::lock('wish:'.$wish->submitter_hash, 10)->block(5, function () use ($wish, $town, $type, $specificBusiness, $reason): void {
             $nextEditAt = $this->allowance->nextEditAt($wish->submitter_hash);
 
             if ($nextEditAt !== null) {
@@ -28,10 +28,11 @@ final class EditWish
                 ]);
             }
 
-            DB::transaction(function () use ($wish, $town, $type, $reason): void {
+            DB::transaction(function () use ($wish, $town, $type, $specificBusiness, $reason): void {
                 $wish->update([
                     'municipality_id' => $town->id,
-                    'business_type_id' => $type->id,
+                    'business_type_id' => $type?->id,
+                    'specific_business' => $specificBusiness,
                     'reason' => $reason,
                 ]);
 
