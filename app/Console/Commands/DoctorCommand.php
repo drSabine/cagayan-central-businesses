@@ -113,7 +113,7 @@ class DoctorCommand extends Command
         if (! $satisfied) {
             throw new DoctorFailure(
                 'PHP '.PHP_VERSION." does not meet {$constraint} from composer.json.",
-                'Install PHP 8.3 or newer (WAMP, Laravel Herd, or php.new), and make sure `php -v` in a new terminal shows it.',
+                'Install a patched PHP version matching composer.json (WAMP, Laravel Herd, or php.new), and make sure `php -v` in a new terminal shows it.',
             );
         }
 
