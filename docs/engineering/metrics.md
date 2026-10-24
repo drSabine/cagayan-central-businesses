@@ -166,11 +166,11 @@ Each flag states which condition raised it.
 
 - The number of wishes for a business type in a town.
 - Shown beside `Active(town, t, Y)`, the number of such businesses already registered there.
-- On-screen note: it shows interest from the people who chose to answer, not measured demand.
+- Meaning: expressed interest by voluntary respondents, not measured demand. Per the user correction, do not repeat this as page-description copy.
 
 ## Town figures (home page map)
 
-Public figures per town from `town_facts`, loaded from `data/towns/town-facts.csv` (`data/towns/README.md`). They are real published figures, not business records, so no privacy rule applies. The page shows population, revenue, and expenditure, each the value of the newest year for that town.
+Public figures per town from `town_facts`, loaded from `data/towns/town-facts.csv` (`data/towns/README.md`). They are real published figures, not business records, so no privacy rule applies. The page shows population, Government Revenue, and Government Expenses, each from the newest verified year for that town. A row needs a verification date and source URL before publication. Unchecked newer rows do not displace verified older rows. The legacy `expenditure` key holds accrual total expenses, including non-cash expenses and transfers to other entities; it is not cash disbursements or obligations. Exact COA source-cell calculations, financial highlights cross-checks and qualified opinions are recorded in `data/towns/verified-finances-2024.md`.
 
 ### M18. Map shade
 
@@ -179,7 +179,15 @@ Public figures per town from `town_facts`, loaded from `data/towns/town-facts.cs
 - On the map every dot is the same size. The shade sets the dot color, from `--map-1` to `--map-5`.
 - A place without a population has no shade.
 
-Province totals (population, revenue, expenditure) are shown only when every town has the figure. A partial sum is never shown as a total.
+Province population/count totals require complete town coverage in the same reference year. Missing source links are not attributed to another town’s source. City/municipal accounts are never summed and shown as the provincial government’s revenue or expenses.
+
+## Planned COA historical series (not implemented)
+
+Revenue + Economic Status is the approved information direction: government finances alongside economic output, household conditions, business activity, and community interests. It is not a composite rating. Government revenue includes local and external sources and is not private-business sales or GDP. Preserve source-specific labels and definitions; real GDP growth uses constant-price output, not government revenue growth. Publish a measure only at the source's supported geographic level. In particular, Cagayan Province GDP cannot stand in for Tuguegarao City or barangay GDP. See the October 24 clarification in the product scope for the approved distinctions and primary references.
+
+COA measures describe the reporting local government, not the output or sales of private businesses. A future separate client-facing Local Government Finances view will use verified fiscal-year 2021–2026 reports when available. Source measure definitions must be approved before implementation; do not silently equate income/revenue, expenses/expenditure, cash outflows, or obligations.
+
+For a comparable measure in consecutive fiscal years, absolute change is current value minus prior value. Percentage change is that difference divided by the prior value, times 100; a zero prior value or missing/non-comparable year yields no percentage change. Do not bridge missing years and call the result annual growth. Keep exact source precision in storage, document derived totals, and track restated comparative amounts and audit qualifications. No automatic good/bad interpretation or investment-opportunity score follows from an increase or decrease. Full-year 2026 actuals are unavailable until the fiscal year and corresponding reporting process are complete. See the roadmap's future phase for prerequisites.
 
 ## Config values
 

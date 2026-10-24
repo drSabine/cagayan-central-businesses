@@ -13,6 +13,24 @@ Cagayan Business is a map-based dashboard that gives the Provincial Government o
 
 One-line version for slides: "One map of Cagayan's registered businesses, for the planners who decide and the people who want to start."
 
+## October 24, 2026 clarification: Revenue and Economic Status
+
+Keep the project's business and economic information purpose. Do not pivot it into an auditing system. The approved direction is to retain government revenue as one clearly identified contextual measure alongside broader economic indicators; revenue alone is not a definition or score of a place's economy.
+
+| Information group | Meaning and candidate measures, subject to verified availability |
+| :- | :- |
+| Government Finances | City/municipal government revenue, source-defined expenses, and comparable annual changes. COA accounts describe the reporting government, not private business sales. |
+| Economic Activity | GDP, real GDP growth, and industry composition from PSA. GDP describes economic output; growth at constant prices adjusts for price changes. |
+| Household Conditions | Family income/expenditure, employment, and poverty, with survey coverage and reference periods preserved. |
+| Business Landscape | Registered businesses by location and category, openings, renewals, and closures, when records and metrics exist. |
+| Community Interests | Wishes expressed by participating respondents, not measured market demand. |
+
+Government revenue can change because of national transfers, collection policy, or other factors as well as local activity. It must not be treated as an automatic indicator of business growth, household prosperity, or investment suitability. Use an explicit label such as City Government Revenue where supported by the source. Economic Status is a grouping of defined indicators, not an invented good/bad rating.
+
+Keep every figure at its actual geographic level. The PSA Provincial Product Accounts tables located for this project report provinces/HUCs; Cagayan Province's GDP must not be displayed as Tuguegarao City's or a barangay's GDP. No geographic allocation or substitution is authorized without an appropriate source and method. Keep government accounts separate from economic output and household measures, even when they appear alongside each other.
+
+Official references: [PSA PPA definitions](https://psa.gov.ph/statistics/ppa/faqs) and [BLGF explanation of local and external government income](https://blgf.gov.ph/dof-unit-clarifies-lgu-income-data/). The historical COA view remains future work in the roadmap. Further COA/BOI/PSA document collection is deferred to a separate session; this clarification records the direction and does not implement new screens or import new figures.
+
 ## Problem
 
 The Capitol can see yearly, town-level business indicators from national sources, but it has no view of its own that shows registered businesses barangay by barangay, by type, and over time. The research behind this statement is in the Verification findings section, and the team should still confirm it with the provincial planning office.

@@ -513,9 +513,7 @@ export default function SuggestionsIndex({ page }: Props) {
                                             ]
                                                 .filter(Boolean)
                                                 .join(' and ')}{' '}
-                                            in {tally.townName}. Interest from
-                                            people who chose to answer, not
-                                            measured demand
+                                            in {tally.townName}
                                         </p>
                                     </>
                                 ) : (

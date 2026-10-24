@@ -29,6 +29,11 @@ class TownFactFactory extends Factory
         ];
     }
 
+    public function verified(): static
+    {
+        return $this->state(fn () => ['checked_on' => '2026-10-24']);
+    }
+
     public function measure(TownMeasure $measure, int $year, float|int $value): static
     {
         return $this->state(fn () => ['measure' => $measure, 'year' => $year, 'value' => $value]);

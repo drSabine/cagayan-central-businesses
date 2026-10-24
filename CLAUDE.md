@@ -1,7 +1,7 @@
 # Cagayan Business
 
 A map-based dashboard of registered businesses for the Provincial Government of Cagayan, built for the PGC Digital Innovation Challenge. Prototype video due October 30, 2026.
-Two audiences: Capitol administrators (logged in, see area sales totals and owner contacts) and the public (no login, sales as bands only, a start-a-business guide, citizen wishes).
+Two audiences: a role-protected Capitol workspace (Super Admin, Admin, and Staff) and the public (no login, sales as bands only, a start-a-business guide, citizen wishes).
 MVP: Tuguegarao City's 49 barangays. Real boundaries and population, simulated business records labeled "Simulated data".
 
 ## Stack
@@ -12,7 +12,7 @@ Laravel 13 (PHP 8.3), Inertia 3, React 19 with TypeScript, Vite 8 (through vite-
 
 1. Run `git branch --show-current`. If it says `main` or `staging`, create a work branch inside `staging` before changing anything: `git switch staging`, `git pull --ff-only`, `git switch -c feat/short-description` (or `bug/`, `data/`, `docs/`, `chore/`). `main` is production, `staging` is development, and work branches merge back into `staging` only. Rules: `docs/team/workflow.md`.
 2. Read the doc for the area you will touch (table below). The team has a frontend developer, a backend developer, and a data and content member (`docs/team/workflow.md`, "Roles"). The Data object is the contract between frontend and backend.
-3. Propose a short plan, then build the smallest slice that works end to end.
+3. Read `docs/plan/README.md` and resume the matching active plan. Use `/plan-history` for agreed work: record scope, dated changes and verification using `yy-mm-dd`; archive completed plans and reference them in later improvements. Then build the smallest agreed slice that works end to end.
 
 ## Commands
 
@@ -53,7 +53,7 @@ Details and examples: `docs/engineering/architecture.md` (back end) and `docs/en
 - **Do not over-split.** Keep markup in the page until it repeats or the file passes about 200 lines. No one-line wrapper components, no pass-through props, no `index.ts` re-exports.
 - **Comments only when the reason is not obvious from the code.** One short line, saying why, not what. No commented-out code. PHPDoc only where PHPStan needs types (array shapes, generics).
 - **Follow sibling files** for naming and structure. Use `php artisan make:*` with `--no-interaction` to create files.
-- **Login is Fortify, login and logout only.** The rest of the starter kit was removed (decisions.md, O8). Do not bring back registration, password reset, email verification, two-factor, passkeys, or settings pages without a decision.
+- **Login remains Fortify for the prototype. The approved workspace profile is separate from the removed starter settings.** The rest of the starter kit was removed (decisions.md, O8). Do not add public registration or new identity providers without a decision. Future Microsoft/Google sign-in must identify existing local users without granting roles.
 - **No new packages** without asking. A new package needs a line in `docs/engineering/decisions.md`.
 
 ## UI rules
@@ -74,6 +74,27 @@ Details and examples: `docs/engineering/architecture.md` (back end) and `docs/en
 - Before changing an existing screen, follow `docs/engineering/design.md`, "Working on Existing Screens". It records the user's layout, copy, map, form, source, and validation corrections. Do not reintroduce removed statistics, helper paragraphs, legends, modals, map CTAs, or duplicated controls under another label. Use underlined links without decorative arrows.
 
 Full rules: `docs/engineering/design.md`.
+
+## Capitol Workspace Decisions
+
+- Approved Revenue + Economic Status direction: retain verified city/municipal government revenue as explicitly labeled context alongside economic activity, household conditions, business records, and community interests. Government revenue is not private-business sales, GDP, or a prosperity/investment score; national transfers also affect it. GDP and survey figures retain their source geography and period, so province figures never become town/barangay figures. Keep the business-information purpose; no auditing pivot. See docs/product/mvp-scope.md, "October 24, 2026 clarification: Revenue and Economic Status". The foundation labels Government Revenue and Government Expenses explicitly and withholds unchecked figures. Four 2024 COA originals are verified; additional source downloads remain deferred to a separate session.
+
+- Future work requested October 24, 2026: collect COA fiscal-year 2021–2026 reports and build a separate client-facing Local Government Finances history with comparable increases/decreases. COA records LGU finances and audit findings, not private business revenue or measured demand. Definitions, full source verification, restatements, and audit qualifications must accompany the series. Full-year 2026 actuals wait for a released report. See docs/team/roadmap.md, "Future Phase: Historical Local Government Finances". This phase is not implemented.
+
+- Fixed labeled desktop sidebar with no collapse control or selected-tab accent bars; compact mobile menu and breadcrumb strip.
+- Map selections and geographic breadcrumbs use client-side Inertia history, not server visits. Cache each town dataset and keep the map mounted during selection.
+- Do not add descriptions below page titles. Do not restore removed explanatory paragraphs about expressed interest, unavailable workflows, or boundary limitations on workspace screens. Keep provenance and limitations in data documentation.
+- Map first with MapLibre and selected-area details. Omit the requests/approvals placeholder until workflows exist. No fabricated counts or approval controls.
+- Community Wishes is a separate Admin/Super Admin page. Never send wishes to Staff or any dashboard response, including the map.
+- Province-wide economic summaries are available to all three roles. Staff editing is restricted to assigned towns; business editing remains future work.
+- Only Super Admin sees Activity Logs and may change roles. Admin manages Staff accounts and business categories when their management screens are built.
+- Compact greeting with stored display name, date, and 24-hour Philippine clock. Keep the role in the sidebar account area only. Birthday month/day is optional and private; never collect birth year.
+- Token styles only. Shared Capitol pieces in components/capitol, maps in components/map, semantic icons in lib/icons.ts, hooks and formatters outside pages.
+- Session: 30 minutes idle, 8 hours absolute, 2 minute warning. Background requests never extend idle time. Verify expiry on the server before ending a shared session. Encrypt Inertia history and clear it on sign-in/logout/expiry.
+- Input constraints live in config/cagayan.php and are supplied to forms. Display names are 1–100 Unicode characters without markup/control characters. Future business names use VARCHAR(55). Never silently truncate or force name capitalization.
+- Contact and other future business-field formats require approval when those forms are planned.
+- New private records use random UUID public identifiers; geographic PSGC codes remain public. Every protected action still requires server authorization.
+- No individual business sales or protected field values in audit events. Activity Logs is append only, with safe event codes and actor keys.
 
 ## Rules that are never broken
 
@@ -115,6 +136,7 @@ If a product rule, metric, or privacy rule looks wrong, or two docs disagree, st
 
 Start each task from one:
 
+- `/plan-history`: maintain agreed plans, changes, checks, and archive under `docs/plan/`.
 - `/feature-builder C3`: build one feature as a tested vertical slice.
 - `/metric-builder M10`: build one metric in SQL, test first.
 - `/db-change <what>`: change the schema with its model, factory, seeder, and doc.

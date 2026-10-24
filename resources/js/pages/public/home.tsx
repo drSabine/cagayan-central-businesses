@@ -106,34 +106,36 @@ export default function Home({ overview }: Props) {
                                             (opens in a new tab)
                                         </span>
                                     </a>
-                                    . Revenue and expenditure: municipal and
-                                    city financial statements published by the
-                                    Commission on Audit.
+                                    . Government revenue and expenses: verified
+                                    municipal and city financial statements
+                                    published by the Commission on Audit.
                                 </>
                             ),
                         },
                         {
                             term: 'Records',
                             description:
-                                'Business records are simulated. Population figures and geographic boundaries are drawn from published sources.',
+                                'Population and geographic boundaries come from published sources. Business records are not available in this foundation.',
                         },
                         {
                             term: 'Area',
                             description:
-                                'Population covers Cagayan’s 28 municipalities and Tuguegarao City. Demonstration business records cover Tuguegarao City only.',
+                                'Cagayan’s 28 municipalities and Tuguegarao City.',
                         },
                         {
                             term: 'Period',
-                            description: `${overview.firstYear} to ${overview.latestYear} for demonstration records. Official statistics retain their respective reference years.`,
+                            description:
+                                'Official figures retain their source reference years.',
                         },
                         {
                             term: 'Businesses',
-                            description: 'Registered businesses only',
+                            description:
+                                'Business records are planned for a later phase.',
                         },
                         {
                             term: 'Sales',
                             description:
-                                'Declared business activity, not the income of residents or of the barangay government. Public sales figures are presented as ranges, subject to disclosure controls.',
+                                'Individual business sales are not displayed. Future public sales summaries require disclosure controls.',
                         },
                         {
                             term: 'Boundaries',

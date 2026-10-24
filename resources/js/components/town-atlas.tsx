@@ -24,9 +24,13 @@ const SOURCE_NAMES: Record<string, string> = {
 function figures(town: TownProfile) {
     return [
         { label: 'Population', figure: town.population, format: formatNumber },
-        { label: 'Revenue', figure: town.revenue, format: formatPesos },
         {
-            label: 'Expenditure',
+            label: 'Government Revenue',
+            figure: town.revenue,
+            format: formatPesos,
+        },
+        {
+            label: 'Government Expenses',
             figure: town.expenditure,
             format: formatPesos,
         },

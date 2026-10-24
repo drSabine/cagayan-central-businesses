@@ -24,11 +24,11 @@ final class TownAtlasQuery
             max(l.source_url) filter (where l.measure = '{$measure}') as {$measure}_source
             SQL)->implode(",\n");
 
-        // Province totals only when every town has the figure, so a partial sum is never shown.
-        $totals = collect(['population', 'revenue', 'expenditure', 'barangay_count'])->map(fn (string $measure) => <<<SQL
-            case when count({$measure}) over () = count(*) over () then sum({$measure}) over () end as total_{$measure},
+        // Population/count totals require complete coverage of the same reference year.
+        $totals = collect(['population', 'barangay_count'])->map(fn (string $measure) => <<<SQL
+            case when count({$measure}) over () = count(*) over () and min({$measure}_year) over () = max({$measure}_year) over () then sum({$measure}) over () end as total_{$measure},
             max({$measure}_year) over () as total_{$measure}_year,
-            case when min({$measure}_source) over () = max({$measure}_source) over () then max({$measure}_source) over () end as total_{$measure}_source
+            case when count({$measure}_source) over () = count(*) over () and min({$measure}_source) over () = max({$measure}_source) over () then max({$measure}_source) over () end as total_{$measure}_source
             SQL)->implode(",\n");
 
         /** @var list<object> $rows */
@@ -36,7 +36,8 @@ final class TownAtlasQuery
             with latest as (
                 select distinct on (municipality_id, measure) municipality_id, measure, year, value, source_url
                 from town_facts
-                where measure in ('population', 'revenue', 'expenditure', 'barangay_count', 'income_class', 'poverty_incidence')
+                where checked_on is not null and source_url is not null
+                    and measure in ('population', 'revenue', 'expenditure', 'barangay_count', 'income_class', 'poverty_incidence')
                 order by municipality_id, measure, year desc
             ),
             facts as (
@@ -90,8 +91,8 @@ final class TownAtlasQuery
             name: 'Cagayan',
             kind: 'province',
             population: $total('population'),
-            revenue: $total('revenue'),
-            expenditure: $total('expenditure'),
+            revenue: null,
+            expenditure: null,
             shade: null,
             barangayCount: $total('barangay_count'),
         );

@@ -54,6 +54,8 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D9. Login and roles
 
+The original single-role decision below is superseded by D28.
+
 **Decided.** Login from the starter kit (Fortify). Public registration is off. Capitol administrator accounts come from the seeder or an Artisan command. One role in the MVP, `capitol_admin`, checked by a `capitol` gate on the Capitol route group. The public side has no login.
 
 ## D10. Simulated data
@@ -108,7 +110,7 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D20. Discreet admin login
 
-**Decided October 3, 2026.** The login page lives only at the path in `CAGAYAN_ADMIN_LOGIN_PATH` (`config('cagayan.admin.login_path')`). No public page links to it. `/login` does not exist, and guests who open any login-only page get a plain 404 instead of a redirect that would reveal the path. The login responses carry `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer`, and the path is not listed in `robots.txt`. Login is limited per email and address per minute, per address per hour, and per account per hour from any address (a lockout). Only accounts with the `capitol_admin` role can sign in (`Fortify::authenticateUsing`), with the same message as a wrong password. Every Capitol route sits in `routes/capitol.php` behind `auth` and `can:capitol`, and a test checks each one. Production refuses to serve web requests with the example path. Console commands skip the check, because CI and `composer setup` run them before `.env` exists.
+**Decided October 3, 2026.** The login page lives only at the path in `CAGAYAN_ADMIN_LOGIN_PATH` (`config('cagayan.admin.login_path')`). No public page links to it. `/login` does not exist, and guests who open any login-only page get a plain 404 instead of a redirect that would reveal the path. The login responses carry `X-Robots-Tag: noindex, nofollow` and `Referrer-Policy: no-referrer`, and the path is not listed in `robots.txt`. Login is limited per email and address per minute, per address per hour, and per account per hour from any address (a lockout). Under D28, only active accounts assigned Super Admin, Admin, or Staff can sign in (`Fortify::authenticateUsing`), with the same failure message as a wrong password. Every Capitol route sits in `routes/capitol.php` behind `auth` and `can:capitol`, and a test checks each one. Production refuses to serve web requests with the example path. Console commands skip the check, because CI and `composer setup` run them before `.env` exists.
 
 - Sessions: passwords are hashed (bcrypt), the session id is regenerated at sign-in, cookies are http-only and SameSite=Lax, CSRF is checked on every web form, and production sets `SESSION_SECURE_COOKIE=true` and `SESSION_ENCRYPT=true` (deployment.md).
 
@@ -207,3 +209,16 @@ The next cleanup lightens dark mode to soft neutral charcoal with progressively 
 Color correction: replace the neutral charcoal with muted blue slate surfaces sharing the river ink hue. Retain the lighter base and readable text and field borders, so dark mode complements the blue map without returning to near-black.
 
 The form reload fix keeps selections and drafts local, requests only an optional category tally, and lazily resolves the full form payload. Repeated selections make no request; recent counts are reused, superseded requests are cancelled, and submission invalidates cached counts. Business Type is shown first, with an explicit control to reveal Specific Business. Either field or both remain valid, and editing a company wish opens its field automatically.
+
+
+## D28. Super Admin Workspace Foundation
+
+Approved October 24, 2026. Supersedes D9's single-role limitation and O8 only for the new private workspace profile. Roles are Super Admin, Admin, and Staff. Dashboard economic summaries are province-wide for all roles. Community Wishes is separate and restricted to Admin/Super Admin; logs and role changes are Super Admin only. Staff's future editing is assigned-town scoped. User management, taxonomy editing, business entry and publication remain later work.
+
+MapLibre and react-map-gl implement the admin map using existing dependencies, local documented boundaries, on-demand barangay datasets, population shades, and optional OpenFreeMap positron tiles. The landing page retains its SVG map and approved structure. Dashboard is map-first with compact details. Later user corrections remove the requests/approvals placeholder until those workflows exist. No community wishes or sample business records on that dashboard.
+
+Existing password sign-in is retained for prototype reliability; Microsoft/Google integration is deferred. Maintain local identity and permissions independently of a future verified provider subject. No Auth.js, Clerk, or OAuth dependency is added. Existing accounts migrate to Admin; promotion to Super Admin is explicit through the trusted console command. Sessions expire after 30 idle minutes or 8 hours, warn two minutes before expiry, and cannot be kept alive by background reloads. Encrypt private browser history and clear it on login/logout/expiry.
+
+Display names are 1–100 characters with Unicode preserved. Optional birthday month/day is private; no birth year. Future business names have a 55-character storage and validation contract. Other future field formats require explicit agreement. Audit records are database-enforced append-only safe metadata, never raw private payloads.
+
+Verified fiscal figures are labeled Government Revenue and Government Expenses, retain exact cents, and link original COA archives. Unchecked source rows are withheld. Province totals require complete same-year population/count coverage; town government accounts never become provincial-government finances. See `data/towns/verified-finances-2024.md`.

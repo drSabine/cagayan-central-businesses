@@ -92,12 +92,12 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 ### Foundation
 
 - F1 Core schema: In progress (towns and business types done)
-- F2 Boundaries and population: In progress (town population, income class, poverty, and budgets from `data/towns/`; the `barangays` table with Tuguegarao's 2024 barangay population from `data/barangays/`. Shapes in PostGIS and urban or rural class remain)
+- F2 Boundaries and population: In progress (29 town and 820 browser barangay populations verified against the PSA 2024 workbook; database barangay populations cover Tuguegarao's 49 barangays. Reference figures are imported from `data/towns/`, but economic rows still need source verification and replacement. COA figures describe government finances, not budgets or private-business revenue. Shapes in PostGIS and urban or rural class remain)
 - F3 Seeder: Not started
 - F4 Metrics refresh: Not started
 - F5 Privacy guard: Not started
-- F6 Map component: Not started
-- F7 Layouts, label, login: In progress (public shell, home page, discreet admin login, role, and gate done. Capitol layout remains)
+- F6 Map component: In progress (public SVG and protected MapLibre population maps work. The PostGIS-backed business map remains unbuilt)
+- F7 Layouts, label, login: Done (public shell and compact Capitol workspace, three roles, discreet login, protected sessions, and private profile)
 
 ### Tier 1: in the video
 
@@ -107,7 +107,7 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 - C4 Rankings and movers: Not started
 - C7 Status and growth trends: Not started
 - C8 Survival rate: Not started
-- C12 Citizen wishes: Not started
+- C12 Citizen wishes: In progress (restricted aggregate town/category page implemented for Admin/Super Admin. Comparison with registered business supply remains unbuilt)
 - C13 Business directory with view log: Not started
 - P1 Explore map: Not started
 - P2 Business listing: Not started
@@ -154,3 +154,46 @@ October 23, 2026. The user's UI corrections are recorded in `docs/engineering/de
 - COA revenue and expenditure rows without a `checked_on` date still require a team member's source review, as recorded in `data/towns/README.md`.
 - The production and SSR builds pass with the existing Inertia sourcemap warning. Refresh a running development preview after rebuilding before checking count requests, because an old asset version can cause a discarded background response.
 - Continue with a focused task and commit by concern. Do not restore removed helper copy, modals, map CTAs, legends, or duplicate controls as part of unrelated work.
+
+
+## October 24 Workspace Foundation
+
+Implemented the map-first three-role workspace with economic context, explicit barangay drill-down, private profile, restricted aggregate Community Wishes, and Super Admin Activity Logs. Existing demo business metrics and approval workflows remain unavailable, not zero. This foundation does not mark C1/C2/C3 business intelligence complete. Role management screens, Staff account management, taxonomy editing, and business requests/publication remain follow-up work. C12 has a working separate aggregate wishes page; comparison with registered supply still waits on business records/metrics. The last approved privacy rule is that Staff sees no Community Wishes and no wishes data appears on any dashboard.
+
+## Future Phase: Historical Local Government Finances
+
+Status: Not started. Requested October 24, 2026. This is future work, not part of the completed workspace foundation.
+
+The user will collect COA reports for fiscal years 2021–2026. A future client-facing view will show increases and decreases in comparable local government financial measures across available years. Keep this as a separate Local Government Finances view, rather than presenting it as business revenue, resident income, measured demand, or an investment recommendation.
+
+- Preserve original executive summaries and full Annual Audit Report archives by LGU and fiscal year. Record the official download URL, report title, publication/access dates, exact page or workbook sheet/cells, units, and audit opinion. Keep extracted observations separate from original files.
+- Executive summaries provide financial highlights and audit context. Verify definitions and calculations against the full financial statements and notes before publishing a series. Do not assume Income, Revenue, Expense, Expenditure, Appropriations, Obligations, and cash flows are interchangeable.
+- Use explicit measure labels such as LGU Income and LGU Expenses where those match the source. Keep private-business metrics and PSA economic/household measures distinct.
+- Show the source year, absolute change, and percentage change only for comparable consecutive fiscal years. Missing years stay unavailable; a zero prior value has no percentage change. Retain restatements and the relevant audit qualifications. An increase is not automatically an improvement.
+- As of October 24, 2026, fiscal year 2026 is incomplete. Collect its full-year actuals after an appropriate report is released; never substitute a budget or partial-year figure for audited annual actuals.
+- City/municipal government accounts and provincial government accounts describe different reporting entities. A sum of municipal accounts must not be labeled as the provincial government's finances.
+- Project and audit findings may provide dated context about infrastructure or service delivery. Preserve the report period and status wording; do not infer current completion, business profitability, or misconduct from a financial trend alone.
+
+The supplied Tuguegarao City Executive Summary 2025 was reviewed: pages i–ii contain 2025/2024 financial highlights and increases/decreases; subsequent pages cover projects, audit opinion, findings, and recommendations. The document reports a qualified audit opinion. Its public-market finding is dated context, not a measurement of customer demand. Source verification and metric definitions are prerequisites to implementing this view. The foundation UI-copy and live-data accuracy review was completed in the subsequent foundation session; historical source collection remains deferred.
+
+## October 24 Handoff: Direction Recorded, Implementation Deferred
+
+The user approved Revenue + Economic Status as an information direction, without pivoting to auditing. Retain source-verified government revenue with an explicit government label alongside separate economic, household, business, and community-interest indicators. Preserve each source's geographic coverage and reference year. The full definition is in docs/product/mvp-scope.md; it does not authorize inventing a composite economic-status score.
+
+Further document collection will take place in another session. That earlier turn was documentation only. The user subsequently authorized finishing the dashboard foundation and its outstanding UI/data reviews, recorded in docs/plan.
+
+Outstanding work, checked against the current routes, models, migrations, and existing workspace:
+
+- Foundation UI-copy and data-accuracy review is complete: redundant page descriptions removed, four 2024 COA fiscal pairs verified with exact source references and cents, unchecked figures withheld, and explicit Government Revenue/Government Expenses labels applied. Remaining economic indicators and COA 2021–2026 histories are deferred.
+- Build account-management screens, Super Admin role changes, Staff assignment management, and editable business categories/options. Current authorization and assignment policies are foundations, not management UIs.
+- Complete the business/business-year schema, records, entry/editing forms, strict field contracts, and assignment-scoped operations. No working business-record management exists yet.
+- Build record publication: Staff prepares/submits; Admin/Super Admin reviews and publishes, with 1 Prepare, 2 Review, 3 Publish. This is publication, not permit processing.
+- Finish PostGIS boundary loading and remaining geographic attributes; implement the business map, business directory, full-record view logging, and public business listings.
+- Implement business metrics, the sales privacy guard, rankings, trends, survival, and wishes-versus-registered-supply comparisons. Existing population shading and wish counts do not constitute these features.
+- Implement the verified start-a-business guide and later comparison, outlook/backtesting, early-warning, export/brief, and local-snapshot features. Deployment, clean-clone demo verification, and submission materials still need their own completion checks.
+
+Implemented foundations are the public landing/population explorer and wishes submission flow, plus the protected workspace's map/geographic navigation, three-role access and session controls, private profile, restricted aggregate Community Wishes, and Super Admin security/account Activity Logs. Business transaction history remains unavailable until business workflows exist. Do not describe those foundations as completion of business intelligence or investment analysis.
+
+## Foundation Completion Record
+
+The accepted dashboard foundation, later UI corrections, source verification limits, and final checks are recorded in [the plan register](../plan/README.md). Business entry/publication, account/category-management screens and historical economic/financial series remain future phases. Runtime patch updates are isolated on `chore/security-runtime-updates`; foundation changes use `feat/capitol-workspace-foundation`, both based on staging. Public landing PR #15 is already merged; no duplicate landing PR was created.

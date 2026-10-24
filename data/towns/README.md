@@ -1,6 +1,6 @@
 # Town Figures
 
-Real public figures for Cagayan's 29 towns. The Home page map shows population, revenue, and expenditure. The other measures stay in the file for later. One file, `town-facts.csv`, loaded into the `town_facts` table by `php artisan towns:import` (or `composer data:towns`). `composer db:reset` loads it too.
+Real public figures for Cagayan's 29 towns. The Home and workspace maps show population, Government Revenue, and Government Expenses. The other measures stay in the file for later. One file, `town-facts.csv`, loaded into the `town_facts` table by `php artisan towns:import` (or `composer data:towns`). `composer db:reset` loads it too.
 
 Prepared on October 23, 2026.
 
@@ -33,7 +33,7 @@ Measures:
 
 1. Add or edit rows in `town-facts.csv`. For a new census or budget year, **add** rows with the new year. Keeping the old ones keeps the history.
 2. Run `composer data:towns`. It checks every row first and imports nothing if a row is wrong, listing each problem with its line number.
-3. Refresh the Home page. It always uses the newest year of each measure.
+3. Refresh the Home page. It uses the newest verified year of each measure. Unchecked rows stay in the source file but are withheld from responses.
 
 The CSV is the source of truth: every import replaces the whole table with the file.
 
@@ -52,20 +52,16 @@ Each `source_url` points to the original release used for that figure. The 2024 
 
 Land area was dropped: it could not be traced to an official document, and nothing shows it.
 
-The PSA source page and its attached workbook were opened for this check. The COA source still needs a manual review when checking town revenue and expenditure figures.
+The PSA source page and attached workbook were checked directly. All 29 town populations and all 820 barangay populations match the original Cagayan sheet, totaling 1,284,676; Tuguegarao totals 167,297. No other province tabs were used.
 
-**Scope:** the Region II workbook has a separate tab for each province. Only the Cagayan tab is used. Its 28 municipalities and Tuguegarao City match the 29 Cagayan PSGC boundary codes; no Batanes records are included.
+## Verification and Publication
 
-**Check:** the 29 towns add up exactly to the Cagayan total in the 2024 tab, 1,284,676. The 2020 town total remains 1,268,603.
+Only rows with `checked_on` and a source URL can reach the atlas responses. Older verified rows remain eligible when a newer row is unchecked. This applies to both public and workspace maps. A verification date means source transcription was checked, not that the government's accounts are free of audit qualifications.
 
-**Not available on purpose:**
-- Gattaran's revenue and expenditure (no single year was given).
-- Abulug's revenue (only 2019 was given).
+Four 2024 COA archives have been inspected: Abulug, Alcala, Allacapan, and Tuguegarao City. Exact values, archive links, workbook cells, checksums and audit qualifications are in [Verified Local Government Finances 2024](verified-finances-2024.md). The other 25 towns' financial figures remain unavailable pending primary-source review. Abulug revenue is now available from its 2024 original report.
 
-The page shows "Not available" for these, and the province revenue total is not shown until every town has one.
+The legacy `expenditure` storage key currently represents the reports' total expenses, including non-cash expenses and transfers/assistance/subsidies to other entities, not cash expenditure or appropriations. The visible label is Government Expenses. Do not reuse this key for another accounting basis without a documented schema/contract change.
 
-## Before the demo
+Province population/count totals require all towns to have the same reference year. City/municipal government accounts are not aggregated into a provincial-government finance figure. Full historical collection and comparable-year trends remain separate deferred work.
 
-The 29 town rows for 2024 population have `checked_on=2026-10-23`. Other rows remain unchecked until a team member compares them with their source.
-
-When you check a figure, replace its `source_url` with the exact release or document if you find one, and fill in `checked_on`.
+The 29 population rows for 2024 have `checked_on=2026-10-23`; the four verified fiscal pairs have `checked_on=2026-10-24`. Other measures stay unchecked until compared directly with their originals. Replace the source URL with an exact document when checking a figure, then fill in the verification date. Never mark a generic source page as evidence that a number was inspected.

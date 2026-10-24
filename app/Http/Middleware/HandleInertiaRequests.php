@@ -3,7 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Data\SessionUser;
+use App\Data\Workspace;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -36,6 +38,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        Inertia::encryptHistory($request->routeIs('capitol.*'));
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -43,6 +47,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user() ? SessionUser::from($request->user()) : null,
             ],
             'simulated' => (bool) config('cagayan.simulated'),
+            ...($request->routeIs('capitol.*') && $request->user()?->canEnterWorkspace()
+                ? ['workspace' => Workspace::from($request->user(), $request)] : []),
+            ...($request->routeIs('admin.login') ? ['notice' => $request->session()->get('notice')] : []),
         ];
     }
 }
