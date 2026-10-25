@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { House, MessageSquarePlus } from 'lucide-react';
+import { ChartNoAxesCombined, House, MessageSquarePlus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AppBottomBar } from '@/components/app-bottom-bar';
 import { AppearanceToggle } from '@/components/appearance-toggle';
@@ -7,12 +7,18 @@ import { SimulatedLabel } from '@/components/privacy/simulated-label';
 import { isCurrentSection } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
+import { economicPerformance } from '@/routes/public';
 import { index as suggestions } from '@/routes/public/wishes';
 import type { NavItem } from '@/types/ui';
 
 // The business map (P1) and the guide (P4) join this list when they are built.
 const items: NavItem[] = [
     { title: 'Home', href: home(), icon: House },
+    {
+        title: 'Economy',
+        href: economicPerformance(),
+        icon: ChartNoAxesCombined,
+    },
     { title: 'Suggestions', href: suggestions(), icon: MessageSquarePlus },
 ];
 

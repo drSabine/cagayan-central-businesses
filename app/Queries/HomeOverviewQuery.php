@@ -38,7 +38,6 @@ final class HomeOverviewQuery
             firstYear: (int) config('cagayan.data.first_year'),
             latestYear: (int) config('cagayan.data.latest_year'),
             yearCount: (int) config('cagayan.data.latest_year') - (int) config('cagayan.data.first_year') + 1,
-            smallGroupMin: (int) config('cagayan.privacy.small_group_min'),
             atlas: $this->atlas->get(),
             barangays: $this->barangays->get(),
         );

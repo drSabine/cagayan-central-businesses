@@ -17,7 +17,6 @@ final readonly class HomeOverview
         public int $firstYear,
         public int $latestYear,
         public int $yearCount,
-        public int $smallGroupMin,
         public TownAtlas $atlas,
         public array $barangays,
     ) {}

@@ -222,7 +222,7 @@ export default function ProvinceMap({
         <svg
             ref={svg}
             viewBox={`${x} ${y} ${box.w} ${box.h}`}
-            role="img"
+            role={onSelect ? 'group' : 'img'}
             aria-label={label}
             className={cn(
                 zoomable ? 'size-full touch-pan-y' : 'overflow-visible',

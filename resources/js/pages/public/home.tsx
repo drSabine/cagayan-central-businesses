@@ -1,20 +1,12 @@
-import { Head, Link } from '@inertiajs/react';
-import { ClipboardList, Map as MapIcon } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import type { MapStyle } from '@/components/province-map';
 import { DefinitionList } from '@/components/definition-list';
 import { BarangayAtlas } from '@/components/barangay-atlas';
 import { TownAtlas } from '@/components/town-atlas';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
-import { formatCount } from '@/lib/format';
+import { Card, CardFooter, CardHeader } from '@/components/ui/card';
+import { economicPerformance } from '@/routes/public';
 import { index as suggestions } from '@/routes/public/wishes';
 import type { HomeOverview } from '@/types/data';
 
@@ -22,22 +14,11 @@ type Props = {
     overview: HomeOverview;
 };
 
-// The business map (P1) and the guide (P4) move into the open card when they are built.
-const upcoming = [
-    {
-        icon: MapIcon,
-        title: 'Business Map',
-        description: 'Registered businesses in each barangay, by type.',
-    },
-    {
-        icon: ClipboardList,
-        title: 'Start a Business Guide',
-        description:
-            'The permits and documents your business needs, and where to get them.',
-    },
-];
-
 export default function Home({ overview }: Props) {
+    const { url } = usePage();
+    const townCode = new URL(url, 'http://localhost').searchParams.get('town');
+    const town = overview.atlas.towns.find((item) => item.code === townCode);
+    const query = town ? { town: town.code } : {};
     const [mapStyle, setMapStyle] = useState<MapStyle>('dotted');
     useEffect(() => {
         try {
@@ -72,6 +53,40 @@ export default function Home({ overview }: Props) {
                     </div>
                 </section>
             </div>
+
+            <section
+                aria-label="Explore Your Town"
+                className="grid reveal gap-3 md:grid-cols-2"
+            >
+                <Card className="justify-between gap-3 py-4 shadow-none">
+                    <CardHeader className="px-4">
+                        <h2 className="type-heading">
+                            What Businesses Would You Like in Your Town?
+                        </h2>
+                    </CardHeader>
+                    <CardFooter className="px-4">
+                        <Button asChild>
+                            <Link href={suggestions({ query })}>
+                                Share Your Wish
+                            </Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+                <Card className="justify-between gap-3 py-4 shadow-none">
+                    <CardHeader className="px-4">
+                        <h2 className="type-heading">
+                            Explore Your Town's Economy
+                        </h2>
+                    </CardHeader>
+                    <CardFooter className="px-4">
+                        <Button asChild variant="outline">
+                            <Link href={economicPerformance({ query })}>
+                                Explore the Economy
+                            </Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </section>
 
             <section
                 id="about-data"
@@ -144,82 +159,6 @@ export default function Home({ overview }: Props) {
                         },
                     ]}
                 />
-            </section>
-
-            <section
-                aria-labelledby="protection"
-                className="grid reveal gap-6 rounded-2xl bg-muted p-6 md:p-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-10"
-            >
-                <h2 id="protection" className="type-heading">
-                    How Businesses Are Protected
-                </h2>
-                <ol className="flex flex-col gap-4">
-                    {[
-                        'Individual business sales are excluded from public and administrative responses. Only aggregates that satisfy disclosure controls may be published.',
-                        `Aggregate sales for fewer than ${formatCount(overview.smallGroupMin)} businesses are withheld. Additional controls prevent disclosure through dominant contributions or related totals.`,
-                        'Public pages exclude owner names and contact details. Suggestions do not request these details; submission records use hashed identifiers instead of raw IP addresses.',
-                    ].map((point, index) => (
-                        <li key={point} className="flex gap-5">
-                            <span
-                                aria-hidden="true"
-                                className="font-mono text-2xl leading-none text-muted-foreground tabular-nums"
-                            >
-                                {index + 1}
-                            </span>
-                            <p className="type-lead">{point}</p>
-                        </li>
-                    ))}
-                </ol>
-            </section>
-
-            <section
-                aria-labelledby="tasks"
-                className="flex reveal flex-col gap-5"
-            >
-                <h2 id="tasks" className="type-heading">
-                    What You Can Do
-                </h2>
-                <div className="grid gap-4 lg:grid-cols-3">
-                    <Card className="gap-5 lg:col-span-2 lg:row-span-2">
-                        <CardHeader>
-                            <CardTitle className="type-title">
-                                What Business Do You Wish for Your Town?
-                            </CardTitle>
-                        </CardHeader>
-                        <CardFooter className="flex flex-wrap gap-3">
-                            <Button asChild>
-                                <Link href={suggestions()}>
-                                    Share Your Wish
-                                </Link>
-                            </Button>
-                        </CardFooter>
-                    </Card>
-
-                    {upcoming.map((item) => (
-                        <Card
-                            key={item.title}
-                            className="gap-3 bg-muted py-5 shadow-none"
-                        >
-                            <CardHeader className="px-5">
-                                <div className="flex items-center justify-between gap-3">
-                                    <CardTitle className="flex items-center gap-2">
-                                        <item.icon
-                                            className="size-4"
-                                            aria-hidden="true"
-                                        />
-                                        {item.title}
-                                    </CardTitle>
-                                    <Badge variant="outline">
-                                        Not Open Yet
-                                    </Badge>
-                                </div>
-                                <CardDescription>
-                                    {item.description}
-                                </CardDescription>
-                            </CardHeader>
-                        </Card>
-                    ))}
-                </div>
             </section>
         </>
     );
