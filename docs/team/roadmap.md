@@ -197,3 +197,28 @@ Implemented foundations are the public landing/population explorer and wishes su
 ## Foundation Completion Record
 
 The accepted dashboard foundation, later UI corrections, source verification limits, and final checks are recorded in [the plan register](../plan/README.md). Business entry/publication, account/category-management screens and historical economic/financial series remain future phases. Runtime patch updates are isolated on `chore/security-runtime-updates`; foundation changes use `feat/capitol-workspace-foundation`, both based on staging. Public landing PR #15 is already merged; no duplicate landing PR was created.
+
+## October 25 Public Economic Performance
+
+Completed 26-10-25: dedicated public Tuguegarao-only synthetic Government Finances and Community Wishes page, 2021 through 2025 finance history, curated type/specific-business cloud with bars/table alternatives, and stable Laravel Data contracts. Other towns show unavailable states. See the [completed plan](../plan/archive/26-10-25-cagayan-economic-performance.md) and data/economic-performance/README.md. Final-only verification passed: 150 tests, 914 assertions, CI static checks, production/SSR builds and desktop/phone browser interactions. Partial clouds keep complete counts in bars/table; import and live review workflows remain deferred.
+
+Explicitly deferred: Population, registered-business counts/trends and leading types, real COA history collection/import, live wish normalization/public-label review, reason themes, spatial analytics and Python predictive analysis. No placeholder charts or forecasts. The existing deferred finance-source plan remains open; this demo does not mark the broader business intelligence metrics complete.
+
+## October 25 Economy Polish
+
+Completed 26-10-25: compact Cagayan Economy overview with stacked finance/wishes sections, independent icon view controls using local URL history, stronger chart grid and a shared town-picker map. The obsolete topic/shared-view branches and unused navigation override were removed. See the [polish record](../plan/archive/26-10-25-cagayan-economy-polish.md). Final-only verification passed: 150 tests, 931 assertions, CI/static checks, production/SSR builds and desktop/phone interactions. No additional data collection, population/business metrics or predictive work is included.
+
+
+### Economy Local Selections Completed
+
+26-10-25: Removed repeated server visits for period, wish mode, view and town/map selection. Load the bounded public catalog once; all selections use local Inertia history. Durable no-refetch guidance is recorded in CLAUDE, engineering docs and UI skills. Access-log browser checks confirmed zero backend requests for loaded-data interactions. Final CI: 151 tests, 948 assertions; production/SSR builds passed. [Completed fix](../plan/archive/26-10-25-local-economy-selections.md). Deferred finance-source collection remains separate.
+
+
+### Home Economy and Wishes Completed
+
+26-10-25: Home now offers live town-aware wishes and Economy actions. Public wishes use a single combined curated ranking with bounded full-label bars, cloud/fallback counts and actual town tooltips. Removed public Economy tables, mode filtering, repeated disclaimers/captions and Home placeholder/protection sections. Skills and docs record the no-dangling-copy correction. CI passed with 151 tests and 951 assertions; production/SSR builds and phone/desktop/local-history checks passed. [Completed record](../plan/archive/26-10-25-home-economy-wishes.md).
+
+
+### Compact Home Session Handoff
+
+26-10-25: Final Home correction removes action-card icons/shadows, reduces padding to 16px and gaps to 12px, and uses Explore Your Town's Economy. The complete Economy session is being prepared in focused review batches; no merge or deployment is authorized. [Handoff plan](../plan/active/26-10-25-compact-home-session-handoff.md).

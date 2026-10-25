@@ -41,7 +41,7 @@ Route::middleware(['auth', 'can:capitol'])
 
 - Bind models by a readable key where one exists (`{barangay:psgc_code}`), so URLs can be shared and bookmarked.
 - Use resource method names: `index`, `show`, `create`, `store`, `edit`, `update`, `destroy`. A controller with one job uses `__invoke`.
-- Filters live in the query string (`?year=2026&type=pharmacy`), so a refresh, the back button, and a shared link all show the same screen.
+- Filters live in the query string (`?year=2026&type=pharmacy`), so a refresh, the back button, and a shared link all show the same screen. This does not require a server request per selection: loaded-data sorts, filters, views and cached map selections use local Inertia history. Queries return bounded public datasets with finished metrics; fetch only missing data. See frontend.md, "Local Selection Contract".
 - After any `POST`, `PUT`, `PATCH`, or `DELETE`, redirect. Never render a page from a write. Show the result with a toast: `Inertia::flash('toast', ['type' => 'success', 'message' => __('Wish recorded.')])`.
 
 ### Clean URLs

@@ -17,6 +17,7 @@ Scope given by the person, if any: $ARGUMENTS. Otherwise the changed files under
    - `gradient` in a class (`bg-gradient-*`, `from-*`, `via-*`, `to-*`) or in CSS (`linear-gradient`, `radial-gradient`)
    - raw colors: hex values, `rgb(`, or palette classes like `bg-blue-500`, `text-red-600` instead of tokens
    - capitalization (design.md, "Capitalization"): page titles, headings, card titles, buttons, tabs, badges, nav items, legend titles, and table headers not in Title Case; sentences (subtitles, descriptions, toasts, errors, empty states) not in sentence case; a proper noun or acronym written wrong (Tuguegarao City, Peñablanca, PSA, PSGC, DTI)
+   - Unicode replacement characters, invalid UTF-8 or mojibake in visible copy; verify changed labels in the browser after writing files as UTF-8
    - exclamation marks or emoji in UI text
    - raw type classes (`text-2xl font-bold`) where a `type-*` role exists, a font other than `font-sans` and `font-mono`, numbers or figures not in `font-mono` with `tabular-nums`
    - radius other than the `rounded-*` scale or `rounded-full` (no `rounded-[...]`), and `rounded-full` on anything but dots, avatars, and round icon buttons
@@ -30,8 +31,12 @@ Scope given by the person, if any: $ARGUMENTS. Otherwise the changed files under
    - icon-only buttons without `aria-label`, inputs without a visible label
    - a component that only wraps one element or passes props through, or a new file for markup used once
 3. **Check scope and copy against design.md, "Working on Existing Screens":** no unrequested redesign, dangling statistics, repeated helper paragraphs, decorative link arrows, restored modals or map CTAs, duplicate style controls, or section overlap. Confirm bounded dropdowns, the Specific Business reveal control, draft preservation, and count-only updates. Check behavior by reading the routes and pages: filters and tabs in the URL, redirect and toast after a write, guests get a plain 404 on Capitol pages and nothing public links to the admin login (decisions.md, D20), public pages without admin fields.
-4. **Report** findings grouped as must fix (breaks a written rule) and should fix (polish). With no findings, say which checks ran.
-5. **Fix only when asked.**
+4. **Audit every visible sentence:** reject unrequested descriptions, metric/privacy disclaimers, automatic snapshot captions, chart-size explanations, and fallback instructions that reference a removed view. The user has explicitly removed this copy repeatedly. Definitions belong in docs; secondary provenance/date can use one accessible contextual tooltip. Check empty/error recovery separately so necessary feedback is retained. Do not restore Home placeholder/protection sections under new labels.
+
+5. **Check interaction requests:** sort/view/loaded-data filters and cached map selections must update local Inertia history with zero application requests. Verify repeated selection, Back/Forward, and refresh. A URL change alone never justifies a server visit. Check frontend.md, "Local Selection Contract"; flag missing-data requests that are not scoped, cached and deduplicated.
+
+6. **Report** findings grouped as must fix (breaks a written rule) and should fix (polish). With no findings, say which checks ran.
+7. **Fix only when asked.**
 
 ## Done when
 

@@ -320,3 +320,18 @@ Republic Act No. 10173. (2012). *Data Privacy Act of 2012*. Official Gazette. ht
 Republic Act No. 11032. (2018). *Ease of Doing Business and Efficient Government Service Delivery Act of 2018*. Official Gazette. https://www.officialgazette.gov.ph/2018/05/28/republic-act-no-11032/
 
 Gap: the Tuguegarao permit office announcement and the barangay orientation notice were supplied by the team and are not listed until their links and dates are recorded. No SEC or CDA registration source, no formal Tuguegarao City Citizen's Charter, and no law or ruling on the confidentiality of gross sales declared to a city treasurer were found. The National Privacy Commission's 2019 opinion on listing registered businesses is cited by title only and still needs to be read in full. The PGC Digital Innovation Challenge guidelines were provided by the team and are not listed.
+
+## October 25 Economic Performance Demo
+
+The user approved a dedicated public Cagayan Economic Performance page with two topics: Government Finances and Community Wishes. The initial implementation uses synthetic Tuguegarao City figures only; the other 28 towns remain selectable with unavailable content. Finance covers completed fiscal-year positions 2021 through 2025, clearly simulated, with Government Revenue/Government Expenses and comparable annual changes. Community Wishes provides curated business-type and fictional specific-business counts in cloud, ranked bars and table views. These counts express wishes, not measured demand.
+
+Population and registered-business counts/history/leading types were explicitly removed from this iteration and remain planned future work. Reason themes, live public-label review/classification, source importing/history storage, spatial analytics and Python predictions are also deferred. The simulation must not alter verified Home figures or expose original live wish text. Keep the existing deferred COA source-collection work separate; implementing this demo does not complete it.
+
+### October 25 Economy UI Polish
+
+The user replaced the initial topic selector with stacked sections: Government Finances followed by Community Wishes. The visible name is Cagayan Economy. Add a town-picker map beside the finance chart, compact spacing, stronger grid lines, icon view switchers and a link from Community Wishes to the existing wish form. Both sections share the selected town, but maintain separate view controls. Population, business counts, forecasts, source imports and live wish publication remain deferred; no extra statistics are invented to fill space.
+
+
+### October 25 Home and Wishes Simplification
+
+Home now directs residents to share a wish or explore their town's economy, carrying a selected town. Remove the placeholder Business Map/guide task cards and Home protection section. Economy combines curated business types and specific businesses into one ranking with cloud/bars views and actual town/count tooltips; no tables or kind selector. Keep limitations in documentation and date/basis in source details rather than repeated captions/disclaimers. Synthetic data remains labeled, other towns unavailable, and comparative town rankings remain deferred. This does not change wish submission fields, privacy enforcement, or source-collection scope.
