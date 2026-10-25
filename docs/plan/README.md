@@ -8,13 +8,13 @@ Dates inside plans use the requested `yy-mm-dd` format in Asia/Manila. Filenames
 
 | Plan | Status | Scope |
 | :- | :- | :- |
-| [Compact Home and Session Handoff](active/26-10-25-compact-home-session-handoff.md) | In progress | Compact action cards, final session record and batched commits/PRs |
 | [Government Finances and Economic Context](active/26-10-24-government-finances-economic-context.md) | Deferred | Source collection and later economic/financial history |
 
 ## Archive
 
 | Plan | Status | Reference |
 | :- | :- | :- |
+| [Compact Home and Session Handoff](archive/26-10-25-compact-home-session-handoff.md) | Completed 26-10-25 | Compact cards, UTF-8 correction, session verification and PRs #16/#17 |
 | [Home Economy and Wishes](archive/26-10-25-home-economy-wishes.md) | Completed 26-10-25 | Home actions, combined wishes, scalable ranked bars, town tooltips and copy rules |
 | [Local Economy Selections](archive/26-10-25-local-economy-selections.md) | Completed 26-10-25 | Zero-request local filters/maps, bounded public catalog and durable interaction rules |
 | [Cagayan Economy Polish](archive/26-10-25-cagayan-economy-polish.md) | Completed 26-10-25 | Compact stacked sections, icon views, stronger grid, town map and obsolete-code cleanup |

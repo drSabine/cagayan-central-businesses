@@ -221,4 +221,6 @@ Completed 26-10-25: compact Cagayan Economy overview with stacked finance/wishes
 
 ### Compact Home Session Handoff
 
-26-10-25: Final Home correction removes action-card icons/shadows, reduces padding to 16px and gaps to 12px, and uses Explore Your Town's Economy. The complete Economy session is being prepared in focused review batches; no merge or deployment is authorized. [Handoff plan](../plan/active/26-10-25-compact-home-session-handoff.md).
+26-10-25: Final Home correction removes action-card icons/shadows, reduces padding to 16px and gaps to 12px, and uses Explore Your Town's Economy. The complete Economy session is being prepared in focused review batches; no merge or deployment is authorized. [Handoff plan](../plan/archive/26-10-25-compact-home-session-handoff.md).
+
+Published review batches: foundation PR #16 targets staging; Economy PR #17 depends on #16 and contains this session in focused commits. Required hooks passed; remote CI and human review are pending. No merge/deployment performed.

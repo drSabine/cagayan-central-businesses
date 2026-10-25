@@ -2,7 +2,7 @@
 title: "Compact Home and Session Handoff"
 created: "26-10-25"
 updated: "26-10-25"
-status: in-progress
+status: completed
 branch: feat/cagayan-economic-performance
 base: staging
 predecessor: ../archive/26-10-25-home-economy-wishes.md
@@ -20,7 +20,7 @@ Make Home's two action cards simple and compact, remove their icons and shorten 
 - [x] Retain town-aware actions, local selection behavior, phone layout, tokens and keyboard support.
 - [x] Session implementation, later corrections, testing evidence and deferred scope remain documented and linked without rewriting prior archived plans.
 - [x] Review all session changes for privacy, secrets, dependencies and obsolete code; run final CI/build and browser checks.
-- [ ] Create focused commit/PR batches with required hooks, template descriptions, dependency ordering and attached PR links. Leave merge/reviewer approval to the team.
+- [x] Create focused commit/PR batches with required hooks, template descriptions, dependency ordering and attached PR links. Leave merge/reviewer approval to the team.
 
 ## Session Record
 
@@ -39,3 +39,11 @@ Record actual commits and PR dependencies below after review. Keep dependencies 
 Final verification: `composer ci:check` passed with 151 tests and 952 assertions on PostGIS; frontend format/lint, TypeScript, Pint and PHPStan passed. `npm run build:ssr` passed production/SSR builds with existing non-blocking chunk/sourcemap warnings. Browser confirmed the exact ASCII-apostrophe heading, zero SVG icons in the action section, compact 16px padding and preserved links. Changed text files were checked for valid UTF-8 after the user reported the Windows-encoded apostrophe. No generated outputs, secrets, migrations, Docker files or live/private submissions are included. Privacy review P1/P7/P8/P10/P12/P13/P14 holds; P2-P6/P9/P11 have no new sales/record/export path. Metric/privacy docs require two human reviewers before merging; none is asserted yet.
 
 Backend batch: 26adf4a. Frontend/dependency batch and documentation batch follow with hooks enabled. PR creation is pending; record actual URLs in the final handoff commit.
+
+
+## Published Review Batches
+
+- Foundation prerequisite: https://github.com/drSabine/cagayan-central-businesses/pull/16 targets staging and contains the inherited foundation commit 3d5f59c.
+- Economy session: https://github.com/drSabine/cagayan-central-businesses/pull/17 targets feat/capitol-workspace-foundation, excluding inherited foundation changes. Retarget to staging after #16 merges. Commits: 26adf4a backend/fixtures/tests, 18e5fb6 frontend/dependency, c587066 documentation/skills.
+- Pre-commit and pre-push hooks passed without bypass. Both PRs are open and unmerged; remote CI and required human approvals remain pending. This handoff record is a final documentation-only follow-up commit.
+- Final browser check confirmed the corrected title and zero card icons; action links retain the selected town. No deployment or automatic merge was requested or performed.
