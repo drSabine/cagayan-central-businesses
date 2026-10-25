@@ -30,9 +30,10 @@ class FortifyServiceProvider extends ServiceProvider
         // Only Capitol administrators may log in. Anyone else gets the same failure message
         // as a wrong password, so the form never reveals which accounts exist.
         Fortify::authenticateUsing(function (Request $request): ?User {
+            $request->merge(['remember' => false]);
             $user = User::query()->where('email', Str::lower($request->string(Fortify::username())->toString()))->first();
 
-            return $user && $user->isCapitolAdmin() && Hash::check($request->string('password')->toString(), $user->password)
+            return $user && $user->canEnterWorkspace() && Hash::check($request->string('password')->toString(), $user->password)
                 ? $user
                 : null;
         });

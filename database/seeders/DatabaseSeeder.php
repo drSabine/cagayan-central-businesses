@@ -50,8 +50,11 @@ class DatabaseSeeder extends Seeder
         }
 
         $admin = User::query()->firstOrNew(['email' => $email]);
-        $admin->fill(['name' => 'Capitol Administrator', 'password' => $password]);
+        if ($admin->exists) {
+            return;
+        }
+        $admin->fill(['name' => config('cagayan.demo_admin.name'), 'password' => $password]);
         // role is never fillable (D9), so it is forced here.
-        $admin->forceFill(['email_verified_at' => now(), 'role' => UserRole::CapitolAdmin])->save();
+        $admin->forceFill(['email_verified_at' => now(), 'role' => UserRole::Admin])->save();
     }
 }

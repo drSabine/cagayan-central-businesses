@@ -30,6 +30,7 @@ These rules record the user's corrections from the public map and wish form work
 
 Every visible sentence must add information needed to understand the data, complete an action, or recover from an error. A sentence that restates a heading, field, placeholder, or button should be removed.
 
+- Do not place descriptions below page titles. Preserve field limits, validation errors, and recovery feedback where they are needed to complete the task.
 - Do not add isolated statistics, badges, captions, instructions, or marketing lines merely to fill space. The removed town/dashboard statistics, "Open Now", suggestion totals, and numbered form walkthrough must stay removed unless explicitly requested again.
 - Do not explain obvious controls with "Click a town to pick it", double-click instructions, or "Hold Ctrl" copy. Keep keyboard support in the interaction itself and documentation.
 - Do not add repeated account/privacy assurances beneath the form or headings. Necessary privacy information belongs in How Businesses Are Protected and the documented policy, written formally and accurately.
@@ -201,7 +202,14 @@ Page titles: pass only the page name to `<Head title="Home" />`. The app adds it
 - **Desktop:** Home and Suggestions as small `type-label` text links on the right of the same line, the current one underlined in brass. Not a bar. Home also links to wishes with its "Share Your Wish" button.
 - **Footer:** a formal institutional block naming the Republic of the Philippines, Provincial Government of Cagayan, the initiative, and the Digital Innovation Challenge context. Use clear hierarchy and restrained wording. Data sources are credited in `data/` READMEs and beside the relevant figures.
 - Content is centered at `max-w-6xl`, `px-gutter` on phones and `px-6` from `md`, sections `gap-section` apart.
-- The Capitol shell is decided with the Capitol layout (roadmap F7).
+- Capitol uses a fixed, non-collapsible labeled desktop sidebar and a mobile menu. One compact breadcrumb strip follows actual geography/page hierarchy. The content fills the remaining width.
+- Compact spacing, readable type, hairline separators, no oversized greeting or decorative metric cards. New workspace dimensions live in app.css tokens.
+- A short greeting row shows stored name, date, HH:mm:ss Philippine time, and a private birthday greeting when appropriate. The clock has no live-region announcements.
+- Dashboard: MapLibre population map and selected-area details. Omit the requests/approvals placeholder until functional. Community Wishes never appears on the dashboard.
+- Selected sidebar destinations use background and weight, without an accent bar. The greeting omits the role; retain it in the sidebar account area. No repeated helper paragraphs about expressed interest, unavailable workflows, or boundary limitations.
+- One click selects an area locally, without a server visit or remounting the map. Geographic breadcrumbs also update locally. View Barangays explicitly drills down. Town/barangay selects provide equivalent access; URL filters preserve navigation. Sources and missing figures remain explicit.
+- Community Wishes is separate, accessible only to Admin and Super Admin. Activity Logs is Super Admin only. Profile is available to each signed-in role.
+- Future business publication uses labeled stages 1 Prepare, 2 Review, 3 Publish. No preview approval controls before that workflow is implemented.
 
 ### Home
 

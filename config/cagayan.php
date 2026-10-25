@@ -113,6 +113,11 @@ return [
     'display_timezone' => 'Asia/Manila',
 
     'admin' => [
+        'idle_seconds' => 1800,
+        'absolute_seconds' => 28800,
+        'warning_seconds' => 120,
+        'activity_interval_seconds' => 60,
+        'activity_requests_per_minute' => 30,
 
         /*
         | D20. The login page lives at this path and nowhere else. It is never
@@ -188,8 +193,14 @@ return [
     | from .env and is never written in code (database.md, seeder item 11).
     */
     'demo_admin' => [
+        'name' => env('DEMO_ADMIN_NAME', 'Demo Administrator'),
         'email' => env('DEMO_ADMIN_EMAIL'),
         'password' => env('DEMO_ADMIN_PASSWORD'),
+    ],
+
+    'inputs' => [
+        'display_name_max' => 100,
+        'business_name_max' => 55,
     ],
 
 ];

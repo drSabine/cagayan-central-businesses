@@ -31,10 +31,10 @@ test('the home page shows the towns, types, and years behind the data', function
 
 test('the home page gives every town its public figures', function () {
     $town = Municipality::factory()->create();
-    TownFact::factory()->for($town)->measure(TownMeasure::Population, 2024, 5000)->create();
-    TownFact::factory()->for($town)->measure(TownMeasure::BarangayCount, 2020, 20)->create();
-    TownFact::factory()->for($town)->measure(TownMeasure::IncomeClass, 2024, 2)->create();
-    TownFact::factory()->for($town)->measure(TownMeasure::PovertyIncidence, 2023, 12.5)->create();
+    TownFact::factory()->verified()->for($town)->measure(TownMeasure::Population, 2024, 5000)->create();
+    TownFact::factory()->verified()->for($town)->measure(TownMeasure::BarangayCount, 2020, 20)->create();
+    TownFact::factory()->verified()->for($town)->measure(TownMeasure::IncomeClass, 2024, 2)->create();
+    TownFact::factory()->verified()->for($town)->measure(TownMeasure::PovertyIncidence, 2023, 12.5)->create();
 
     $this->get(route('home'))
         ->assertOk()

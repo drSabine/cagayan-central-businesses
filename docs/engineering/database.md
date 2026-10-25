@@ -230,7 +230,26 @@ Laravel's default `users` table (two-factor columns dropped, decisions.md O8), p
 
 | Column | Type | Notes |
 | :- | :- | :- |
-| `role` | enum `capitol_admin`, nullable | One value in the MVP. Not fillable. Null means the account cannot sign in and reaches nothing on the Capitol side. |
+| `role` | enum super_admin, admin, staff; nullable | Not fillable. Null denies workspace access. Existing capitol_admin accounts migrate to admin. |
+| `public_id` | UUID, unique, required | Random external account identifier. Internal numeric keys never need to appear in URLs. |
+| `is_active` | boolean, default true | Disabled accounts cannot sign in; existing sessions end on their next request. |
+| `auth_version` | integer, default 1 | Incremented when role, active state, or password changes through the User model. Sessions bind to this version. |
+| `birthday_month / birthday_day` | nullable small integers | Both absent or a valid month/day pair, allowing February 29. No birth year. Only the user's profile exposes these. |
+
+### municipality_user
+
+Composite primary key (user_id, municipality_id), constrained to users and municipalities. Staff may edit only assigned towns. Economic dashboard visibility remains province-wide. Assignments currently support authorization; their management UI comes later.
+
+### activity_logs
+
+UUID primary key, nullable actor_id (users FK, restrict deletion), event varchar(40), occurred_at timestamptz. Event and time indexed. A PostgreSQL trigger rejects UPDATE and DELETE. Stores safe security/account event codes only, never credentials, network addresses, birthdays, owner contacts, or business sales. Only Super Admin can read the stream. Console role assignments identify the affected account; the event explicitly identifies console origin, not an authenticated web actor.
+
+### Input and future identity contracts
+
+Display name is validated as 1–100 Unicode characters with outside whitespace trimmed, no markup or control/format characters, no automatic case conversion. The existing name column retains its storage size for legacy compatibility; new profile writes enforce the contract. Future business_name storage must be VARCHAR(55), matched by server and form limits. Formats for contact numbers and other future business fields must be settled with their forms, not inferred.
+
+Keep local user IDs, roles, activation, assignments, display name, and birthday independent of authentication providers. A future identity link must use provider plus verified stable subject (and tenant where relevant), uniquely bound to the local account. Email is a sign-in/contact attribute, never a permanent provider identity or automatic role grant. No OAuth tables or dependencies are added in this foundation.
+
 
 ## Summary tables
 

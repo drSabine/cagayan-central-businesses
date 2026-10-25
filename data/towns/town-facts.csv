@@ -4,21 +4,22 @@ psgc_code,town,measure,year,value,source_url,checked_on
 0201501000,Abulug,barangay_count,2020,20,https://psa.gov.ph/classification/psgc/barangays/0201501000,
 0201501000,Abulug,income_class,2024,2,https://blgf.gov.ph/wp-content/uploads/2025/01/DOF-DO-074.2024.pdf,
 0201501000,Abulug,poverty_incidence,2023,8.94,https://psa.gov.ph/content/881-cities-and-municipalities-recorded-poverty-incidence-20-percent-or-lower-2023,
-0201501000,Abulug,expenditure,2024,179300000,https://www.coa.gov.ph/reports/annual-audit-reports/aar-local-government-units/,
+0201501000,Abulug,revenue,2024,196960688.39,https://www.coa.gov.ph/download/8393/cagayan/95278/abulug-annual-audit-report-2024.zip,2026-10-24
+0201501000,Abulug,expenditure,2024,179307711.01,https://www.coa.gov.ph/download/8393/cagayan/95278/abulug-annual-audit-report-2024.zip,2026-10-24
 0201502000,Alcala,population,2020,41295,https://psa.gov.ph/content/2020-census-population-and-housing-2020-cph-population-counts-declared-official-president,
 0201502000,Alcala,population,2024,41468,https://psa.gov.ph/statistics/population-and-housing/node/1684077888,2026-10-23
 0201502000,Alcala,barangay_count,2020,25,https://psa.gov.ph/classification/psgc/barangays/0201502000,
 0201502000,Alcala,income_class,2024,1,https://blgf.gov.ph/wp-content/uploads/2025/01/DOF-DO-074.2024.pdf,
 0201502000,Alcala,poverty_incidence,2023,9.92,https://psa.gov.ph/content/881-cities-and-municipalities-recorded-poverty-incidence-20-percent-or-lower-2023,
-0201502000,Alcala,revenue,2024,224700000,https://www.coa.gov.ph/reports/annual-audit-reports/aar-local-government-units/,
-0201502000,Alcala,expenditure,2024,201000000,https://www.coa.gov.ph/reports/annual-audit-reports/aar-local-government-units/,
+0201502000,Alcala,revenue,2024,224744176.27,https://www.coa.gov.ph/download/8393/cagayan/95295/alcala-annual-audit-report-2024-2.zip,2026-10-24
+0201502000,Alcala,expenditure,2024,201010574.32,https://www.coa.gov.ph/download/8393/cagayan/95295/alcala-annual-audit-report-2024-2.zip,2026-10-24
 0201503000,Allacapan,population,2020,35234,https://psa.gov.ph/content/2020-census-population-and-housing-2020-cph-population-counts-declared-official-president,
 0201503000,Allacapan,population,2024,35946,https://psa.gov.ph/statistics/population-and-housing/node/1684077888,2026-10-23
 0201503000,Allacapan,barangay_count,2020,27,https://psa.gov.ph/classification/psgc/barangays/0201503000,
 0201503000,Allacapan,income_class,2024,1,https://blgf.gov.ph/wp-content/uploads/2025/01/DOF-DO-074.2024.pdf,
 0201503000,Allacapan,poverty_incidence,2023,10.65,https://psa.gov.ph/content/881-cities-and-municipalities-recorded-poverty-incidence-20-percent-or-lower-2023,
-0201503000,Allacapan,revenue,2024,232500000,https://www.coa.gov.ph/reports/annual-audit-reports/aar-local-government-units/,
-0201503000,Allacapan,expenditure,2024,229800000,https://www.coa.gov.ph/reports/annual-audit-reports/aar-local-government-units/,
+0201503000,Allacapan,revenue,2024,232465478.52,https://www.coa.gov.ph/download/8393/cagayan/95019/allacapan-annual-audit-report-2024.zip,2026-10-24
+0201503000,Allacapan,expenditure,2024,229812731.98,https://www.coa.gov.ph/download/8393/cagayan/95019/allacapan-annual-audit-report-2024.zip,2026-10-24
 0201504000,Amulung,population,2020,50336,https://psa.gov.ph/content/2020-census-population-and-housing-2020-cph-population-counts-declared-official-president,
 0201504000,Amulung,population,2024,50903,https://psa.gov.ph/statistics/population-and-housing/node/1684077888,2026-10-23
 0201504000,Amulung,barangay_count,2020,47,https://psa.gov.ph/classification/psgc/barangays/0201504000,
@@ -197,5 +198,5 @@ psgc_code,town,measure,year,value,source_url,checked_on
 0201529000,Tuguegarao City,barangay_count,2020,49,https://psa.gov.ph/classification/psgc/barangays/0201529000,
 0201529000,Tuguegarao City,income_class,2024,2,https://blgf.gov.ph/wp-content/uploads/2025/01/DOF-DO-074.2024.pdf,
 0201529000,Tuguegarao City,poverty_incidence,2023,3.16,https://psa.gov.ph/content/881-cities-and-municipalities-recorded-poverty-incidence-20-percent-or-lower-2023,
-0201529000,Tuguegarao City,revenue,2024,1466000000,https://www.coa.gov.ph/reports/annual-audit-reports/aar-local-government-units/,
-0201529000,Tuguegarao City,expenditure,2024,1185000000,https://www.coa.gov.ph/reports/annual-audit-reports/aar-local-government-units/,
+0201529000,Tuguegarao City,revenue,2024,1465722146.22,https://www.coa.gov.ph/download/8413/cagayan/95273/tuguegarao-city-annual-audit-report-2024.zip,2026-10-24
+0201529000,Tuguegarao City,expenditure,2024,1184642113.21,https://www.coa.gov.ph/download/8413/cagayan/95273/tuguegarao-city-annual-audit-report-2024.zip,2026-10-24

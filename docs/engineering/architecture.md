@@ -277,3 +277,12 @@ Limits live in `AppServiceProvider` (or `FortifyServiceProvider` for login), nam
 
 - Every threshold lives in `config/cagayan.php` and is read with `config('cagayan....')`. Never a literal in PHP, SQL, or React.
 - `env()` is read only inside `config/` files.
+
+
+## Workspace foundation
+
+The capitol gate admits active Super Admin, Admin, and Staff accounts. Separate community-wishes and activity-logs gates enforce the visibility matrix; edit-town checks assigned towns for Staff. Routes remain inside the shared authenticated Capitol group. The dashboard's WorkspaceMap payload contains economic/geographic data only. Workspace capabilities and session deadlines are private Capitol props, not public shared props; auth.user remains name-only.
+
+ProtectAdminSession runs on web requests and binds each session to auth_version, start time, and last user-initiated Capitol activity. Background reloads send X-Workspace-Background: true. A stale tab rechecks through a non-renewing reload before redirecting to sign-in. Private Inertia history is encrypted; sign-in/logout/expiry clear history keys. Cookie security defaults to HTTPS-only in production; deployments must retain secure cookie settings.
+
+The prototype retains Fortify password sign-in with remember-me disabled and public registration off. The private /capitol/profile page is an approved workspace feature, not restored starter /settings/profile. Identity-provider migration is documented in database.md and deliberately deferred. Trusted operators assign an existing account with php artisan workspace:role <email> super_admin|admin|staff. This command never creates an account or silently promotes an existing administrator.

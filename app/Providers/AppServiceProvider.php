@@ -2,17 +2,25 @@
 
 namespace App\Providers;
 
+use App\Enums\UserRole;
+use App\Models\ActivityLog;
+use App\Models\Municipality;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
 use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
@@ -35,7 +43,24 @@ class AppServiceProvider extends ServiceProvider
         $this->guardAdminLoginPath();
 
         // D9. Checked on the whole Capitol route group (routes/capitol.php).
-        Gate::define('capitol', fn (User $user): bool => $user->isCapitolAdmin());
+        Gate::define('capitol', fn (User $user): bool => $user->canEnterWorkspace());
+        Gate::define('community-wishes', fn (User $user): bool => $user->isCapitolAdmin());
+        Gate::define('activity-logs', fn (User $user): bool => $user->canEnterWorkspace() && $user->role === UserRole::SuperAdmin);
+        Gate::define('edit-town', fn (User $user, Municipality $town): bool => $user->canEnterWorkspace()
+            && ($user->isCapitolAdmin() || $user->assignedTowns()->whereKey($town->id)->exists()));
+
+        Event::listen(Login::class, function (Login $event): void {
+            if ($event->user instanceof User && request()->hasSession()) {
+                Inertia::clearHistory();
+                request()->session()->put('workspace', [
+                    'started_at' => now()->getTimestamp(), 'last_activity' => now()->getTimestamp(),
+                    'version' => $event->user->auth_version,
+                ]);
+                ActivityLog::record('signed_in', $event->user->id);
+            }
+        });
+        Event::listen(Logout::class, fn (Logout $event) => $event->user instanceof User ? ActivityLog::record('signed_out', $event->user->id) : null);
+        Event::listen(Failed::class, fn () => ActivityLog::record('sign_in_failed', null));
     }
 
     /**
@@ -44,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('wishes', fn (Request $request) => Limit::perHour((int) config('cagayan.wishes.per_hour_per_ip'))->by((string) $request->ip()));
+        RateLimiter::for('workspace-activity', fn (Request $request) => Limit::perMinute((int) config('cagayan.admin.activity_requests_per_minute'))->by((string) $request->user()?->getAuthIdentifier()));
     }
 
     /**

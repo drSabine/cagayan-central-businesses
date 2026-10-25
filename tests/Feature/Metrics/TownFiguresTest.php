@@ -14,7 +14,7 @@ function townWith(string $name, array $facts): Municipality
     $town = Municipality::factory()->create(['name' => $name]);
 
     foreach ($facts as [$measure, $year, $value]) {
-        TownFact::factory()->for($town)->measure($measure, $year, $value)->create();
+        TownFact::factory()->verified()->for($town)->measure($measure, $year, $value)->create();
     }
 
     return $town;
@@ -66,4 +66,32 @@ it('shows a province total only when every town has the figure', function () {
 
     expect($province->population?->value)->toBe('300.00')
         ->and($province->revenue)->toBeNull();
+});
+
+it('withholds unchecked figures and keeps the latest verified year', function () {
+    $town = townWith('Alpha', [[TownMeasure::Population, 2024, 100]]);
+    TownFact::factory()->for($town)->measure(TownMeasure::Population, 2025, 200)->create();
+    TownFact::factory()->for($town)->measure(TownMeasure::Revenue, 2024, 9999)->create();
+
+    $alpha = app(TownAtlasQuery::class)->get()->towns[0];
+
+    expect($alpha->population?->value)->toBe('100.00')
+        ->and($alpha->population?->year)->toBe(2024)
+        ->and($alpha->revenue)->toBeNull();
+});
+
+it('does not combine population from different reference years', function () {
+    townWith('Alpha', [[TownMeasure::Population, 2024, 100]]);
+    townWith('Beta', [[TownMeasure::Population, 2020, 200]]);
+
+    expect(app(TownAtlasQuery::class)->get()->province->population)->toBeNull();
+});
+
+it('does not present town government accounts as provincial government finances', function () {
+    townWith('Alpha', [[TownMeasure::Revenue, 2024, 5000], [TownMeasure::Expenditure, 2024, 4000]]);
+    townWith('Beta', [[TownMeasure::Revenue, 2024, 2000], [TownMeasure::Expenditure, 2024, 1000]]);
+
+    $province = app(TownAtlasQuery::class)->get()->province;
+
+    expect($province->revenue)->toBeNull()->and($province->expenditure)->toBeNull();
 });

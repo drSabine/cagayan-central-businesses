@@ -30,3 +30,5 @@ Population was joined by normalized barangay name within each town, stripping pu
 Geometry: faeldon/philippines-json-maps, master, `2023/geojson/municities/hires/bgysubmuns-municity-<9-digit-town-code>.0.1.json`. Properties are normalized to the existing 10-digit PSGC schema. Tuguegarao retains the existing geometry. The source's MIT license is retained in `maps/LICENSE.txt`. Geometry is 2023, population is 2024; the census workbook does not supply boundaries. These simplified shapes are for comparison, not surveying.
 
 `shade` is prepared at import time using M18 equal-count groups, with the current `towns.shades` value of 5. Larger groups come first when the count is not divisible by five, matching PostgreSQL ntile. No metric aggregation runs in the browser.
+
+The October 24 boundary recheck records local display aliases Carig Sur, Carig Norte, and Pengue-Ruyu in `data/boundaries/README.md`. Their PSGC codes, census values, and geometry are unchanged.

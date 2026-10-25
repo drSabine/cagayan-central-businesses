@@ -35,7 +35,7 @@ Geometry is `Polygon` for most features and `MultiPolygon` for towns with island
 - Barangays: `2023/geojson/municities/hires/bgysubmuns-municity-201529000.0.1.json`, the high resolution file, simplified by that project to 10 percent of the original points.
 - Towns: `2023/geojson/provdists/medres/municities-provdist-201500000.0.01.json`, the medium resolution file, simplified to 1 percent. This keeps the province view light at 78 KB.
 
-**Cross-check of codes and names:** [bendlikeabamboo/barangay-boundaries-repository](https://github.com/bendlikeabamboo/barangay-boundaries-repository), release `v2026.4.13.0`, by Manuel Balmeo. It matches NAMRIA boundaries (version 2023-11-06) to PSA's PSGC snapshot of October 24, 2023. All 49 barangay codes and all 29 town codes agree between the two sources, and the names here equal that project's PSGC names.
+**Cross-check of codes and names:** [bendlikeabamboo/barangay-boundaries-repository](https://github.com/bendlikeabamboo/barangay-boundaries-repository), release `v2026.4.13.0`, by Manuel Balmeo. It matches NAMRIA boundaries (version 2023-11-06) to PSA's PSGC snapshot of October 24, 2023. All 49 barangay codes and all 29 town codes agree between the two sources, and the source names agree with that project's PSGC names. The local display aliases below are intentional.
 
 ## What was changed
 
@@ -96,3 +96,17 @@ Do this only if the simplified shapes look too angular on screen.
 ## Province-wide barangay population explorer
 
 The Home About the Data explorer now also uses per-town geometry in `data/barangays/maps/`. All 29 towns use the same documented 2023 philippines-json-maps source; each is loaded only when selected. See `data/barangays/README.md` for the 2024 census join, reconciliation, and retained license.
+
+## October 24, 2026 recheck
+
+Compared all 820 barangay geometries in the 29 browser datasets with the published philippines-json-maps files by PSGC code. All feature counts and coordinates match at six decimal places. A PostGIS audit found 820 unique codes, no invalid or empty geometries, and no within-town overlapping pairs larger than one square metre. Tuguegarao's 49 polygons dissolve to one polygon without holes, covering 119.569899 square kilometres. These are source-integrity and topology checks, not an independent cadastral validation or proof that the 2023 boundaries are current.
+
+Use these local display names consistently in the browser dataset, seed boundary file, and population CSV; preserve the source PSGC code and population join:
+
+| PSGC code | PSA source name | Local display name |
+| :- | :- | :- |
+| 0201529018 | Carig | Carig Sur |
+| 0201529050 | Reyes | Carig Norte |
+| 0201529031 | Pengue | Pengue-Ruyu |
+
+The [current PSA listing](https://psa.gov.ph/classification/psgc/barangays/0201529000) still uses Carig, Reyes, and Pengue. The [city's ordinance 67-08-2019](https://tuguegaraocity.gov.ph/public/files/issuances/2019/ORDINANCE/Ord.%20No.%2067-08-2019.pdf) explicitly identifies Carig Norte as Reyes. City [resolution 229-08-2020](https://tuguegaraocity.gov.ph/public/files/issuances/2020/RESOLUTION/229-08-2020.pdf) uses Carig Sur and Pengue-Ruyu. This changes display names only; no boundary was moved or population reassigned.

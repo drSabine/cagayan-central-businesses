@@ -177,6 +177,7 @@ If a hook fails, fix the cause: `composer lint` for PHP formatting, `npm run che
 6. Its wording follows `docs/engineering/design.md` and the phrases in `privacy-rules.md`.
 7. Someone other than the author clicked through it.
 8. Its status is updated in `docs/team/roadmap.md`.
+9. Its accepted plan and verification are recorded through `/plan-history` in `docs/plan/` with `yy-mm-dd` dates. Resume matching active plans; archive completed plans and link them when planning improvements.
 
 ## Working with Claude Code
 

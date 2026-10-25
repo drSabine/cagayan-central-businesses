@@ -2,13 +2,7 @@ import { Form, Head, usePage } from '@inertiajs/react';
 import { Landmark } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Field,
     FieldError,
@@ -48,11 +42,13 @@ export default function Login() {
                             <CardTitle className="type-title">
                                 Sign In
                             </CardTitle>
-                            <CardDescription className="lg:hidden">
-                                {props.name}
-                            </CardDescription>
                         </CardHeader>
                         <CardContent>
+                            {typeof props.notice === 'string' && (
+                                <p role="status" className="mb-4 type-body">
+                                    {props.notice}
+                                </p>
+                            )}
                             <Form
                                 action={url}
                                 method="post"
