@@ -70,6 +70,9 @@
             "@php artisan towns:import",
             "@php artisan barangays:import"
         ],
+        "data:finances": [
+            "@php artisan finances:import"
+        ],
         "data:finances:extract": [
             "Composer\\Config::disableProcessTimeout",
             "python tools/coa/run.py extract"

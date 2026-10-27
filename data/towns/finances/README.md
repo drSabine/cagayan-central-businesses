@@ -1,6 +1,6 @@
 # Government Finances
 
-Figures read from COA reports for Cagayan's 28 municipalities and Tuguegarao City. The parser in `tools/coa/` writes these files (D34). The finance ledger import (D35, Phase 2 of the [program](../../../docs/plan/active/26-10-27-finance-ledger-analytics-program.md)) loads them as **pending** figures. Nothing here is published until a person signs it off.
+Figures read from COA reports for Cagayan's 28 municipalities and Tuguegarao City. The parser in `tools/coa/` writes most of these files (D34). `composer data:finances` (`php artisan finances:import`) loads them into the finance ledger (D35) as **pending** figures, then replays the sign-offs in `reviews.csv` and `manual-figures.csv`. Nothing is published until a person signs it off. `composer db:reset` runs the import too.
 
 Definitions: `docs/engineering/metrics.md`, M19 to M27.
 
@@ -12,8 +12,12 @@ Definitions: `docs/engineering/metrics.md`, M19 to M27.
 | `documents.csv` | One row per town, fiscal year, and document kind: `available` with its file, URL, and SHA-256, or `not_published` when COA had no report on the date checked | Parser |
 | `extracted/<year>.csv` | Every figure read from the reports published for that year, including the prior-year column | Parser |
 | `issues/<year>.csv` | Every failed check, unreadable header, or missing line, with severity | Parser |
+| `reviews.csv` | Sign-offs of parsed figures: the report, line, year, basis, the value signed off, `verified` or `rejected`, the date, a note | `php artisan finances:export` |
+| `manual-figures.csv` | Figures entered by hand in the Capitol, with their status | `php artisan finances:export` |
 
 The parser rewrites `documents.csv`, `extracted/` and `issues/` on every run. Do not edit them by hand. Corrections go through the Capitol review screen (Phase 3), or through `lines.csv` aliases followed by a new run.
+
+After signing off or entering figures in the Capitol, run `php artisan finances:export` and commit `reviews.csv` and `manual-figures.csv`. Otherwise the next `composer db:reset` loses them. A sign-off applies only to the value it names: if a new parser run changes that value, the figure goes back to pending and the import prints a warning.
 
 ## extracted/<year>.csv
 
