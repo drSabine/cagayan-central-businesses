@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia;
 
 // D33. Quick sign in is a password bypass, so it exists on a local machine only.
 
@@ -38,6 +39,16 @@ test('each demo role signs in on a local machine and lands in the workspace', fu
     'admin' => [UserRole::Admin, 'admin@demo.test'],
     'staff' => [UserRole::Staff, 'staff@demo.test'],
 ]);
+
+test('quick sign in opens finance review on the same local app', function (UserRole $role) {
+    $this->app['env'] = 'local';
+
+    postDemoLogin(route('admin.login.demo', $role->value))
+        ->assertRedirect(route('capitol.dashboard', absolute: false));
+
+    $this->get(route('capitol.finances.index'))->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('capitol/finances/index'));
+})->with(UserRole::cases());
 
 test('quick sign in answers 404 outside a local machine', function (string $environment) {
     $this->app['env'] = $environment;

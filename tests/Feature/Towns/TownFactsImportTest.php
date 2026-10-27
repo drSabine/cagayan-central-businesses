@@ -21,7 +21,7 @@ afterEach(fn () => File::delete(base_path(TEST_TOWN_CSV)));
 
 it('replaces every town figure with the rows in the file', function () {
     $town = Municipality::factory()->create(['psgc_code' => '0201501000']);
-    TownFact::factory()->for($town)->measure(TownMeasure::Revenue, 2019, 1)->create();
+    TownFact::factory()->for($town)->measure(TownMeasure::BarangayCount, 2019, 1)->create();
 
     writeTownCsv([
         '0201501000,Abulug,population,2024,35347,https://psa.gov.ph/a,',
@@ -55,8 +55,9 @@ it('imports nothing when any row is wrong', function (string $row, string $probl
 })->with([
     'unknown town' => ['0299999000,Nowhere,population,2024,10,https://psa.gov.ph/a,', 'unknown town code 0299999000'],
     'unknown measure' => ['0201501000,Abulug,households,2024,10,https://psa.gov.ph/a,', 'unknown measure households'],
-    'value with a comma' => ['0201501000,Abulug,revenue,2024,"1,000",https://psa.gov.ph/a,', 'value 1,000 is not a number'],
-    'no source' => ['0201501000,Abulug,revenue,2024,1000,,', 'source_url is missing or not https'],
+    'value with a comma' => ['0201501000,Abulug,barangay_count,2020,"1,000",https://psa.gov.ph/a,', 'value 1,000 is not a number'],
+    'no source' => ['0201501000,Abulug,barangay_count,2020,1000,,', 'source_url is missing or not https'],
+    'finances moved to the ledger' => ['0201501000,Abulug,revenue,2024,1000,https://psa.gov.ph/a,', 'unknown measure revenue'],
     'repeated row' => ['0201501000,Abulug,population,2024,1,https://psa.gov.ph/a,', 'repeats line 2'],
 ]);
 

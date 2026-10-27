@@ -224,4 +224,16 @@ return [
         'business_name_max' => 55,
     ],
 
+    /*
+    | Finance ledger entry and review (D35, metrics.md M19 to M27). Fiscal years
+    | the forms accept, the largest peso amount, and the note length.
+    */
+    'finances' => [
+        'first_year' => 2019,
+        'last_year' => 2025,
+        'value_max' => '999999999999.99',
+        'note_max' => 500,
+        'per_page' => 20,
+    ],
+
 ];

@@ -1,0 +1,9 @@
+psgc_code,reported_in_year,document_kind,line_code,fiscal_year,basis,value,decision,reviewed_on,note
+0201501000,2024,executive_summary,performance.expenses,2024,actual,179307711.01,verified,2026-10-24,"Matches the audited 2024 financial statements workbook; see data/towns/verified-finances-2024.md"
+0201501000,2024,executive_summary,performance.revenue,2024,actual,196960688.39,verified,2026-10-24,"Matches the audited 2024 financial statements workbook; see data/towns/verified-finances-2024.md"
+0201502000,2024,executive_summary,performance.expenses,2024,actual,201010574.32,verified,2026-10-24,"Matches the audited 2024 financial statements workbook; see data/towns/verified-finances-2024.md"
+0201502000,2024,executive_summary,performance.revenue,2024,actual,224744176.27,verified,2026-10-24,"Matches the audited 2024 financial statements workbook; see data/towns/verified-finances-2024.md"
+0201503000,2024,executive_summary,performance.expenses,2024,actual,229812731.98,verified,2026-10-24,"Matches the audited 2024 financial statements workbook; see data/towns/verified-finances-2024.md"
+0201503000,2024,executive_summary,performance.revenue,2024,actual,232465478.52,verified,2026-10-24,"Matches the audited 2024 financial statements workbook; see data/towns/verified-finances-2024.md"
+0201529000,2024,executive_summary,performance.expenses,2024,actual,1184642113.21,verified,2026-10-24,"Matches the audited 2024 financial statements workbook; see data/towns/verified-finances-2024.md"
+0201529000,2024,executive_summary,performance.revenue,2024,actual,1465722146.22,verified,2026-10-24,"Matches the audited 2024 financial statements workbook; see data/towns/verified-finances-2024.md"

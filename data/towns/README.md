@@ -1,6 +1,6 @@
 # Town Figures
 
-Real public figures for Cagayan's 29 towns. The Home and workspace maps show population, Government Revenue, and Government Expenses. The other measures stay in the file for later. One file, `town-facts.csv`, loaded into the `town_facts` table by `php artisan towns:import` (or `composer data:towns`). `composer db:reset` loads it too.
+Real public figures for Cagayan's 29 towns. The Home and workspace maps show population from this file and Government Revenue and Government Expenses from the finance ledger ([`finances/`](finances/README.md), D35). The other measures stay in the file for later. One file, `town-facts.csv`, loaded into the `town_facts` table by `php artisan towns:import` (or `composer data:towns`). `composer db:reset` loads it too.
 
 Prepared on October 23, 2026.
 
@@ -26,12 +26,10 @@ Measures:
 | `barangay_count` | barangays | 2020 (PSA PSGC) |
 | `income_class` | 1 to 6, the DOF income class | 2024 |
 | `poverty_incidence` | percent of the population | 2023 (PSA small area estimates) |
-| `revenue` | pesos | 2024 |
-| `expenditure` | pesos | 2024 |
 
 ## How to update
 
-1. Add or edit rows in `town-facts.csv`. For a new census or budget year, **add** rows with the new year. Keeping the old ones keeps the history.
+1. Add or edit rows in `town-facts.csv`. For a new census year, **add** rows with the new year. Keeping the old ones keeps the history.
 2. Run `composer data:towns`. It checks every row first and imports nothing if a row is wrong, listing each problem with its line number.
 3. Refresh the Home page. It uses the newest verified year of each measure. Unchecked rows stay in the source file but are withheld from responses.
 
@@ -58,14 +56,12 @@ The PSA source page and attached workbook were checked directly. All 29 town pop
 
 Only rows with `checked_on` and a source URL can reach the atlas responses. Older verified rows remain eligible when a newer row is unchecked. This applies to both public and workspace maps. A verification date means source transcription was checked, not that the government's accounts are free of audit qualifications.
 
-Four 2024 COA archives have been inspected: Abulug, Alcala, Allacapan, and Tuguegarao City. Exact values, archive links, workbook cells, checksums and audit qualifications are in [Verified Local Government Finances 2024](verified-finances-2024.md). The other 25 towns' financial figures remain unavailable pending primary-source review. Abulug revenue is now available from its 2024 original report.
-
-The legacy `expenditure` storage key currently represents the reports' total expenses, including non-cash expenses and transfers/assistance/subsidies to other entities, not cash expenditure or appropriations. The visible label is Government Expenses. Do not reuse this key for another accounting basis without a documented schema/contract change.
+Government Revenue and Government Expenses moved to the finance ledger on 26-10-28 (D35). The four 2024 pairs checked against COA workbooks (Abulug, Alcala, Allacapan and Tuguegarao City, see [Verified Local Government Finances 2024](verified-finances-2024.md)) are the ledger's first sign-offs, in `finances/reviews.csv`. Every other parsed figure stays pending until a person signs it off.
 
 ## COA Source Documents
 
-[`executive-summaries/`](executive-summaries/README.md) holds COA Executive Summary PDFs for fiscal years 2020 to 2025, source documents for the deferred Local Government Finances history. Nothing there is imported.
+[`executive-summaries/`](executive-summaries/README.md) holds COA Executive Summary PDFs for fiscal years 2020 to 2025. The parser in `tools/coa/` reads them into [`finances/`](finances/README.md), where they wait for review before the finance ledger publishes them.
 
-Province population/count totals require all towns to have the same reference year. City/municipal government accounts are not aggregated into a provincial-government finance figure. Full historical collection and comparable-year trends remain separate deferred work.
+Province population/count totals require all towns to have the same reference year. City/municipal government accounts are not aggregated into a provincial-government finance figure (M27).
 
-The 29 population rows for 2024 have `checked_on=2026-10-23`; the four verified fiscal pairs have `checked_on=2026-10-24`. Other measures stay unchecked until compared directly with their originals. Replace the source URL with an exact document when checking a figure, then fill in the verification date. Never mark a generic source page as evidence that a number was inspected.
+The 29 population rows for 2024 have `checked_on=2026-10-23`. Other measures stay unchecked until compared directly with their originals. Replace the source URL with an exact document when checking a figure, then fill in the verification date. Never mark a generic source page as evidence that a number was inspected.

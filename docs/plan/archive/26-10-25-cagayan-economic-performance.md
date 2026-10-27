@@ -34,7 +34,7 @@ Population, registered-business counts/history and leading types, reason themes,
 - 26-10-25: Government accounts are not private-business sales, GDP or an economic rating. Use Government Expenses for the existing accrual basis, not cash expenditure. Preserve source-specific definitions when real data arrives.
 - 26-10-25: Simulated fixtures supply finished values and annual changes. Missing/non-comparable years and a zero prior denominator have no percentage. Frontend formats only; future verified aggregates follow the existing SQL metrics architecture.
 - 26-10-25: Cloud size represents wishes for curated labels, not unique residents or measured demand. Preserve phrases. Modes are separate and never summed. No raw live names/reasons are published.
-- 26-10-25: A stable Data contract is authorized; import storage and moderation workflows are not. Retain the separate [deferred finance-source plan](../active/26-10-24-government-finances-economic-context.md).
+- 26-10-25: A stable Data contract is authorized; import storage and moderation workflows are not. Retain the separate [deferred finance-source plan](26-10-24-government-finances-economic-context.md).
 - 26-10-25: Work branch starts from the completed foundation commit `3d5f59c`; no merge, publication, commit or push is part of this request.
 
 ## Change History

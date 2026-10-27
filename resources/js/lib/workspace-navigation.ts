@@ -1,4 +1,5 @@
 import { dashboard } from '@/routes/capitol';
+import { index as finances } from '@/routes/capitol/finances';
 import { index as wishes } from '@/routes/capitol/wishes';
 import { index as logs } from '@/routes/capitol/logs';
 import { show as profile } from '@/routes/capitol/profile';
@@ -11,6 +12,12 @@ export function workspaceNavigation(workspace: Workspace) {
             label: 'Dashboard',
             href: dashboard(),
             icon: icons.dashboard,
+            visible: true,
+        },
+        {
+            label: 'Government Finances',
+            href: finances(),
+            icon: icons.finances,
             visible: true,
         },
         {

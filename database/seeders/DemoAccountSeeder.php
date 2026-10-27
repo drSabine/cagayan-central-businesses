@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DemoAccountSeeder extends Seeder
 {
@@ -30,7 +31,11 @@ class DemoAccountSeeder extends Seeder
             }
             $user->fill(['name' => $account['name'], 'password' => $account['password']]);
             // role is never fillable (D9), so it is forced here.
-            $user->forceFill(['email_verified_at' => now(), 'role' => $role])->save();
+            $user->forceFill([
+                'public_id' => (string) Str::uuid(),
+                'email_verified_at' => now(),
+                'role' => $role,
+            ])->save();
         }
     }
 }
