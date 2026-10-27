@@ -62,6 +62,10 @@ Four 2024 COA archives have been inspected: Abulug, Alcala, Allacapan, and Tugue
 
 The legacy `expenditure` storage key currently represents the reports' total expenses, including non-cash expenses and transfers/assistance/subsidies to other entities, not cash expenditure or appropriations. The visible label is Government Expenses. Do not reuse this key for another accounting basis without a documented schema/contract change.
 
+## COA Source Documents
+
+[`executive-summaries/`](executive-summaries/README.md) holds COA Executive Summary PDFs for fiscal years 2020 to 2025, source documents for the deferred Local Government Finances history. Nothing there is imported.
+
 Province population/count totals require all towns to have the same reference year. City/municipal government accounts are not aggregated into a provincial-government finance figure. Full historical collection and comparable-year trends remain separate deferred work.
 
 The 29 population rows for 2024 have `checked_on=2026-10-23`; the four verified fiscal pairs have `checked_on=2026-10-24`. Other measures stay unchecked until compared directly with their originals. Replace the source URL with an exact document when checking a figure, then fill in the verification date. Never mark a generic source page as evidence that a number was inspected.
