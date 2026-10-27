@@ -10,11 +10,13 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 
 const ProvinceMap = lazy(() => import('@/components/province-map'));
 
 // Posts to its own URL, not a Wayfinder import, so the secret path never enters the bundle (decisions.md, D20).
+// The demo buttons exist only on a local machine (D33).
 export default function Login() {
     const { url, props } = usePage();
 
@@ -101,6 +103,38 @@ export default function Login() {
                                     </FieldGroup>
                                 )}
                             </Form>
+                            {!!props.demoLogins?.length && (
+                                <>
+                                    <Separator className="my-6" />
+                                    <div className="grid gap-3">
+                                        {props.demoLogins.map(
+                                            ({ role, label }) => (
+                                                <Form
+                                                    key={role}
+                                                    action={`${url.split('?')[0]}/demo/${role}`}
+                                                    method="post"
+                                                >
+                                                    {({ processing }) => (
+                                                        <Button
+                                                            type="submit"
+                                                            variant="outline"
+                                                            className="w-full"
+                                                            disabled={
+                                                                processing
+                                                            }
+                                                        >
+                                                            {processing && (
+                                                                <Spinner />
+                                                            )}
+                                                            {label}
+                                                        </Button>
+                                                    )}
+                                                </Form>
+                                            ),
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
