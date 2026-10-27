@@ -3,6 +3,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { WishTooltip } from '@/components/charts/wish-tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCount } from '@/lib/format';
+import {
+    nextWishCloudShrink,
+    wishCloudHeight,
+    wishCloudPadding,
+    wishCloudSizes,
+} from '@/lib/wish-cloud-size';
 import type { WishAggregate } from '@/types/economic-performance';
 
 const stableRandom = () => 0.5;
@@ -28,56 +34,95 @@ function CloudLayout({
             })),
         [items, cloudLimit],
     );
-    const fontSize = useMemo(
-        () => (word: { text: string; value: number }) =>
-            Math.max(
-                12,
-                Math.min(
-                    54,
-                    (14 + Math.sqrt(word.value) * 4) * Math.min(1, width / 640),
-                    (width - 24) / (word.text.length * 0.65),
-                ),
-            ),
-        [width],
+    const sizeInputs = useMemo(
+        () =>
+            words.map((word) => ({
+                id: word.id,
+                label: word.text,
+                count: word.value,
+            })),
+        [words],
     );
+    const [shrink, setShrink] = useState(1);
+    const { sizes } = useMemo(
+        () => wishCloudSizes(sizeInputs, width, shrink),
+        [sizeInputs, width, shrink],
+    );
+    const fontSize = useMemo(
+        () => (word: { id: string }) => sizes.get(word.id)?.size ?? 0,
+        [sizes],
+    );
+    const height = wishCloudHeight(width);
     const placed = useWordcloud({
         words,
         width,
-        height: 280,
+        height,
         font: 'Geist',
         fontSize,
         fontWeight: 500,
-        padding: 7,
+        padding: wishCloudPadding(width),
         rotate: 0,
         random: stableRandom,
     });
+    // A layout that drops words is retried smaller, so the cloud never omits a
+    // higher-demand wish while showing a lower one.
+    const [accepted, setAccepted] = useState<typeof placed | null>(null);
+    const handled = useRef(placed);
+    useEffect(() => {
+        if (handled.current === placed) return;
+        handled.current = placed;
+        if (placed.length === 0) return;
+        const next =
+            placed.length < words.length
+                ? nextWishCloudShrink(sizeInputs, width, shrink)
+                : null;
+        if (next === null) setAccepted(placed);
+        else setShrink(next);
+    }, [placed, sizeInputs, words.length, width, shrink]);
     const [settled, setSettled] = useState(false);
     useEffect(() => {
         const timer = window.setTimeout(() => setSettled(true), 2000);
         return () => window.clearTimeout(timer);
     }, []);
-    const positioned = placed as ((typeof placed)[number] & { id: string })[];
-    const placedIds = new Set(positioned.map((word) => word.id));
-    const unplaced = items.filter((item) => !placedIds.has(item.id));
+    const shown = accepted ?? (settled ? placed : null);
+    const itemsById = useMemo(
+        () => new Map(items.map((item) => [item.id, item])),
+        [items],
+    );
+    const { visible, unplaced } = useMemo(() => {
+        const positioned = (shown ?? []) as ((typeof placed)[number] & {
+            id: string;
+        })[];
+        const placedIds = new Set(positioned.map((word) => word.id));
+        const firstMissing = words.findIndex((word) => !placedIds.has(word.id));
+        const rankedAbove = new Set(
+            firstMissing === -1
+                ? placedIds
+                : words.slice(0, firstMissing).map((word) => word.id),
+        );
+        return {
+            visible: positioned.filter((word) => rankedAbove.has(word.id)),
+            unplaced: items.filter((item) => !rankedAbove.has(item.id)),
+        };
+    }, [shown, words, items]);
     return (
         <div className="flex flex-col gap-3">
-            {!settled && placed.length === 0 ? (
+            {shown === null ? (
                 <Skeleton
-                    className="h-72 motion-reduce:animate-none"
+                    className="motion-reduce:animate-none"
+                    style={{ height }}
                     aria-label="Arranging business phrases"
                 />
             ) : (
                 <svg
-                    viewBox={`0 0 ${width} 280`}
-                    className="h-72 w-full"
+                    viewBox={`0 0 ${width} ${height}`}
+                    className="w-full"
                     role="group"
                     aria-label={`Business wishes word cloud in ${townName}`}
                 >
-                    <g transform={`translate(${width / 2}, 140)`}>
-                        {positioned.map((word, index) => {
-                            const item = items.find(
-                                (entry) => entry.id === word.id,
-                            );
+                    <g transform={`translate(${width / 2}, ${height / 2})`}>
+                        {visible.map((word) => {
+                            const item = itemsById.get(word.id);
                             if (!item) return null;
                             return (
                                 <WishTooltip
@@ -93,8 +138,8 @@ function CloudLayout({
                                         fontSize={word.size}
                                         fontWeight={500}
                                         fill={
-                                            Number(word.size) >= 24 &&
-                                            index % 2 === 0
+                                            (sizes.get(item.id)?.level ?? 0) >
+                                            0.5
                                                 ? 'var(--chart-2)'
                                                 : 'var(--foreground)'
                                         }
@@ -111,7 +156,7 @@ function CloudLayout({
                     </g>
                 </svg>
             )}
-            {(settled || placed.length > 0) && unplaced.length > 0 && (
+            {shown !== null && unplaced.length > 0 && (
                 <ul
                     className="flex max-h-48 flex-wrap gap-2 overflow-y-auto"
                     aria-label="More Business Wishes"
@@ -159,9 +204,15 @@ export default function WishWordCloud({
         });
         const element = container.current;
         if (!element) return;
-        const observer = new ResizeObserver(([entry]) =>
-            setWidth(Math.floor(entry.contentRect.width)),
-        );
+        // Small width changes keep the current layout; each one restarts it.
+        const observer = new ResizeObserver(([entry]) => {
+            const next = Math.floor(entry.contentRect.width);
+            setWidth((current) =>
+                current === 0 || Math.abs(next - current) >= 24
+                    ? next
+                    : current,
+            );
+        });
         observer.observe(element);
         return () => {
             active = false;

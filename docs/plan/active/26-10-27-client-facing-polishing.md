@@ -25,6 +25,14 @@ Make local review of the Capitol workspace faster without putting credentials in
 - [x] No credentials in the repository: only `.env.example` defaults.
 - [x] Decision recorded in `docs/engineering/decisions.md`, startup docs updated.
 
+### Slice 2: Wish cloud sized by relative demand (requested 26-10-27)
+
+- [x] Word size is the count's position between the smallest and largest displayed count on a log scale (the visx `scaleLog` approach, computed in `lib/wish-cloud-size.ts` without adding `@visx/scale`), so 8-84, 100-180 and 100000-180000 render the same ordering and range, and one outlier (1000 against 10 to 50) leaves the other words distinguishable.
+- [x] No per-count or per-label size cap; one shared maximum is lowered so every label fits, so a long label is never smaller than a lower-demand short one.
+- [x] A layout that drops a displayed word is retried smaller; at the floor, the cloud shows only the words ranked above the first unplaced one, and the rest become count chips.
+- [x] Color follows demand (upper half of the range uses the chart accent) instead of layout position.
+- [x] Resize no longer relays out on every pixel; per-word `find` removed.
+
 ## Deferred or Excluded
 
 - Assigning towns to the demo Staff account (Staff editing is future work, D28).
@@ -42,6 +50,7 @@ Make local review of the Capitol workspace faster without putting credentials in
 | Date | Change | Reason / Reference |
 | :- | :- | :- |
 | 26-10-27 | Plan created on `feat/client-facing-polishing` from `staging` | User request |
+| 26-10-27 | Wish cloud sizing rebuilt: `lib/wish-cloud-size.ts`, `wish-word-cloud.tsx`, frontend.md sizing contract | Old formula capped at 54px from 100 wishes, per-word width cap inverted order, dropped words ranked above shown ones, color followed layout index |
 | 26-10-27 | Quick sign in built: `DemoAccountSeeder`, `DemoLoginQuery`, `SignInAsDemoAccount`, `DemoLoginController`, login page buttons, decision D33 | Acceptance checks above |
 
 ## Verification and Handoff
@@ -50,4 +59,9 @@ Make local review of the Capitol workspace faster without putting credentials in
 - Frontend: `npm run check:fix`, `npm run types:check`, and `npm run build` passed.
 - Manual in the built-in browser on `localhost:8000`: Staff and Super Admin buttons signed in and landed on `/capitol`; the login page rendered at 375px and desktop width. Admin was not clicked. Dark mode only; light mode and reduced motion were not checked. A console error about server rendering and Suspense appeared after sign in and was not traced to this change.
 - Local setup: the existing `admin@cagayan.test` account already held Super Admin, so the local `.env` maps Super Admin to it and Admin to a new `demoadmin@cagayan.test`. This lives only in the gitignored `.env`.
+- Wish cloud slice: a scratchpad script ran `wishCloudSizes` on the demo counts, the same counts scaled to 100-180 and to x1000, all equal, one word, two words and a 343px width, plus 5,000 random datasets. Zero violations of: higher count never smaller, equal counts equal, sizes within 12 to 56px. `npm run check:fix`, `npm run check`, `npm run types:check`, `npm run build` passed; `EconomicPerformanceTest` passed (20 tests); `/design-check` found nothing.
+- Wish cloud slice, not run by Claude (user chose to test manually): Economy page at desktop and 375px in light and dark; top words read Pharmacy, Grocery, Coffee Shop, Water Refilling Station in size order and no count chip has more wishes than a cloud word; temporary fixture edit to 100-180 and to all-equal counts, then reverted; window resize without flashing; zero application requests when switching Cloud and Bars or town.
+- Sizing switched from linear to log on 26-10-27 after the user supplied the visx Wordcloud sample (`scaleLog`, domain min to max); the same scratchpad checks were rerun with zero violations, plus an outlier case. `check:fix`, `types:check` and `build` passed again.
+- Phone correction, 26-10-27 (user screenshot: three words in the cloud at about 300px): the retry only shrank the base maximum while the width limit was already lower, so retries repeated the same layout; the 280px canvas and 7px padding were too tight for 20 words; the width fit ignored padding, so a long label (rank 4) could not place and the rank rule cut the cloud off at three words. Fixed in `lib/wish-cloud-size.ts` and `wish-word-cloud.tsx`: the shrink now scales the final maximum, the width fit reserves padding, and height (280 to 420px) and padding (3 to 7px) follow the card width. A scratchpad script confirmed that at 280 to 1070px every label fits the canvas and each retry strictly shrinks sizes; estimated fill at 300px is about 50% (typical d3-cloud limit), so a few of the lowest-demand words can still become chips on very narrow phones. Not run in a browser; `check:fix`, `check`, `types:check`, `build` and `EconomicPerformanceTest` passed.
+- Known limits: min-max scaling makes small gaps look large when counts are nearly equal (84 against 72 alone is 53px against 12px); long labels occupy more area than short ones at equal size, so Bars is the exact ranking.
 - `composer ci:check` not run as a whole; its parts ran through the commit hooks and the checks above. No pull request opened.
