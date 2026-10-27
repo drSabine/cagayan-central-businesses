@@ -12,12 +12,13 @@ There is no API and no client-side store. The controller is the data layer.
 2. Inertia sends `profile` as a prop to `resources/js/pages/capitol/barangays/show.tsx`.
 3. The page renders it.
 
-To change what is on screen, change the URL or submit a form. Inertia fetches the new props.
+Keep selections in the URL, but a URL change does not imply a request. Use local Inertia history for data already loaded. Request new props only when data is missing, stale, explicitly refreshed, or changed by a write.
 
 | Need | Use |
 | :- | :- |
 | Data for a page | Props from the controller |
-| Filters | `router.get(url, params, { preserveState: true, preserveScroll: true })`, so filters live in the URL |
+| Loaded-data filters, sorting, views and map selections | `router.push` / `router.replace` with existing props and a Wayfinder URL; no request |
+| Missing server data or server pagination | A scoped request for the missing dataset; cache by dataset identity and reuse it |
 | Refresh one prop only | `router.reload({ only: ['rankings'] })` |
 | A slow panel | `Inertia::defer()` on the server, a skeleton on the client |
 | A form | Inertia's `<Form>` component or `useForm` |
@@ -232,3 +233,39 @@ The wish form updates selection state immediately. It requests only the optional
 Workspace map navigation uses `lib/workspace-map-navigation.ts` for local Inertia history updates, including geographic breadcrumbs. It loads a town census chunk once through the existing promise cache and derives barangay props without a controller visit. A selection never resets the map instance. Refreshing or opening a deep link still uses protected server routes and validation.
 
 Workspace idle activity is sent through an authenticated, CSRF-protected, throttled POST after direct trusted pointer, keyboard, wheel or touch input, at most once per configured minute. It returns only the Workspace DTO and updates the isolated status component without a page visit or map reset. No timer renews the session; background checks retain the server deadline and the absolute limit never moves. The request uses Inertia v3 standalone HTTP requests: https://inertiajs.com/docs/v3/the-basics/http-requests.
+
+## Economic Performance Contract
+
+The public Economic Performance page receives EconomicPerformance Data objects mirrored in types/economic-performance.ts. Finance metadata identifies metrics by stable ID; annual observations retain decimal-string money, states and precomputed changes. Browser conversion to numbers is solely for plotting/formatting. Chart components never derive growth rates, totals or counts. Fixture and future verified Query implementations share the same public contract; source/mode information must remain accurate.
+
+Charts mount only in the browser through PerformanceVisual and lazy imports. Finances have matching peso domains, accessible tooltips, solid/dashed legends and table access. Wish cloud inputs are already ranked curated aggregates; its scaling/placement is visual layout, not a metric calculation. Wait for fonts, measure the container, use stable layout inputs, preserve multiword labels, and retain exact counts and table fallback. Views and cascading filters use validated URL query parameters through Wayfinder and Inertia.
+
+Vite explicitly prebundles Recharts and @visx/wordcloud together. A fresh-cache browser check exposed transient duplicate-React hook errors when those lazy dependencies optimized after first render; prebundling both before navigation resolved the issue. Production and fresh development first-load checks both pass. Charts still load lazily on their page; prebundling does not put their production code in the Home page.
+
+The 26-10-25 polish returns both finance and wish Data objects in the same response. Filters are now town, period, kind, financeView and wishView. Topic and shared view have been removed from validation, types, Query branches and page controls. Old prototype query keys are ignored and disappear on the next navigation; the route is unchanged. Both view selections and period/kind survive changes to the other section. Economy is the shared navigation label, so the unused mobileTitle extension was removed.
+
+Reuse LazyProvinceMap as a geographic selector, with no economic/population shades, and highlight the same town as the dropdown. The icon view switcher reuses the shared ToggleGroup and Tooltip primitives. The request/response contract, source labels and simulated-only isolation remain unchanged apart from returning both sections together.
+
+Economy view icons update local Inertia history using the already-loaded Data objects, so switching a chart to a table does not refetch both sections or show unrelated loading states. Superseded by the local-selection correction below: town, period and wish-kind changes also use local history. Interactive ProvinceMap SVGs use a group role so their labeled town buttons remain exposed to assistive technology; static illustrations retain the image role. Economy uses solid town boundaries for compact-map readability.
+
+
+### Local Selection Contract
+
+Correction approved 26-10-25 after repeated unnecessary requests. Before wiring any select, sort, view, map click, breadcrumb or tab, identify whether it needs data absent from the current page. URL persistence is not a reason to call `router.get`, `visit`, `reload` or a JSON endpoint.
+
+- Loaded public data: select, filter or order existing finished rows locally and update Inertia history. Preserve other controls, scroll, mounted maps, and Back/Forward. Ignore unchanged selections. Do not recalculate metrics, ranks, counts or percentages in React.
+- Economy: load a bounded catalog of public town datasets once, including all finance years and both curated wish modes. The server supplies period boundaries, complete observations and pre-ranked aggregates. The frontend selects a town, filters displayed year rows and selects a wish mode. Missing town entries mean unavailable, not a cache miss to fetch on every click. Initial navigation, refresh and direct links still pass through server validation.
+- Home: reuse its preloaded town atlas and map geometry. Capitol: preserve the existing public geography cache and local navigation; fetch genuinely missing geography once, evict failed promises for retry. Never prefetch private datasets for unauthorized users.
+- Large future datasets: fetch only the missing authorized dataset, cache by geography/data version rather than presentation settings, and deduplicate in-flight loads. Do not preload unbounded records or weaken server-side privacy filtering to avoid requests.
+- Review requirement: record expected application-request counts for each changed interaction, then verify repeated selections, Back/Forward and refresh in the browser. Loaded-data interactions must produce zero application requests. Asset/module loads are distinct from database-backed application requests. Backend tests must establish that the initial payload contains every supported local mode, including starting from an unavailable town.
+
+The Economy catalog replaces selected-only finance/wish fields, avoiding duplicate payloads and stale selected data. Removed its request callbacks, selection-loading skeletons and network-retry banner; lazy visualization loading/error handling remains in the shared visualization boundary. Future verified queries must retain this bounded-data boundary or explicitly design cache-miss loading before expanding scope.
+
+
+### Home and Combined Wishes Correction
+
+Approved 26-10-25. This supersedes separate kind snapshots and table/view fields above. Economy filters are now only `town`, `period`, `wishView` (cloud/bars). `kind` and `financeView` are ignored legacy parameters, removed on the next local navigation; wishView=table is invalid. The bounded catalog contains one combined wish snapshot per available town with townCode/townName, source/asOf/period metadata, namespaced label IDs, original counts and cloud limit. Both fixture groups are combined and ordered in the Query. There is no backend mode filter or filter request, and the browser does not add counts or rank entries.
+
+Finance always renders its chart and retains exact observations in a screen-reader list. Wishes render either the full-label ranked bar list or cloud with omitted-label count chips. No table branch remains. Shared WishTooltip supplies actual dataset town and exact count on hover/focus/activation; duplicate visible phrases retain separate namespaced IDs. Long ranked lists scroll within a bounded region instead of expanding an SVG indefinitely. Sizes/widths are visual encodings of finished counts.
+
+Home action links use Wayfinder with the valid selected atlas town from the current Inertia URL. The removed protection copy's smallGroupMin prop was removed from HomeOverview, its Query and TypeScript contract. No privacy enforcement threshold changed. Existing map selection/cache behavior is unchanged.

@@ -33,7 +33,7 @@ Every visible sentence must add information needed to understand the data, compl
 - Do not place descriptions below page titles. Preserve field limits, validation errors, and recovery feedback where they are needed to complete the task.
 - Do not add isolated statistics, badges, captions, instructions, or marketing lines merely to fill space. The removed town/dashboard statistics, "Open Now", suggestion totals, and numbered form walkthrough must stay removed unless explicitly requested again.
 - Do not explain obvious controls with "Click a town to pick it", double-click instructions, or "Hold Ctrl" copy. Keep keyboard support in the interaction itself and documentation.
-- Do not add repeated account/privacy assurances beneath the form or headings. Necessary privacy information belongs in How Businesses Are Protected and the documented policy, written formally and accurately.
+- Do not add repeated account/privacy assurances beneath the form or headings. Privacy definitions belong in the documented policy; the user removed the Home protection section on 26-10-25. Do not recreate that section or scatter its text across cards.
 - Do not append company examples as helper paragraphs. A concise placeholder is enough. Keep the removed "Have a specific business in mind?" and "Wish for a favorite like..." descriptions out of the interface.
 - Prefer one concise action, such as the Specify a Business reveal control, to a paragraph explaining the field.
 - Use an underline for text links. Do not append decorative arrows.
@@ -342,3 +342,33 @@ Every view that shows data handles all five. Exact words come from `privacy-rule
 - [ ] Simulated label from the layout on screens with business data
 - [ ] Works at 375px and on a laptop, in light and dark mode
 - [ ] Keyboard, focus, and reduced motion
+
+## Cagayan Economic Performance
+
+Approved 26-10-25. The new public destination uses the existing slim desktop links and mobile bottom navigation, with Economic Performance on desktop and Economy on phones. The full page title is Cagayan Economic Performance. It answers how the selected town's government finances changed and which businesses are wished for.
+
+Town precedes Topic; only the selected topic's controls and visualization appear. Tuguegarao City is the default. Other towns remain selectable and show Not available with concise source-gathering context. Finance Period and View, or Wishes For and View, sit within the same data surface. Filters and views live in the URL. No barangay controls, statistic strips, population or business-count placeholders.
+
+Finance uses matching left/right peso axes and annual X-axis labels, quiet CartesianGrid, labeled solid/dashed series, exact-value tooltips and a table alternative. Missing points remain gaps. Community Wishes uses distinct Business Types/Specific Businesses modes and cloud/bars/table views. Preserve whole phrases, cap cloud density, keep stable placement and horizontal words, expose counts to keyboard and pointer users, and retain table access when placement fails. Cloud text size encodes counts; palette colors have no category or ranking meaning. No automatic motion is required.
+
+Keep source/demo context with each visualization. Public wish labels are curated and contain no raw resident text. Browser-only visualizations load lazily after mounting; loading, empty, unavailable, hidden where applicable, and retryable error states remain explicit. At phone width, chart tables scroll inside their own surface without making the whole page overflow.
+
+### October 25 Economy Layout Correction
+
+The public page is now named Cagayan Economy, with Economy in navigation. This correction supersedes the preceding one-topic-at-a-time layout: Government Finances appears first, alongside a compact town-picker map on desktop, and Community Wishes follows below. Phones stack the finance surface, map and wishes. One Town dropdown serves both data sections and the map. The map has no fiscal shading or additional statistics.
+
+Keep the page in one compact wrapper to avoid the public shell's large inter-section gaps. Cards use compact padding and 12px content gaps; the finance chart is shorter with solid, high-contrast Cartesian grid lines. View changes use icon-only toggle groups with accessible labels, pressed states, keyboard support and hover/focus tooltips. Keep Period and Wishes For as labeled selects. A Share Your Wish action belongs with Community Wishes, not on the map. Both sections retain complete tables and independent view selections.
+
+
+### October 25 Home and Combined Wishes Correction
+
+Explicit user correction supersedes earlier table, separate wish-mode, caption and Home placeholder examples. Home presents two working action cards after the geographic hero: What Businesses Would You Like in Your Town, and How Is Your Town Performing Economically. Use primary Share Your Wish and outline Explore the Economy actions, preserving a selected valid town. Remove What You Can Do, Business Map/guide placeholders and How Businesses Are Protected; retain the existing Home maps and About the Data.
+
+Economy shows finance charts only, and one combined Community Wishes ranking with cloud/bars icons. No table controls, kind filter, default phrase-size instruction, visible All Time/as-of caption, finance disclaimer or expressed-interest disclaimer. Source attribution stays concise; snapshot provenance/date is available through the source info tooltip. Policy/metric definitions remain in documentation. Keep full financial observations in a screen-reader list and keyboard-accessible exact-value tooltips.
+
+Ranked bars are a bounded, scrollable ordered list. Put the full wrapping label and exact count above each horizontal bar, so label length never consumes the plotting area. Retain backend order; bar widths are visual scaling only. Cloud items and omitted phrases expose the same exact town/count tooltip on focus, hover and activation. Display omitted phrases as actual count chips rather than a dangling fallback paragraph. Tooltip locations describe the dataset town; do not invent cross-town leadership or measured demand.
+
+
+### Compact Home Action Cards
+
+26-10-25 follow-up: remove icons from the two Home action cards. Use 16px vertical/horizontal padding, 12px content gaps, no shadow and no extra description. The Economy heading is Explore Your Town's Economy. Preserve the wish heading, working town-aware links and phone stacking. This supersedes the preceding question-style Economy heading and roomy icon-card treatment.

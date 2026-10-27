@@ -129,7 +129,7 @@ Nothing else in the codebase decides whether a sales figure may be shown.
 - Non-renewal: "Did not renew. This usually means closure, but the business may have moved or kept operating without a permit."
 - Coverage: "Registered businesses only"
 - Declared sales: "Declared business activity, not the income of residents or of the barangay government"
-- Wishes: "Interest from people who chose to answer, not measured demand"
+- Wishes definition: voluntary expressed interest is not measured demand. Keep this limitation in metric/data documentation. The 26-10-25 user correction removes the repeated on-screen disclaimer from Economy; curated counts and their actual town remain labeled without implying market demand.
 - Peer comparison: "Below peer average"
 
 ## Review checklist for any pull request that touches business data

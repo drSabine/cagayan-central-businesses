@@ -1,6 +1,5 @@
 import { usePage } from '@inertiajs/react';
 import {
-    Component,
     lazy,
     Suspense,
     useCallback,
@@ -8,8 +7,11 @@ import {
     useMemo,
     useState,
 } from 'react';
-import type { ReactNode } from 'react';
 import townsRaw from '../../../../data/boundaries/cagayan-municipalities.geojson?raw';
+import {
+    useInBrowser,
+    VisualErrorBoundary,
+} from '@/components/lazy-province-map';
 import { Button } from '@/components/ui/button';
 import {
     Select,
@@ -19,42 +21,20 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatNumber, formatPesos } from '@/lib/format';
+import { sourceName, townFigures } from '@/lib/format';
 import { loadTownBoundaries } from '@/lib/map-data';
 import type { AreaCollection } from '@/lib/map-data';
+import { pageSearchParams } from '@/lib/navigation';
 import { navigateDashboard } from '@/lib/workspace-map-navigation';
 import type { WorkspaceMap } from '@/types/workspace';
 
 const EconomicMap = lazy(() => import('@/components/map/economic-map'));
 const townGeometry = JSON.parse(townsRaw) as AreaCollection;
 
-class MapBoundary extends Component<
-    { children: ReactNode },
-    { failed: boolean }
-> {
-    state = { failed: false };
-    static getDerivedStateFromError() {
-        return { failed: true };
-    }
-    render() {
-        return this.state.failed ? (
-            <p
-                role="status"
-                className="flex h-full items-center justify-center border bg-muted p-4 type-body"
-            >
-                The map could not load. Use the area selectors and data panel.
-            </p>
-        ) : (
-            this.props.children
-        );
-    }
-}
-
 export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
     const { url } = usePage();
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
-    const params = new URL(url, 'http://localhost').searchParams;
+    const inBrowser = useInBrowser();
+    const params = pageSearchParams(url);
     const townCode = params.get('town');
     const drilling = params.get('level') === 'barangays';
     const barangayCode = params.get('barangay');
@@ -127,29 +107,10 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
         },
         [drilling, townCode, navigate],
     );
-    const rows = [
-        { label: 'Population', figure: shown.population, format: formatNumber },
-        {
-            label: 'Government Revenue',
-            figure: barangay ? null : (town ?? data.atlas.province).revenue,
-            format: formatPesos,
-        },
-        {
-            label: 'Government Expenses',
-            figure: barangay ? null : (town ?? data.atlas.province).expenditure,
-            format: formatPesos,
-        },
-    ];
-    const years = [
-        ...new Set(rows.flatMap(({ figure }) => (figure ? [figure.year] : []))),
-    ];
-    const sources = [
-        ...new Set(
-            rows.flatMap(({ figure }) =>
-                figure?.sourceUrl ? [figure.sourceUrl] : [],
-            ),
-        ),
-    ];
+    const { rows, years, sources } = townFigures(
+        shown.population,
+        barangay ? null : (town ?? data.atlas.province),
+    );
     const pending = navigating || (drilling && loaded?.code !== townCode);
 
     return (
@@ -167,7 +128,7 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
                     className="relative h-(--workspace-map-height)"
                     aria-busy={pending}
                 >
-                    {!mounted ? (
+                    {!inBrowser ? (
                         <Skeleton className="h-full w-full" />
                     ) : failed !== null ? (
                         <div
@@ -185,7 +146,17 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
                             </Button>
                         </div>
                     ) : (
-                        <MapBoundary>
+                        <VisualErrorBoundary
+                            fallback={
+                                <p
+                                    role="status"
+                                    className="flex h-full items-center justify-center border bg-muted p-4 type-body"
+                                >
+                                    The map could not load. Use the area
+                                    selectors and data panel.
+                                </p>
+                            }
+                        >
                             <Suspense
                                 fallback={
                                     <Skeleton className="h-full w-full" />
@@ -203,7 +174,7 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
                                     onSelect={chooseMap}
                                 />
                             </Suspense>
-                        </MapBoundary>
+                        </VisualErrorBoundary>
                     )}
                 </div>
                 <aside className="flex flex-col gap-4 rounded-sm border bg-card p-4">
@@ -289,15 +260,13 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
                     <div className="border-t pt-3">
                         <h2 className="type-item">{shown.name}</h2>
                         <dl className="mt-3 flex flex-col gap-3">
-                            {rows.map(({ label, figure, format }) => (
+                            {rows.map(({ label, value }) => (
                                 <div key={label}>
                                     <dt className="type-label text-muted-foreground">
                                         {label}
                                     </dt>
                                     <dd className="mt-1 font-mono type-body tabular-nums">
-                                        {figure
-                                            ? format(figure.value)
-                                            : 'Not available'}
+                                        {value}
                                     </dd>
                                 </div>
                             ))}
@@ -338,7 +307,7 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
                                     target="_blank"
                                     className="break-words underline underline-offset-2"
                                 >
-                                    {new URL(sourceUrl).hostname}
+                                    {sourceName(sourceUrl)}
                                     <span className="sr-only">
                                         {' '}
                                         (opens in a new tab)

@@ -214,3 +214,16 @@ One Pest test per metric, in `tests/Feature/Metrics/`.
 4. Add one test for the "not available" case and, for anything involving sales, one for the "hidden" case.
 
 Do not test a metric against the seeded demo data. The seeder can change. The definition cannot.
+
+## Economic Performance Demonstration
+
+Approved 26-10-25. This public page is a synthetic UI/data-contract demonstration, separate from town_facts and the deferred verified COA history. Fixture values and changes are finished synthetic figures; no request or frontend computes financial rates from them. The Query validates applicability: consecutive prior observation, shown values, explicit comparability and matching comparison year. Zero prior values have no percentage; missing calendar years become unavailable observations. Exact currency strings retain cents; display percentage changes to one decimal. Future verified metrics must be computed through the existing SQL summary architecture.
+
+Government Revenue and Government Expenses use equal peso axis bounds. They are city-government accounts, not private-business sales, cash-only expenditure, GDP, prosperity or investment scores. Additional measures require explicit units and accounting basis; charts render metric IDs rather than assuming a revenue/expense object shape.
+
+Demo wishes count approved public phrases, once per wish per label in a future live pipeline. Types and specific businesses are separate presentations and must not be summed as unique respondents. All-time reference date is 26-10-25. Larger cloud words indicate more wishes; exact counts remain in ranked bars and the equivalent table. No real wishes or raw names/reasons are read. Population and registered-business metrics remain deferred.
+
+
+### Combined Public Wish Ranking Correction
+
+26-10-25: The user approved combining curated business-type and fictional specific-business labels into one public ranking. Preserve each existing count and namespace IDs by source group. Sort count descending, label ascending, then ID ascending for ties. Do not sum type/specific counts or present their combined total as unique respondents: one submission may mention both. Tooltip geography is the actual town attached to the snapshot. Current simulated data supports Tuguegarao only; no comparative most-demanded town or measured market demand is inferred. Snapshot date and all-time basis remain metadata available through source details, rather than an automatic visible caption.

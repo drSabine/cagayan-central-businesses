@@ -1,7 +1,8 @@
-import { router, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { LazyProvinceMap } from '@/components/lazy-province-map';
 import type { MapStyle } from '@/components/province-map';
+import { Button } from '@/components/ui/button';
 import {
     Select,
     SelectContent,
@@ -10,73 +11,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { formatCount } from '@/lib/format';
+import { formatCount, sourceName } from '@/lib/format';
+import { loadTownBoundaries } from '@/lib/map-data';
+import type { CensusCollection } from '@/lib/map-data';
+import { pageSearchParams, replaceLocalQuery } from '@/lib/navigation';
 import { home } from '@/routes';
 import type { TownProfile } from '@/types/data';
-
-const datasets = import.meta.glob('../../../data/barangays/maps/*.json', {
-    query: '?raw',
-    import: 'default',
-});
-type Census = {
-    year: number;
-    source: string;
-    features: {
-        properties: {
-            psgc_code: string;
-            name: string;
-            population: number;
-            shade: number;
-        };
-    }[];
-};
-
-type LoadedCensus = {
-    code: string;
-    source: string;
-    census: Census;
-    barangays: Map<string, Census['features'][number]['properties']>;
-    shades: Record<string, number>;
-};
-
-const censusCache = new Map<string, LoadedCensus>();
-const pendingCensuses = new Map<string, Promise<LoadedCensus>>();
-
-function loadCensus(code: string): Promise<LoadedCensus> {
-    const cached = censusCache.get(code);
-    if (cached) return Promise.resolve(cached);
-    const pending = pendingCensuses.get(code);
-    if (pending) return pending;
-    const load = datasets[`../../../data/barangays/maps/${code}.json`];
-    if (!load) return Promise.reject(new Error('No census dataset'));
-    const request = load()
-        .then((raw) => {
-            const census = JSON.parse(raw as string) as Census;
-            const loaded = {
-                code,
-                source: raw as string,
-                census,
-                barangays: new Map(
-                    census.features.map(({ properties }) => [
-                        properties.psgc_code,
-                        properties,
-                    ]),
-                ),
-                shades: Object.fromEntries(
-                    census.features.map(({ properties }) => [
-                        properties.psgc_code,
-                        properties.shade,
-                    ]),
-                ),
-            };
-            censusCache.set(code, loaded);
-            return loaded;
-        })
-        .finally(() => pendingCensuses.delete(code));
-    pendingCensuses.set(code, request);
-    return request;
-}
 
 export function BarangayAtlas({
     towns,
@@ -86,13 +26,15 @@ export function BarangayAtlas({
     mapStyle: MapStyle;
 }) {
     const { url } = usePage();
-    const params = new URL(url, 'http://localhost').searchParams;
-    const requested = params.get('barangayTown');
+    const requested = pageSearchParams(url).get('barangayTown');
     const town =
         towns.find((item) => item.code === requested) ??
         towns.find((item) => item.code === '0201529000');
     const townCode = town?.code;
-    const [loaded, setLoaded] = useState<LoadedCensus | null>(null);
+    const [loaded, setLoaded] = useState<{
+        code: string;
+        census: CensusCollection;
+    } | null>(null);
     const [failedTown, setFailedTown] = useState<string | null>(null);
     const [attempt, setAttempt] = useState(0);
     const [selections, setSelections] = useState<Record<string, string>>({});
@@ -101,9 +43,9 @@ export function BarangayAtlas({
         if (!townCode) return;
         let active = true;
         setFailedTown(null);
-        loadCensus(townCode)
+        loadTownBoundaries(townCode)
             .then((census) => {
-                if (active) setLoaded(census);
+                if (active) setLoaded({ code: townCode, census });
             })
             .catch(() => {
                 if (active) setFailedTown(townCode);
@@ -112,11 +54,11 @@ export function BarangayAtlas({
             active = false;
         };
     }, [townCode, attempt]);
-    const current =
-        loaded?.code === townCode
-            ? loaded
-            : (censusCache.get(townCode ?? '') ?? null);
-    const picked = current?.barangays.get(chosen);
+    const current = loaded && loaded.code === townCode ? loaded.census : null;
+    const findBarangay = (code: string) =>
+        current?.features.find((f) => f.properties.psgc_code === code)
+            ?.properties;
+    const picked = chosen ? findBarangay(chosen) : undefined;
     if (!town)
         return <p className="type-body">No town population is available.</p>;
     return (
@@ -128,15 +70,11 @@ export function BarangayAtlas({
                 <div className="flex items-center gap-2">
                     <Select
                         value={town.code}
-                        onValueChange={(code) => {
-                            params.set('barangayTown', code);
-                            router.replace({
-                                url: home({ query: Object.fromEntries(params) })
-                                    .url,
-                                preserveState: true,
-                                preserveScroll: true,
-                            });
-                        }}
+                        onValueChange={(code) =>
+                            replaceLocalQuery(url, home, {
+                                barangayTown: code,
+                            })
+                        }
                     >
                         <SelectTrigger
                             id="population-town"
@@ -175,16 +113,21 @@ export function BarangayAtlas({
                     <div className="h-64 text-primary lg:h-72">
                         <LazyProvinceMap
                             key={town.code}
-                            source={current.source}
+                            source={current.raw}
                             mapStyle={mapStyle}
                             label={`Barangay population in ${town.name}, 2024`}
-                            shades={current.shades}
+                            shades={Object.fromEntries(
+                                current.features.map(({ properties: p }) => [
+                                    p.psgc_code,
+                                    p.shade ?? null,
+                                ]),
+                            )}
                             highlight={chosen ? [chosen] : []}
                             describe={(code, name) => (
                                 <span>
                                     {name}:{' '}
                                     {formatCount(
-                                        current.barangays.get(code)!.population,
+                                        findBarangay(code)?.population ?? 0,
                                     )}{' '}
                                     people
                                 </span>
@@ -202,7 +145,7 @@ export function BarangayAtlas({
                         />
                     </div>
                     <div className="min-h-6">
-                        {picked && (
+                        {picked && picked.population != null && (
                             <p className="flex items-baseline justify-between gap-3">
                                 <span
                                     className="truncate type-item"
@@ -219,12 +162,12 @@ export function BarangayAtlas({
                     <div className="flex items-baseline gap-2 border-t pt-3 type-meta text-foreground">
                         <span>Source</span>
                         <a
-                            href={current.census.source}
+                            href={current.source}
                             target="_blank"
                             rel="noreferrer"
                             className="underline underline-offset-2"
                         >
-                            Philippine Statistics Authority
+                            {sourceName(current.source)}
                             <span className="sr-only">
                                 {' '}
                                 (opens in a new tab)

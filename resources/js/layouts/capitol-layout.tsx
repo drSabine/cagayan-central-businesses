@@ -2,16 +2,17 @@ import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AppearanceToggle } from '@/components/appearance-toggle';
-import { SimulatedLabel } from '@/components/privacy/simulated-label';
 import { WorkspaceStatus } from '@/components/capitol/workspace-status';
+import { SimulatedLabel } from '@/components/privacy/simulated-label';
 import { Button } from '@/components/ui/button';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 import { icons } from '@/lib/icons';
-import { workspaceNavigation } from '@/lib/workspace-navigation';
+import { pagePath, pageSearchParams } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
+import { navigateDashboard } from '@/lib/workspace-map-navigation';
+import { workspaceNavigation } from '@/lib/workspace-navigation';
 import { logout } from '@/routes';
 import { dashboard } from '@/routes/capitol';
-import { navigateDashboard } from '@/lib/workspace-map-navigation';
 import type { Workspace, WorkspaceMap } from '@/types/workspace';
 
 export default function CapitolLayout({ children }: { children: ReactNode }) {
@@ -19,9 +20,9 @@ export default function CapitolLayout({ children }: { children: ReactNode }) {
     const workspace = props.workspace as Workspace;
     const [open, setOpen] = useState(false);
     const items = workspaceNavigation(workspace);
-    const path = url.split('?')[0];
+    const path = pagePath(url);
     const current = items.find((item) => item.href.url === path);
-    const params = new URL(url, 'http://localhost').searchParams;
+    const params = pageSearchParams(url);
     const map = props.map as WorkspaceMap | undefined;
     const town =
         path === dashboard().url

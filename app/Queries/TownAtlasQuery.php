@@ -18,6 +18,7 @@ final class TownAtlasQuery
 
     public function get(): TownAtlas
     {
+        $measures = "'".implode("', '", self::MEASURES)."'";
         $pivot = collect(self::MEASURES)->map(fn (string $measure) => <<<SQL
             max(l.value) filter (where l.measure = '{$measure}') as {$measure},
             max(l.year) filter (where l.measure = '{$measure}') as {$measure}_year,
@@ -37,7 +38,7 @@ final class TownAtlasQuery
                 select distinct on (municipality_id, measure) municipality_id, measure, year, value, source_url
                 from town_facts
                 where checked_on is not null and source_url is not null
-                    and measure in ('population', 'revenue', 'expenditure', 'barangay_count', 'income_class', 'poverty_incidence')
+                    and measure in ({$measures})
                 order by municipality_id, measure, year desc
             ),
             facts as (
@@ -69,13 +70,13 @@ final class TownAtlasQuery
             code: (string) $row['psgc_code'],
             name: (string) $row['name'],
             kind: (string) $row['kind'],
-            population: $this->figure($row['population'], $row['population_year'], $row['population_source']),
-            revenue: $this->figure($row['revenue'], $row['revenue_year'], $row['revenue_source']),
-            expenditure: $this->figure($row['expenditure'], $row['expenditure_year'], $row['expenditure_source']),
+            population: TownFigure::fromNullable($row['population'], $row['population_year'], $row['population_source']),
+            revenue: TownFigure::fromNullable($row['revenue'], $row['revenue_year'], $row['revenue_source']),
+            expenditure: TownFigure::fromNullable($row['expenditure'], $row['expenditure_year'], $row['expenditure_source']),
             shade: $row['shade'] === null ? null : (int) $row['shade'],
-            barangayCount: $this->figure($row['barangay_count'], $row['barangay_count_year'], $row['barangay_count_source']),
-            incomeClass: $this->figure($row['income_class'], $row['income_class_year'], $row['income_class_source']),
-            povertyIncidence: $this->figure($row['poverty_incidence'], $row['poverty_incidence_year'], $row['poverty_incidence_source']),
+            barangayCount: TownFigure::fromNullable($row['barangay_count'], $row['barangay_count_year'], $row['barangay_count_source']),
+            incomeClass: TownFigure::fromNullable($row['income_class'], $row['income_class_year'], $row['income_class_source']),
+            povertyIncidence: TownFigure::fromNullable($row['poverty_incidence'], $row['poverty_incidence_year'], $row['poverty_incidence_source']),
         );
     }
 
@@ -84,7 +85,7 @@ final class TownAtlasQuery
      */
     private function province(array $row): TownProfile
     {
-        $total = fn (string $measure) => $this->figure($row["total_{$measure}"] ?? null, $row["total_{$measure}_year"] ?? null, $row["total_{$measure}_source"] ?? null);
+        $total = fn (string $m) => TownFigure::fromNullable($row["total_{$m}"] ?? null, $row["total_{$m}_year"] ?? null, $row["total_{$m}_source"] ?? null);
 
         return new TownProfile(
             code: '0201500000',
@@ -96,12 +97,5 @@ final class TownAtlasQuery
             shade: null,
             barangayCount: $total('barangay_count'),
         );
-    }
-
-    private function figure(mixed $value, mixed $year, mixed $sourceUrl): ?TownFigure
-    {
-        return $value === null || $year === null
-            ? null
-            : new TownFigure((string) $value, (int) $year, is_string($sourceUrl) ? $sourceUrl : null);
     }
 }

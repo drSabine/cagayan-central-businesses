@@ -222,3 +222,25 @@ Existing password sign-in is retained for prototype reliability; Microsoft/Googl
 Display names are 1–100 characters with Unicode preserved. Optional birthday month/day is private; no birth year. Future business names have a 55-character storage and validation contract. Other future field formats require explicit agreement. Audit records are database-enforced append-only safe metadata, never raw private payloads.
 
 Verified fiscal figures are labeled Government Revenue and Government Expenses, retain exact cents, and link original COA archives. Unchecked source rows are withheld. Province totals require complete same-year population/count coverage; town government accounts never become provincial-government finances. See `data/towns/verified-finances-2024.md`.
+
+## D30 Economic Performance Demo
+
+Decided 26-10-25. Add a separate public Cagayan Economic Performance page using isolated synthetic Tuguegarao data for Government Finances and Community Wishes. Keep the existing Home map unchanged. Use Recharts through ChartContainer for financial lines and ranked wishes; add user-approved `@visx/wordcloud` exactly 4.0.0 for browser-mounted, phrase-preserving clouds. Its official v4 release supports React 18/19: https://github.com/airbnb/visx/releases/tag/v4.0.0. Exact bundle cost is measured during final production build, not inferred from repository stars or package unpacked size.
+
+Both finance Y axes share the same peso bounds; the X axis is fiscal year 2021 through 2025. Government Expenses retains its accrual meaning. No economic score or automatic favorable/unfavorable interpretation. Curated type and fictional specific-business wishes are separate modes, with identical aggregates feeding cloud/bars/table. No third-party runtime service or live raw submission publication.
+
+The replacement boundary is the readonly Data contract, not a new API, generic repository or importer. Future source verification, history storage and SQL-derived measures stay separate. See data/economic-performance/README.md and the plan register. The user's instruction requires all tests and build checks only after the entire implementation and documentation are complete.
+
+### D30 October 25 UI Correction
+
+The user superseded the topic-separated presentation with a compact Cagayan Economy overview. Return both demo sections together, use independent financeView and wishView URL state, and reuse the SVG town map as a geographic picker beside finances. Remove the obsolete Topic/shared View state and per-device navigation title customization. Keep the route and data/privacy boundaries stable. The map adds geographic context without suggesting fiscal shading; Community Wishes adds a direct action to the existing submission form. No new packages.
+
+
+### D31 Loaded Data Interactions Stay Local
+
+Approved 26-10-25. Economy period, wish kind and town/map controls unnecessarily performed full Inertia GET requests and reran validation and municipality queries. This supersedes D30's server visits for those selections. Load the bounded public demo catalog once, with full finance rows, period boundaries and both curated wish snapshots; all control changes use local Inertia history. No global cache, new package, or privacy changes. Server validation still applies on entry/refresh. The same rule governs loaded map datasets and presentation controls across the app: request missing data only, cache/deduplicate it, and verify zero application requests for loaded selections. See frontend.md, "Local Selection Contract" and the [fix plan](../plan/archive/26-10-25-local-economy-selections.md).
+
+
+### D32 Home Actions and Combined Wishes
+
+Approved 26-10-25 by explicit user request. Replace Home's placeholder task cards and protection section with working town-aware wish/Economy actions. Combine curated type/specific wish labels into one backend-ranked snapshot, preserving counts and namespaced identities; remove kind filtering and all public Economy tables. Preserve privacy/metric definitions in docs, source metadata in contextual tooltips, and accessible exact observations without a table. Use bounded full-label ranked bars and town/count tooltips, with cloud count-chip fallback. Keep every loaded-data interaction local. No new dependency or live wish pipeline. See the [implementation plan](../plan/archive/26-10-25-home-economy-wishes.md).

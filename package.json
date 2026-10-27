@@ -31,6 +31,7 @@
         "@tailwindcss/vite": "^4.1.11",
         "@types/react": "^19.2.0",
         "@types/react-dom": "^19.2.0",
+        "@visx/wordcloud": "4.0.0",
         "@vitejs/plugin-react": "^6.1.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",

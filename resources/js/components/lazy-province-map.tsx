@@ -1,4 +1,5 @@
-import { lazy, Suspense, useSyncExternalStore } from 'react';
+import { Component, lazy, Suspense, useSyncExternalStore } from 'react';
+import type { ReactNode } from 'react';
 import type { ProvinceMapProps } from '@/components/province-map';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -8,12 +9,31 @@ const subscribe = () => () => {};
 
 // Rendered in the browser only. A lazy component suspending during server rendering
 // makes React throw the HTML away and log "Switched to client rendering".
-export function LazyProvinceMap(props: ProvinceMapProps) {
-    const inBrowser = useSyncExternalStore(
+export function useInBrowser(): boolean {
+    return useSyncExternalStore(
         subscribe,
         () => true,
         () => false,
     );
+}
+
+export class VisualErrorBoundary extends Component<
+    { fallback: ReactNode; children: ReactNode },
+    { failed: boolean }
+> {
+    state = { failed: false };
+
+    static getDerivedStateFromError() {
+        return { failed: true };
+    }
+
+    render() {
+        return this.state.failed ? this.props.fallback : this.props.children;
+    }
+}
+
+export function LazyProvinceMap(props: ProvinceMapProps) {
+    const inBrowser = useInBrowser();
     const skeleton = (
         <Skeleton
             role="presentation"

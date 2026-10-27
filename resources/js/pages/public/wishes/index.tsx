@@ -7,7 +7,6 @@ import { LazyProvinceMap } from '@/components/lazy-province-map';
 import { PageHeader } from '@/components/page-header';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
     Card,
     CardContent,
@@ -22,6 +21,7 @@ import {
     FieldGroup,
     FieldLabel,
 } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
@@ -31,7 +31,8 @@ import {
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
-import { formatCount, formatDateTime } from '@/lib/format';
+import { formatCount, formatDateTime, NOT_AVAILABLE } from '@/lib/format';
+import { pageSearchParams } from '@/lib/navigation';
 import { home } from '@/routes';
 import { index, store, update } from '@/routes/public/wishes';
 import type { SelectOption, WishPage, WishTally } from '@/types/data';
@@ -41,7 +42,7 @@ type Props = {
 };
 
 export default function SuggestionsIndex({ page }: Props) {
-    const params = new URLSearchParams(usePage().url.split('?')[1] ?? '');
+    const params = pageSearchParams(usePage().url);
     const [editing, setEditing] = useState(false);
     const [town, setTown] = useState(
         params.get('town') ?? page.defaultTown ?? '',
@@ -496,7 +497,7 @@ export default function SuggestionsIndex({ page }: Props) {
                                                               value:
                                                                   tally.registeredCount ===
                                                                   null
-                                                                      ? 'Not available'
+                                                                      ? NOT_AVAILABLE
                                                                       : formatCount(
                                                                             tally.registeredCount,
                                                                         ),

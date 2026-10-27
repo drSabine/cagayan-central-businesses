@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\DB;
  */
 final class BarangayAtlasQuery
 {
-    private const string TUGUEGARAO = '0201529000';
-
     /**
      * @return list<BarangayProfile>
      */
@@ -28,14 +26,12 @@ final class BarangayAtlasQuery
             join municipalities m on m.id = b.municipality_id
             where m.psgc_code = ?
             order by b.name
-            SQL, [(int) config('cagayan.towns.shades'), self::TUGUEGARAO]);
+            SQL, [(int) config('cagayan.towns.shades'), (string) config('cagayan.performance.demo_town')]);
 
         return array_map(fn (object $row) => new BarangayProfile(
             code: $row->psgc_code,
             name: $row->name,
-            population: $row->population === null || $row->population_year === null
-                ? null
-                : new TownFigure((string) $row->population, (int) $row->population_year, $row->population_source),
+            population: TownFigure::fromNullable($row->population, $row->population_year, $row->population_source),
             shade: $row->shade === null ? null : (int) $row->shade,
         ), $rows);
     }

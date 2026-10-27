@@ -14,7 +14,6 @@ export type HomeOverview = {
     firstYear: number;
     latestYear: number;
     yearCount: number;
-    smallGroupMin: number;
     atlas: TownAtlas;
     barangays: BarangayProfile[];
 };

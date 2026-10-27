@@ -33,6 +33,10 @@ export default defineConfig({
             ],
         },
     },
+    // Prebundle lazy charts together so first visits keep one React instance.
+    optimizeDeps: {
+        include: ['recharts', '@visx/wordcloud'],
+    },
     lint: {
         ignorePatterns: [
             'vendor/**',

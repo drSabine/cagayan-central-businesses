@@ -20,6 +20,14 @@ return [
     */
     'simulated' => (bool) env('CAGAYAN_SIMULATED', true),
 
+    'performance' => [
+        'demo_town' => '0201529000',
+        'first_year' => 2021,
+        'last_year' => 2025,
+        'recent_first_year' => 2023,
+        'cloud_limit' => 20,
+    ],
+
     'privacy' => [
 
         /*

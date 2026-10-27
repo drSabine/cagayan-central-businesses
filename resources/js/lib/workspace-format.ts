@@ -1,20 +1,21 @@
-const zone = 'Asia/Manila';
+import { LOCALE, TIME_ZONE } from '@/lib/format';
+
 const clock = new Intl.DateTimeFormat('en-GB', {
-    timeZone: zone,
+    timeZone: TIME_ZONE,
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
     hourCycle: 'h23',
 });
-const date = new Intl.DateTimeFormat('en-PH', {
-    timeZone: zone,
+const date = new Intl.DateTimeFormat(LOCALE, {
+    timeZone: TIME_ZONE,
     weekday: 'short',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
 });
 const hour = new Intl.DateTimeFormat('en-GB', {
-    timeZone: zone,
+    timeZone: TIME_ZONE,
     hour: '2-digit',
     hourCycle: 'h23',
 });
