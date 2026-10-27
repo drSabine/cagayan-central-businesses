@@ -8,12 +8,13 @@ Dates inside plans use the requested `yy-mm-dd` format in Asia/Manila. Filenames
 
 | Plan | Status | Scope |
 | :- | :- | :- |
-| [Government Finances and Economic Context](active/26-10-24-government-finances-economic-context.md) | Deferred remainder | COA Executive Summaries 2020 to 2025 collected 26-10-27; extraction, verification and history screen deferred |
+| [Finance Ledger and Analytics Program](active/26-10-27-finance-ledger-analytics-program.md) | In progress, Phase 0 | COA parser, finance ledger with manual entry and sign-off, workbook breakdowns, industries and Focus Tags, analytics engine |
 
 ## Archive
 
 | Plan | Status | Reference |
 | :- | :- | :- |
+| [Government Finances and Economic Context](archive/26-10-24-government-finances-economic-context.md) | Superseded 26-10-27 | Direction, Executive Summary collection and source rules; remainder continues in the Finance Ledger and Analytics Program |
 | [Census Atlas Follow-Up](archive/26-10-27-census-atlas-follow-up.md) | Completed 26-10-27 | Barangay atlas cache revisit and missing-population tooltip fixes, plus corrections to the cleanup plan's reuse claims |
 | [Single Source of Truth Cleanup](archive/26-10-27-single-source-of-truth-cleanup.md) | Completed 26-10-27 | Shared frontend/backend SSOT helpers, census loader/cache consolidation, three-copy line-count tightening, and obsolete branch cleanup |
 | [Compact Home and Session Handoff](archive/26-10-25-compact-home-session-handoff.md) | Completed 26-10-25 | Compact cards, UTF-8 correction, session verification and PRs #16/#17 |
