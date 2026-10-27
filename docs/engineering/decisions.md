@@ -12,7 +12,7 @@ What the team decided and why. Change a decision only through a pull request tha
 
 ## D2. PHP and Node on the laptop with the database in Docker
 
-**Decided.** PHP 8.3 or newer (WAMP, Laravel Herd, or php.new) with `pdo_pgsql` and `pgsql` on the command line. Node 22. Docker Desktop runs only the database, from `compose.yaml`. All three members use the same PHP minor version, and CI uses it too.
+**Decided.** Patched PHP 8.3 (8.3.36 or newer) with `pdo_pgsql` and `pgsql` on the command line (WAMP, Laravel Herd, or php.new). Node 22.18 or newer in the 22 release line. Docker Desktop runs only the database, from `compose.yaml`. All three members use the same PHP minor version, and CI uses it too. Composer also accepts patched PHP 8.4 and 8.5 versions, with security floors recorded in `composer.json`.
 
 **Why:** the team knows WAMP. Moving only the database into Docker teaches Docker without changing the daily workflow a month before the deadline. After the video, PHP may move into Docker with Laravel Sail.
 
@@ -173,17 +173,17 @@ Each has a default so work is not blocked.
 
 ## Installed versions
 
-Recorded October 3, 2026, from `composer.lock`, `package-lock.json`, and the running database. Update this when a package is added or upgraded.
+Updated October 24, 2026, from `composer.lock`, `package-lock.json`, and the running database. Update this when a package is added or upgraded.
 
-- PHP 8.3.14 locally (WAMP), 8.3 in CI
+- PHP 8.3.36 locally (WAMP and standalone CLI), latest patched 8.3 in CI
 - Laravel 13.34.0, Fortify 1.40.0, Wayfinder 0.1.21, Boost 2.10.1, Larastan 3.12.2, Pint 1.32.1
-- inertia-laravel 3.5.1, @inertiajs/react 3.8.0
-- React 19.3.0, TypeScript 5.9.3, Tailwind CSS 4.3.3
-- Vite 8.3.2 through vite-plus 0.3.0 (`vp`). `npm run check` is `vp check`, which formats and lints.
-- Node 22 in CI. Node 24.9.0 also works locally.
+- inertia-laravel 3.5.1, @inertiajs/react 3.9.1
+- React 19.3.1, TypeScript 5.9.3, Tailwind CSS 4.3.3
+- vite-plus 1.4.0 (`vp`) with the matching `@voidzero-dev/vite-plus-core` Vite alias and npm override. `npm run check` is `vp check`, which formats and lints. Updated to address the frontend tooling security advisories; install scripts remain disabled.
+- Node 22 in CI. Node 24.22.1 locally.
 - PostgreSQL 17.5, PostGIS 3.5.2
 - Pest 4.7.8, Paratest 7.20.0
-- maplibre-gl 6.11.2, react-map-gl 8.1.3, recharts 3.10.1, @react-pdf/renderer 4.9.0
+- maplibre-gl 6.15.0, react-map-gl 8.1.3, recharts 3.10.1, @react-pdf/renderer 4.9.0
 - Not installed yet: TanStack Table (first table)
 
 ## Changes from the starter kit
