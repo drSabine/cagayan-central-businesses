@@ -64,7 +64,7 @@ The legacy `expenditure` storage key currently represents the reports' total exp
 
 ## COA Source Documents
 
-[`executive-summaries/`](executive-summaries/README.md) holds COA Executive Summary PDFs for fiscal years 2020 to 2025, source documents for the deferred Local Government Finances history. Nothing there is imported.
+[`executive-summaries/`](executive-summaries/README.md) holds COA Executive Summary PDFs for fiscal years 2020 to 2025. The parser in `tools/coa/` reads them into [`finances/`](finances/README.md), where they wait for review before the finance ledger publishes them.
 
 Province population/count totals require all towns to have the same reference year. City/municipal government accounts are not aggregated into a provincial-government finance figure. Full historical collection and comparable-year trends remain separate deferred work.
 

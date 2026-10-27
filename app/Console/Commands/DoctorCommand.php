@@ -44,6 +44,7 @@ class DoctorCommand extends Command
         $this->check('Docker is running and the db service is healthy', fn () => $this->checkDocker());
         $this->check('.env exists and has an app key', fn () => $this->checkEnv());
         $this->check('Git hooks path is .githooks', fn () => $this->checkHooksPath());
+        $this->check('COA parser tools', fn () => $this->checkCoaTools());
         $this->check('App can connect to the database', fn () => $this->checkDatabaseConnection());
         $this->check('PostGIS responds', fn () => $this->checkPostgis(), needsDatabase: true);
         $this->check('Test database exists', fn () => $this->checkTestDatabase(), needsDatabase: true);
@@ -225,6 +226,14 @@ class DoctorCommand extends Command
         }
 
         return null;
+    }
+
+    /** Optional: only the data member re-reads COA reports, and the app never needs Python (D34). */
+    private function checkCoaTools(): string
+    {
+        return file_exists(base_path('tools/coa/.venv/pyvenv.cfg'))
+            ? 'ready'
+            : 'optional, not set up; `composer data:finances:test` creates it';
     }
 
     private function checkDatabaseConnection(): string

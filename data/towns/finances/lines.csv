@@ -1,0 +1,40 @@
+code,parent_code,label,group,unit,displayed,source,aliases
+position.assets,,Assets,checks,php,0,executive_summary,(total )?assets
+position.liabilities,,Liabilities,checks,php,0,executive_summary,(total )?liabilities
+position.equity,,Government Equity,checks,php,0,executive_summary,(total )?(government|gov't|govt\.?) equity;(total )?(net assets/ ?)?equity
+performance.revenue,,Government Revenue,totals,php,1,executive_summary,(total )?(income|revenues?)
+performance.expenses,,Government Expenses,totals,php,1,executive_summary,(total )?expenses?
+performance.net_income,,Surplus or Deficit,totals,php,1,executive_summary,net income;surplus ?\(deficit\)( for the period)?;surplus
+budget.appropriations_current,,Current Appropriations,budget,php,1,executive_summary,(total )?appropriations? ?- ?current;(total )?appropriations?@unspecified_period
+budget.appropriations_continuing,,Continuing Appropriations,checks,php,0,executive_summary,(total )?appropriations? ?- ?continuing
+budget.allotments_current,,Current Allotments,checks,php,0,executive_summary,(total )?allotments? ?- ?current;(total )?allotments?@unspecified_period
+budget.allotments_continuing,,Continuing Allotments,checks,php,0,executive_summary,(total )?allotments? ?- ?continuing
+budget.obligations_current,,Current Obligations,budget,php,1,executive_summary,(total )?obligations? ?- ?current;(total )?obligations?@unspecified_period
+budget.obligations_continuing,,Continuing Obligations,checks,php,0,executive_summary,(total )?obligations? ?- ?continuing
+revenue.tax,performance.revenue,Local Taxes,revenue_sources,php,1,fs_workbook,tax revenue
+revenue.national_share,performance.revenue,National Tax Allotment Share,revenue_sources,php,1,fs_workbook,share from national collections;share from (the )?(national )?internal revenue (collections|allotment)( \(ira\))?
+revenue.other_national_share,performance.revenue,Other National Tax Shares,revenue_sources,php,1,fs_workbook,other shares? from national tax(es| collections);share from national wealth
+revenue.service_business,performance.revenue,Fees and Business Income,revenue_sources,php,1,fs_workbook,service and business income
+revenue.grants,performance.revenue,Grants and Donations,revenue_sources,php,1,fs_workbook,"shares?, grants and donations"
+revenue.other,performance.revenue,Other Revenue,revenue_sources,php,1,fs_workbook,other income;gains;miscellaneous income
+local.business_tax,,Business Tax,local_revenue,php,1,annex_c1,business tax
+local.real_property_tax,,Real Property Tax,local_revenue,php,1,annex_c1,real property tax ?- ?basic
+local.community_tax,,Community Tax,local_revenue,php,1,annex_c1,community tax
+local.permit_fees,,Permit Fees,local_revenue,php,1,annex_c1,permit fees
+local.market_operations,,Market Operations,local_revenue,php,1,annex_c1,receipts? from market operations?
+expense.personnel,performance.expenses,Personnel,expense_types,php,1,fs_workbook,personnel services
+expense.mooe,performance.expenses,Operations and Maintenance,expense_types,php,1,fs_workbook,maintenance and other operating expenses
+expense.non_cash,performance.expenses,Depreciation and Other Non-Cash,expense_types,php,1,fs_workbook,non-cash expenses
+expense.financial,performance.expenses,Interest and Financial Charges,expense_types,php,1,fs_workbook,financial expenses?
+expense.transfers,performance.expenses,Transfers to Other Entities,expense_types,php,1,fs_workbook,"transfers, assistance and subsidy( to)?"
+sector.general_public_services,,General Public Services,sectors,php,1,fs_scbaa,general public services
+sector.education,,Education,sectors,php,1,fs_scbaa,education
+sector.health,,Health,sectors,php,1,fs_scbaa,"health services;health, nutrition and population control"
+sector.social_welfare,,Social Welfare,sectors,php,1,fs_scbaa,social services and social welfare
+sector.housing,,Housing and Community Development,sectors,php,1,fs_scbaa,housing and community development
+sector.labor,,Labor and Employment,sectors,php,1,fs_scbaa,labor and employment
+sector.economic_services,,Economic Services,sectors,php,1,fs_scbaa,economic services
+sector.development_fund,,Development Fund,sectors,php,1,fs_scbaa,20 ?% (development fund|dev't\.? fund|edf)
+sector.disaster_fund,,Disaster Risk Fund,sectors,php,1,fs_scbaa,(5 ?% )?ldrrmf;5 ?% calamity fund
+sector.aid_to_barangays,,Aid to Barangays,sectors,php,1,fs_scbaa,aid to barangays?
+sector.debt_service,,Debt Service,sectors,php,1,fs_scbaa,debt servicing;financial service

@@ -1,0 +1,227 @@
+psgc_code,town,reported_in_year,fiscal_year,line_code,basis,value,definition_variant,source_label,location,document_sha256,extractor_version
+0201502000,Alcala,2025,2025,position.assets,actual,524273294.40,,Financial Position Total Assets,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2024,position.assets,actual,574679455.47,,Financial Position Total Assets,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2025,position.liabilities,actual,31837743.77,,Liabilities,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2024,position.liabilities,actual,45214201.17,,Liabilities,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2025,position.equity,actual,492435550.63,,Total Government Equity,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2024,position.equity,actual,529465254.30,,Total Government Equity,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2025,performance.revenue,actual,245651940.81,,Results of Operations Total Revenues,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2024,performance.revenue,actual,224744176.27,,Results of Operations Total Revenues,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2025,performance.expenses,actual,280569440.82,,Total Expenses,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2024,performance.expenses,actual,201010574.32,,Total Expenses,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2025,performance.net_income,actual,-34917500.01,,Net Income,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201502000,Alcala,2025,2024,performance.net_income,actual,23733601.95,,Net Income,page 1,68851dcf748f8957dc91dd07051761757472eab8a17fd1981ea0d31f61b8c291,1
+0201504000,Amulung,2025,2025,position.assets,actual,1061476967.29,,Assets,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2024,position.assets,actual,820695165.21,,Assets,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2025,position.liabilities,actual,101492559.65,,Liabilities,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2024,position.liabilities,actual,86514295.99,,Liabilities,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2025,position.equity,actual,959984407.64,,Government Equity,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2024,position.equity,actual,734180869.22,,Government Equity,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2025,performance.revenue,actual,328126509.34,,Income,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2024,performance.revenue,actual,256735144.32,,Income,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2025,performance.expenses,actual,282275424.76,,Expenses,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2024,performance.expenses,actual,250478152.24,,Expenses,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2025,performance.net_income,actual,32021821.31,,Net Income,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201504000,Amulung,2025,2024,performance.net_income,actual,-6588299.25,,Net Income,page 1,b27271f47fc5e7bdbd9ca16cc38d645dd8f72aaf1257ccdd7b5147d82b5fc4da,1
+0201506000,Baggao,2025,2025,position.assets,actual,1614036437.02,,Financial Condition Total Assets,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,position.assets,actual,1542784868.15,,Financial Condition Total Assets,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,position.liabilities,actual,251591575.08,,Total Liabilities,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,position.liabilities,actual,305235291.37,,Total Liabilities,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,position.equity,actual,1362444861.94,,Total Government Equity,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,position.equity,actual,1237549576.78,,Total Government Equity,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,performance.revenue,actual,617744144.41,includes_subsidy_from_other_funds,Results of Operations Total Income (Includes Total Operating Income and Subsidy from Other Funds),page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,performance.revenue,actual,537294661.04,includes_subsidy_from_other_funds,Results of Operations Total Income (Includes Total Operating Income and Subsidy from Other Funds),page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,performance.expenses,actual,538241189.24,includes_subsidy_to_other_funds,"Total Expenses (Includes Total Operating Expenses, Subsidy to NGAs, Subsidy to Other Funds and Donations",page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,performance.expenses,actual,519456174.84,includes_subsidy_to_other_funds,"Total Expenses (Includes Total Operating Expenses, Subsidy to NGAs, Subsidy to Other Funds and Donations",page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,performance.net_income,actual,79502955.17,,Net Income,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,performance.net_income,actual,17838486.20,,Net Income,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,budget.appropriations_current,actual,712229885.52,,"b) Appropriations, Allotments and Obligations: Appropriations-Current",page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,budget.appropriations_current,actual,616411280.76,,"b) Appropriations, Allotments and Obligations: Appropriations-Current",page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,budget.appropriations_continuing,actual,141565032.51,,Appropriations-Continuing,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,budget.appropriations_continuing,actual,316374844.77,,Appropriations-Continuing,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,budget.allotments_current,actual,712229887.52,,Allotments – Current,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,budget.allotments_current,actual,616411280.76,,Allotments – Current,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,budget.allotments_continuing,actual,141565032.51,,Allotments –Continuing,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,budget.allotments_continuing,actual,316374844.77,,Allotments –Continuing,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,budget.obligations_current,actual,562476516.79,,Obligations – Current,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,budget.obligations_current,actual,527639371.11,,Obligations – Current,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2025,budget.obligations_continuing,actual,50645302.19,,Obligations –Continuing,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201506000,Baggao,2025,2024,budget.obligations_continuing,actual,189857202.44,,Obligations –Continuing,page 2,ae0c7cb310ee2ab992a8cddcb4191e79b1b96526ec216d30b05579cd4797010f,1
+0201512000,Enrile,2025,2025,position.assets,actual,548906709.26,,Financial Condition: Assets,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,position.assets,actual,475408223.49,,Financial Condition: Assets,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,position.liabilities,actual,124917361.47,,Liabilities,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,position.liabilities,actual,84126474.86,,Liabilities,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,position.equity,actual,423989347.78,,Government Equity,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,position.equity,actual,391281748.63,,Government Equity,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,performance.revenue,actual,320926560.17,,Results of Operation: Income,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,performance.revenue,actual,272011996.86,,Results of Operation: Income,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,performance.expenses,actual,288104449.64,,Expense,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,performance.expenses,actual,256322104.51,,Expense,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,performance.net_income,actual,32822110.53,,Net Income,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,performance.net_income,actual,15689892.35,,Net Income,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,budget.appropriations_current,actual,253067495.70,,"Appropriations, Allotments and Obligations: Appropriations – Current",page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,budget.appropriations_current,actual,231322868.52,,"Appropriations, Allotments and Obligations: Appropriations – Current",page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,budget.allotments_current,actual,253067495.70,,Allotments – Current,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,budget.allotments_current,actual,231322868.52,,Allotments – Current,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,budget.allotments_continuing,actual,10618856.43,,Allotments – Continuing,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,budget.allotments_continuing,actual,13870515.06,,Allotments – Continuing,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,budget.obligations_current,actual,221331929.93,,Obligations – Current,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,budget.obligations_current,actual,215948826.39,,Obligations – Current,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2025,budget.obligations_continuing,actual,9281681.57,,Obligations – Continuing,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201512000,Enrile,2025,2024,budget.obligations_continuing,actual,11618506.24,,Obligations – Continuing,page 2,c1a0c19969edf5ab4bfed59ecf3dee6c56820ef5f14c9af6e60678e3aaf789b9,1
+0201513000,Gattaran,2025,2025,position.assets,actual,1068248800.80,,Financial Position Total Assets,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2024,position.assets,actual,976006032.37,,Financial Position Total Assets,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2025,position.liabilities,actual,197043455.24,,Liabilities,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2024,position.liabilities,actual,178262692.25,,Liabilities,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2025,position.equity,actual,871205345.56,,Total Government Equity,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2024,position.equity,actual,797743340.12,,Total Government Equity,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2025,performance.revenue,actual,482695413.29,,Results of Operations Total Revenues,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2024,performance.revenue,actual,401727932.51,,Results of Operations Total Revenues,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2025,performance.expenses,actual,435095493.18,,Total Expenses,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2024,performance.expenses,actual,408270884.16,,Total Expenses,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2025,performance.net_income,actual,47599920.11,,Net Income,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201513000,Gattaran,2025,2024,performance.net_income,actual,-6542951.65,,Net Income,page 2,6ad1f38a0021443cad6c4bd5806963025be8c0e860d345262742a123d60c9b82,1
+0201515000,Iguig,2025,2025,position.assets,actual,690055674.82,,Assets,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2024,position.assets,actual,658325899.15,,Assets,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2025,position.liabilities,actual,207953838.88,,Liabilities,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2024,position.liabilities,actual,218633760.58,,Liabilities,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2025,position.equity,actual,482101835.94,,Government Equity,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2024,position.equity,actual,439692138.57,,Government Equity,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2025,performance.revenue,actual,203676880.29,,Income,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2024,performance.revenue,actual,178201695.25,,Income,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2025,performance.expenses,actual,160451708.27,,Expenses,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2024,performance.expenses,actual,172259855.06,,Expenses,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2025,performance.net_income,actual,43225172.02,,Net Income,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201515000,Iguig,2025,2024,performance.net_income,actual,5941840.19,,Net Income,page 1,041abca5256b9ab20ae694cab527c273029451d8d40cb29150a201d180b5ad83,1
+0201519000,Peñablanca,2025,2025,position.assets,actual,971155126.13,,Assets,page 1,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2024,position.assets,actual,836497286.52,,Assets,page 1,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2025,position.liabilities,actual,44890632.12,,Liabilities,page 1,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2024,position.liabilities,actual,34055603.28,,Liabilities,page 1,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2025,position.equity,actual,926264494.01,,Government Equity,page 2,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2024,position.equity,actual,802441683.24,,Government Equity,page 2,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2025,performance.revenue,actual,564598504.68,,Results of Operations Income,page 2,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2024,performance.revenue,actual,483674062.93,,Results of Operations Income,page 2,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2025,performance.expenses,actual,440925223.43,,Expenses,page 2,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2024,performance.expenses,actual,422962455.46,,Expenses,page 2,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2025,performance.net_income,actual,123673281.25,,Net Income,page 2,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201519000,Peñablanca,2025,2024,performance.net_income,actual,60711607.47,,Net Income,page 2,71b563d25bd33701ebe76a6377a3be5cb964befd2d1255edd7b7bb39cb51d7af,1
+0201520000,Piat,2025,2025,position.assets,actual,398656514.91,,Financial Position Total Assets,page 1,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,position.assets,actual,367773314.73,,Financial Position Total Assets,page 1,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,position.liabilities,actual,64675738.69,,Liabilities,page 1,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,position.liabilities,actual,67927983.11,,Liabilities,page 1,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,position.equity,actual,333980776.22,,Total Government Equity,page 1,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,position.equity,actual,299845331.62,,Total Government Equity,page 1,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,performance.revenue,actual,184288736.38,,Results of Operations Total Income,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,performance.revenue,actual,164101970.71,,Results of Operations Total Income,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,performance.expenses,actual,146516339.98,,Total Expenses,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,performance.expenses,actual,127361599.61,,Total Expenses,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,budget.appropriations_current,actual,191953255.00,,"Appropriations, Allotments and Obligations Appropriations- Current",page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,budget.appropriations_current,actual,164973197.00,,"Appropriations, Allotments and Obligations Appropriations- Current",page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,budget.allotments_current,actual,191953255.00,,Allotment- Current,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,budget.allotments_current,actual,164973197.00,,Allotment- Current,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,budget.obligations_current,actual,127598883.72,,Obligations- Current,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,budget.obligations_current,actual,110093143.47,,Obligations- Current,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,budget.appropriations_continuing,actual,48681305.85,,Appropriations-Continuing,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,budget.appropriations_continuing,actual,45844486.02,,Appropriations-Continuing,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,budget.allotments_continuing,actual,48681305.85,,Allotment- Continuing,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,budget.allotments_continuing,actual,45844486.02,,Allotment- Continuing,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2025,budget.obligations_continuing,actual,18103737.11,,Obligations- Continuing,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201520000,Piat,2025,2024,budget.obligations_continuing,actual,24875018.11,,Obligations- Continuing,page 2,eb5a856c4f68863431ef29710c507109c13f6e42963f2e899b56f8d2d9f616a5,1
+0201521000,Rizal,2025,2025,position.assets,actual,414928115.62,,Financial Position Total Assets,page 1,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,position.assets,actual,368889924.53,,Financial Position Total Assets,page 1,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,position.liabilities,actual,237411816.91,,Total Liabilities,page 1,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,position.liabilities,actual,201853764.90,,Total Liabilities,page 1,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,position.equity,actual,177516298.71,,Government Equity,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,position.equity,actual,167036159.63,,Government Equity,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,performance.revenue,actual,151455946.55,,Results of Operations Total Income,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,performance.revenue,actual,128803462.38,,Results of Operations Total Income,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,performance.expenses,actual,147374035.98,,Total Expenses,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,performance.expenses,actual,131334171.45,,Total Expenses,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,performance.net_income,actual,3704295.45,,Net Income,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,performance.net_income,actual,-33543300.08,,Net Income,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,budget.appropriations_current,actual,152750815.00,,"Appropriations, Allotments and Obligations Appropriations- Current",page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,budget.appropriations_current,actual,129378120.00,,"Appropriations, Allotments and Obligations Appropriations- Current",page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,budget.appropriations_continuing,actual,1947700.23,,Appropriations- Continuing,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,budget.appropriations_continuing,actual,1947825.85,,Appropriations- Continuing,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,budget.allotments_current,actual,152750815.00,,Allotment- Current,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,budget.allotments_current,actual,129378120.00,,Allotment- Current,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,budget.allotments_continuing,actual,1947700.23,,Allotment- Continuing,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,budget.allotments_continuing,actual,1947825.85,,Allotment- Continuing,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,budget.obligations_current,actual,129605891.60,,Obligations- Current,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,budget.obligations_current,actual,124733768.81,,Obligations- Current,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2025,budget.obligations_continuing,actual,1573113.75,,Obligations- Continuing,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201521000,Rizal,2025,2024,budget.obligations_continuing,actual,1947825.85,,Obligations- Continuing,page 2,a544280244dfc9116b728b05abf82e0b4e84f58a7b808b3b662abc78838e4420,1
+0201526000,Santo Niño,2025,2025,position.assets,actual,863136703.46,,Financial Position Total Assets,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2024,position.assets,actual,797326569.63,,Financial Position Total Assets,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2025,position.liabilities,actual,148517585.16,,Total Liabilities,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2024,position.liabilities,actual,147976609.16,,Total Liabilities,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2025,position.equity,actual,714619118.30,,Total Government Equity,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2024,position.equity,actual,649349960.47,,Total Government Equity,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2025,performance.revenue,actual,298648712.98,,Financial Performance Total Income,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2024,performance.revenue,actual,254556078.94,,Financial Performance Total Income,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2025,performance.expenses,actual,271727306.22,,Total Expenses,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2024,performance.expenses,actual,199565954.55,,Total Expenses,page 1,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2025,budget.appropriations_current,actual,332286397.00,,"Appropriations, Allotments and Obligations Total Appropriations – Current",page 2,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2024,budget.appropriations_current,actual,225663150.66,,"Appropriations, Allotments and Obligations Total Appropriations – Current",page 2,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2025,budget.obligations_current,actual,301955827.28,,Total Obligations – Current,page 2,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2024,budget.obligations_current,actual,190988561.82,,Total Obligations – Current,page 2,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2025,budget.appropriations_continuing,actual,95153908.92,,Total Appropriations – Continuing,page 2,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2024,budget.appropriations_continuing,actual,106799028.94,,Total Appropriations – Continuing,page 2,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2025,budget.obligations_continuing,actual,51614817.98,,Total Obligations - Continuing,page 2,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201526000,Santo Niño,2025,2024,budget.obligations_continuing,actual,28062801.31,,Total Obligations - Continuing,page 2,2f026ae8f9305b9c918fab3049ecc304eaf059d4c090b9daf2aeccb7d5af1ae5,1
+0201527000,Solana,2025,2025,position.assets,actual,1238370429.98,,Financial Condition: Assets,page 1,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2024,position.assets,actual,1146475237.91,,Financial Condition: Assets,page 1,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2025,position.liabilities,actual,333577540.69,,Liabilities,page 1,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2024,position.liabilities,actual,276738094.15,,Liabilities,page 1,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2025,position.equity,actual,904792889.29,,Government Equity,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2024,position.equity,actual,869737143.76,,Government Equity,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2025,performance.revenue,actual,449380526.18,,Results of Operation: Income,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2024,performance.revenue,actual,380075107.05,,Results of Operation: Income,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2025,performance.expenses,actual,415111710.44,,Expense,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2024,performance.expenses,actual,368983685.62,,Expense,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2025,budget.appropriations_current,actual,421124739.34,unspecified_period,Appropriations,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2024,budget.appropriations_current,actual,423057604.16,unspecified_period,Appropriations,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2025,budget.obligations_current,actual,420195592.30,unspecified_period,Obligations,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201527000,Solana,2025,2024,budget.obligations_current,actual,387377687.34,unspecified_period,Obligations,page 2,ad861580b89e37df00c01cc543a76ce8a9958a394a9a89c8441318cf649127c4,1
+0201528000,Tuao,2025,2025,position.assets,actual,914283147.94,,Financial Position Total Assets,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,position.assets,actual,863008925.75,,Financial Position Total Assets,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2025,position.liabilities,actual,91715712.07,,Total Liabilities,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,position.liabilities,actual,120464005.80,,Total Liabilities,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2025,position.equity,actual,822567435.87,,Total Government Equity,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,position.equity,actual,742544919.95,,Total Government Equity,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2025,performance.revenue,actual,405366050.15,,Financial Performance Total Revenue,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,performance.revenue,actual,300894802.59,,Financial Performance Total Revenue,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2025,performance.expenses,actual,321618630.23,,Total Expenses,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,performance.expenses,actual,277751737.57,,Total Expenses,page 1,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2025,performance.net_income,actual,83747419.92,,Surplus(Deficit),page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,performance.net_income,actual,23143065.02,,Surplus(Deficit),page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2025,budget.appropriations_current,actual,440077402.26,,"Appropriations, Allotments and Obligations Total Appropriations – Current",page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,budget.appropriations_current,actual,308573005.52,,"Appropriations, Allotments and Obligations Total Appropriations – Current",page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2025,budget.obligations_current,actual,329992809.07,,Total Obligations – Current,page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,budget.obligations_current,actual,241503445.19,,Total Obligations – Current,page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2025,budget.appropriations_continuing,actual,139891173.73,,Total Appropriations – Continuing,page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,budget.appropriations_continuing,actual,154223493.24,,Total Appropriations – Continuing,page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2025,budget.obligations_continuing,actual,49171758.09,,Total Obligations - Continuing,page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201528000,Tuao,2025,2024,budget.obligations_continuing,actual,56289384.57,,Total Obligations - Continuing,page 2,6fecd55e0be7ead6eb87ec8dfac3ef2e6f576242a8dd674bccd2541904df466d,1
+0201529000,Tuguegarao City,2025,2025,position.assets,actual,5157038108.96,,Financial Condition: Assets,page 1,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,position.assets,actual,4909278026.68,,Financial Condition: Assets,page 1,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,position.liabilities,actual,1479779110.38,,Liabilities,page 1,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,position.liabilities,actual,1323381986.04,,Liabilities,page 1,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,position.equity,actual,3677258998.58,,Government Equity,page 1,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,position.equity,actual,3585896040.64,,Government Equity,page 1,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,performance.revenue,actual,1679019473.60,,Results of Operation: Income,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,performance.revenue,actual,1465722146.22,,Results of Operation: Income,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,performance.expenses,actual,1403269517.37,,Expense,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,performance.expenses,actual,1184642113.21,,Expense,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,performance.net_income,actual,275749956.23,,Net Income,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,performance.net_income,actual,281080033.01,,Net Income,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,budget.appropriations_current,actual,1770385132.94,,"Appropriations, Allotments and Obligations: Appropriations – Current",page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,budget.appropriations_current,actual,1568978181.74,,"Appropriations, Allotments and Obligations: Appropriations – Current",page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,budget.allotments_current,actual,1770385132.94,,Allotments – Current,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,budget.allotments_current,actual,1568978181.74,,Allotments – Current,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,budget.allotments_continuing,actual,569397448.57,,Allotments – Continuing,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,budget.allotments_continuing,actual,611297908.10,,Allotments – Continuing,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,budget.obligations_current,actual,1336894842.45,,Obligations – Current,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,budget.obligations_current,actual,1249898538.69,,Obligations – Current,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2025,budget.obligations_continuing,actual,210885825.73,,Obligations – Continuing,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1
+0201529000,Tuguegarao City,2025,2024,budget.obligations_continuing,actual,235381805.69,,Obligations – Continuing,page 2,8f9300d6ef350ed4bc5bfe5254c090ca63c4f78d26cf13fac44d0672d7f9cc7a,1

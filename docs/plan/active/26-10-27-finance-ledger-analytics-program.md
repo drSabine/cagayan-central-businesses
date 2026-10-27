@@ -3,7 +3,7 @@ title: "Finance Ledger and Analytics Program"
 created: "26-10-27"
 updated: "26-10-28"
 status: in-progress
-branch: "docs/finance-ledger-decisions (Phase 0)"
+branch: "data/coa-parser (Phase 1)"
 base: staging
 predecessor: "archive/26-10-24-government-finances-economic-context.md"
 ---
@@ -29,8 +29,8 @@ Each phase gets its own branch from `staging` and its own pull request.
 
 | Phase | Branch | Status |
 | :- | :- | :- |
-| 0 Docs and decisions | `docs/finance-ledger-decisions` | Pull request open |
-| 1 Python parser for Executive Summaries | `data/coa-parser` | Not started |
+| 0 Docs and decisions | `docs/finance-ledger-decisions` | [PR #22](https://github.com/m-njp/cagayan-central-businesses/pull/22) open |
+| 1 Python parser for Executive Summaries | `data/coa-parser` | Done, pull request open |
 | 2 Finance ledger schema and import | `feat/finance-ledger` | Not started |
 | 3 Manual entry and sign-off in the Capitol | `feat/finance-review` | Not started |
 | 4 Workbook collection and workbook parser | `data/coa-workbooks` | Not started; may run alongside Phase 2 |
@@ -49,17 +49,17 @@ Each phase gets its own branch from `staging` and its own pull request.
 
 ### Phase 1: Python Parser for Executive Summaries
 
-- [ ] `tools/coa/` holds a pinned `requirements.txt` (pdfplumber, openpyxl, pytest), the `coa` package and its tests. Composer runs it with `data:finances:extract` and `data:finances:test`.
-- [ ] `data/towns/finances/lines.csv` is the single source of truth for line codes and source-label aliases, shared by Python and PHP.
-- [ ] Committed outputs: `extracted/<year>.csv`, `documents.csv` and `issues/<year>.csv`, each stamped with an extractor version.
-- [ ] Automatic checks:
+- [x] `tools/coa/` holds a pinned `requirements.txt` (pdfplumber, openpyxl, pytest), the `coa` package and its tests. Composer runs it with `data:finances:extract` and `data:finances:test`.
+- [x] `data/towns/finances/lines.csv` is the single source of truth for line codes and source-label aliases, shared by Python and PHP.
+- [x] Committed outputs: `extracted/<year>.csv`, `documents.csv` and `issues/<year>.csv`, each stamped with an extractor version.
+- [x] Automatic checks:
   - Assets = Liabilities + Equity.
   - Revenue minus Expenses = Net Income.
   - The stated change column matches the computed change.
   - The prior-year column matches the previous report (otherwise flagged as restated).
   - The SHA-256 matches `sources.csv`.
-- [ ] Reproduces the four verified 2024 pairs to the cent and passes golden fixtures for at least 10 layouts.
-- [ ] A full run over all 158 PDFs, with its counts recorded here.
+- [x] Reproduces the four verified 2024 pairs to the cent and passes golden fixtures for 12 layouts.
+- [x] A full run over all 158 PDFs, with its counts recorded below.
 
 ### Phase 2: Finance Ledger
 
@@ -154,7 +154,25 @@ The following are out of scope:
 | 26-10-27 | Program recorded and Phase 0 documentation drafted | User approved the umbrella plan after two rounds of questions |
 | 26-10-27 | Audit opinions and infrastructure projects excluded | User correction during plan review |
 | 26-10-28 | Metric definitions M19 to M31 approved; Phases 1 and 2 authorized | User approval |
+| 26-10-28 | Phase 1 parser built. Summaries that print Appropriations, Allotments or Obligations without current or continuing map to the current line with `definition_variant` `unspecified_period`, as the catalog requires. A new `repeats_previous_year` check flags swapped columns | Found while reading all 158 summaries |
 
 ## Verification and Handoff
 
 Phase 0 is documentation only. No application code, data or database changed, so no tests or builds were run. Relative links and anchors in the changed docs were checked.
+
+### Phase 1 Verification, 26-10-28
+
+- **Parser tests:** `composer data:finances:test` passed, 46 tests.
+  - The tests cover 12 layouts, with expected values read from the PDFs by hand.
+  - They reproduce the four verified 2024 pairs to the cent.
+  - They also cover variants, a repeated header year, a reversed change column, swapped-column detection, and the Rizal 2025 source net income mismatch.
+- **Full run:** `composer data:finances:extract` read all 158 summaries, 2,440 figures.
+  - Assets, Liabilities, Equity, Government Revenue and Government Expenses were found in all 158.
+  - Net Income was found in 61, Current Appropriations in 108, and Current Obligations in 109. The others do not print these lines.
+- **Independent check:** every extracted value appears in Xpdf `pdftotext -raw` text of the same PDF. That confirms the digits, not their rows. The arithmetic checks and layout tests cover rows.
+- **Issues recorded:**
+  - 10 errors: Gattaran 2024 swapped columns, and Amulung 2025 and Rizal 2025 source net income.
+  - 7 warnings.
+  - 92 informational: restatements and reversed change signs.
+  - Details are in `data/towns/finances/README.md`.
+- **Doctor:** `composer doctor` reports the optional parser venv state without failing.

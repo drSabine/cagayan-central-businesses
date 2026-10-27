@@ -1,0 +1,32 @@
+psgc_code,town,reported_in_year,severity,kind,line_code,message,location
+0201502000,Alcala,2025,info,restated,position.assets,2024 was 574936973.17 in the 2024 report,page 1
+0201502000,Alcala,2025,info,restated,position.liabilities,2024 was 45471718.87 in the 2024 report,page 1
+0201504000,Amulung,2025,error,net_income_mismatch,performance.net_income,"2024: revenue minus expenses is 6256992.08, stated -6588299.25",
+0201504000,Amulung,2025,error,net_income_mismatch,performance.net_income,"2025: revenue minus expenses is 45851084.58, stated 32021821.31",
+0201504000,Amulung,2025,info,restated,performance.expenses,2024 was 264823443.57 in the 2024 report,page 1
+0201504000,Amulung,2025,info,restated,performance.revenue,2024 was 258235144.32 in the 2024 report,page 1
+0201506000,Baggao,2025,info,restated,position.assets,2024 was 1543432411.59 in the 2024 report,page 2
+0201506000,Baggao,2025,info,restated,position.liabilities,2024 was 305882834.80 in the 2024 report,page 2
+0201506000,Baggao,2025,warning,change_mismatch,performance.net_income,"current minus prior is 61664468.97, stated 141565032.51",
+0201512000,Enrile,2025,info,restated,budget.appropriations_current,2024 was 245193383.58 in the 2024 report,page 2
+0201512000,Enrile,2025,info,restated,budget.obligations_current,2024 was 227567332.63 in the 2024 report,page 2
+0201513000,Gattaran,2025,info,restated,performance.expenses,2024 was 313471798.50 in the 2024 report,page 2
+0201513000,Gattaran,2025,info,restated,performance.net_income,2024 was 69314520.74 in the 2024 report,page 2
+0201513000,Gattaran,2025,info,restated,performance.revenue,2024 was 382786319.24 in the 2024 report,page 2
+0201513000,Gattaran,2025,info,restated,position.assets,2024 was 917937671.14 in the 2024 report,page 2
+0201513000,Gattaran,2025,info,restated,position.equity,2024 was 800034817.89 in the 2024 report,page 2
+0201513000,Gattaran,2025,info,restated,position.liabilities,2024 was 117902853.25 in the 2024 report,page 2
+0201519000,Peñablanca,2025,info,restated,position.assets,2024 was 836497286.53 in the 2024 report,page 1
+0201520000,Piat,2025,info,restated,position.assets,2024 was 376184298.61 in the 2024 report,page 1
+0201520000,Piat,2025,info,restated,position.liabilities,2024 was 76338966.99 in the 2024 report,page 1
+0201521000,Rizal,2025,error,net_income_mismatch,performance.net_income,"2024: revenue minus expenses is -2530709.07, stated -33543300.08",
+0201521000,Rizal,2025,error,net_income_mismatch,performance.net_income,"2025: revenue minus expenses is 4081910.57, stated 3704295.45",
+0201521000,Rizal,2025,info,restated,performance.expenses,2024 was 162027018.04 in the 2024 report,page 2
+0201521000,Rizal,2025,info,restated,performance.net_income,2024 was -33537726.90 in the 2024 report,page 2
+0201521000,Rizal,2025,info,restated,performance.revenue,2024 was 128489291.14 in the 2024 report,page 2
+0201521000,Rizal,2025,warning,change_mismatch,budget.obligations_current,"current minus prior is 4872122.79, stated 872122.80",
+0201526000,Santo Niño,2025,info,restated,performance.expenses,2024 was 199587749.35 in the 2024 report,page 1
+0201526000,Santo Niño,2025,info,restated,performance.revenue,2024 was 254577873.74 in the 2024 report,page 1
+0201527000,Solana,2025,info,restated,position.assets,2024 was 1159443854.72 in the 2024 report,page 1
+0201527000,Solana,2025,info,restated,position.liabilities,2024 was 289706710.96 in the 2024 report,page 1
+0201528000,Tuao,2025,info,restated,performance.expenses,2024 was 269606127.57 in the 2024 report,page 1
