@@ -17,6 +17,14 @@ const loaders = import.meta.glob('../../../data/barangays/maps/*.json', {
     import: 'default',
 });
 const cached = new Map<string, Promise<CensusCollection>>();
+const loaded = new Map<string, CensusCollection>();
+
+// Synchronous read so a revisited town renders without a loading frame.
+export function loadedTownBoundaries(
+    code: string,
+): CensusCollection | undefined {
+    return loaded.get(code);
+}
 
 export function loadTownBoundaries(code: string): Promise<CensusCollection> {
     const existing = cached.get(code);
@@ -24,10 +32,14 @@ export function loadTownBoundaries(code: string): Promise<CensusCollection> {
     const loader = loaders['../../../data/barangays/maps/' + code + '.json'];
     if (!loader) return Promise.reject(new Error('Boundary data unavailable'));
     const pending = loader()
-        .then((raw) => ({
-            ...(JSON.parse(raw as string) as CensusCollection),
-            raw: raw as string,
-        }))
+        .then((raw) => {
+            const census = {
+                ...(JSON.parse(raw as string) as CensusCollection),
+                raw: raw as string,
+            };
+            loaded.set(code, census);
+            return census;
+        })
         .catch((error: unknown) => {
             cached.delete(code);
             throw error;

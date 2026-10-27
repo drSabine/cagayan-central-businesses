@@ -11,9 +11,8 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatCount, sourceName } from '@/lib/format';
-import { loadTownBoundaries } from '@/lib/map-data';
-import type { CensusCollection } from '@/lib/map-data';
+import { formatCount, NOT_AVAILABLE, sourceName } from '@/lib/format';
+import { loadedTownBoundaries, loadTownBoundaries } from '@/lib/map-data';
 import { pageSearchParams, replaceLocalQuery } from '@/lib/navigation';
 import { home } from '@/routes';
 import type { TownProfile } from '@/types/data';
@@ -31,10 +30,7 @@ export function BarangayAtlas({
         towns.find((item) => item.code === requested) ??
         towns.find((item) => item.code === '0201529000');
     const townCode = town?.code;
-    const [loaded, setLoaded] = useState<{
-        code: string;
-        census: CensusCollection;
-    } | null>(null);
+    const [, setLoadedCode] = useState<string | null>(null);
     const [failedTown, setFailedTown] = useState<string | null>(null);
     const [attempt, setAttempt] = useState(0);
     const [selections, setSelections] = useState<Record<string, string>>({});
@@ -44,8 +40,8 @@ export function BarangayAtlas({
         let active = true;
         setFailedTown(null);
         loadTownBoundaries(townCode)
-            .then((census) => {
-                if (active) setLoaded({ code: townCode, census });
+            .then(() => {
+                if (active) setLoadedCode(townCode);
             })
             .catch(() => {
                 if (active) setFailedTown(townCode);
@@ -54,7 +50,7 @@ export function BarangayAtlas({
             active = false;
         };
     }, [townCode, attempt]);
-    const current = loaded && loaded.code === townCode ? loaded.census : null;
+    const current = townCode ? loadedTownBoundaries(townCode) : undefined;
     const findBarangay = (code: string) =>
         current?.features.find((f) => f.properties.psgc_code === code)
             ?.properties;
@@ -123,15 +119,19 @@ export function BarangayAtlas({
                                 ]),
                             )}
                             highlight={chosen ? [chosen] : []}
-                            describe={(code, name) => (
-                                <span>
-                                    {name}:{' '}
-                                    {formatCount(
-                                        findBarangay(code)?.population ?? 0,
-                                    )}{' '}
-                                    people
-                                </span>
-                            )}
+                            describe={(code, name) => {
+                                const population =
+                                    findBarangay(code)?.population;
+
+                                return (
+                                    <span>
+                                        {name}:{' '}
+                                        {population == null
+                                            ? NOT_AVAILABLE
+                                            : `${formatCount(population)} people`}
+                                    </span>
+                                );
+                            }}
                             onSelect={(code) =>
                                 setSelections((previous) => ({
                                     ...previous,
