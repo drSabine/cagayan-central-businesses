@@ -2,7 +2,7 @@
 title: "Government Finances and Economic Context"
 created: "26-10-24"
 updated: "26-10-27"
-status: deferred
+status: superseded
 branch: null
 base: staging
 predecessor: null
@@ -26,7 +26,7 @@ Retain clearly labeled government revenue alongside economic activity, household
 - 26-10-24: COA records the reporting government's finances. Government revenue is not private-business sales, GDP, or a good/bad economy score. National transfers also affect it.
 - 26-10-24: Province GDP must not become a town/barangay figure. Full-year 2026 actuals require completion of the year and release of the relevant report.
 - 26-10-24: The supplied Tuguegarao Executive Summary 2025 contains financial highlights and audit findings; project statements describe their reporting period, not necessarily current conditions.
-- Definitions: [product clarification](../../product/mvp-scope.md#october-24-2026-clarification-revenue-and-economic-status), [planned metrics](../../engineering/metrics.md#planned-coa-historical-series-not-implemented), and [roadmap](../../team/roadmap.md#future-phase-historical-local-government-finances).
+- Definitions: [product clarification](../../product/mvp-scope.md#october-24-2026-clarification-revenue-and-economic-status), [planned metrics](../../engineering/metrics.md#government-finances-approved-26-10-28), and [roadmap](../../team/roadmap.md#future-phase-historical-local-government-finances).
 - Original-download folders are under ignored `storage/app/source-review/`; no reports or credentials are embedded in the register.
 
 ## Change History
@@ -75,3 +75,8 @@ Only the primary browser worker contacts COA, using a 3.5-second minimum interva
 - The extracted 2024 and 2025 report archives (`data/towns/annual-audit-reports/`) are not committed. The user removed their spreadsheets from `data/`; the Word documents, AAPSI/APMT PDFs and extraction notes are kept outside git in `storage/app/source-review/coa/removed-from-data/`, and the 2025 ZIPs in `storage/app/source-review/coa/2025/archives/`.
 - Downloads ran through Claude in Chrome, one file at a time with a 3 second gap; COA blocks plain HTTP clients. Every PDF matched COA's listed size and passed the pypdf page-tree check. Helpers live in ignored `storage/app/source-review/coa/`.
 - File integrity only: no figure was extracted or verified, nothing was imported, and `town-facts.csv` is unchanged. Extraction, verification and the history screen stay deferred.
+
+
+## Superseded
+
+26-10-27: The user requested the full extraction, ledger and analytics work, so the deferred remainder of this plan continues in the [Finance Ledger and Analytics Program](../active/26-10-27-finance-ledger-analytics-program.md). The user also excluded audit opinions and infrastructure project lists from extraction and display. The source rules recorded above (no business-sales reading, no provincial totals from town accounts, no partial-year 2026 figures) carry forward.

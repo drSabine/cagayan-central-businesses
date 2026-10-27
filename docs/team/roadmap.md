@@ -162,19 +162,23 @@ Implemented the map-first three-role workspace with economic context, explicit b
 
 ## Future Phase: Historical Local Government Finances
 
-Status: Not started. Requested October 24, 2026. This is future work, not part of the completed workspace foundation.
+Status: in progress as the [Finance Ledger and Analytics Program](../plan/active/26-10-27-finance-ledger-analytics-program.md), started 26-10-27. Phase 0 (docs and decisions) is under way; Phases 1 to 6 are not started.
 
-The user will collect COA reports for fiscal years 2021–2026. A future client-facing view will show increases and decreases in comparable local government financial measures across available years. Keep this as a separate Local Government Finances view, rather than presenting it as business revenue, resident income, measured demand, or an investment recommendation.
+A Python parser reads the COA Executive Summaries and audit-report workbooks into a reviewed finance ledger. Admins can also enter and correct figures in the Capitol. A figure is published only after a person signs it off (D34, D35). The Analytics pages show these figures over fiscal years 2019 to 2025:
 
-- Preserve original executive summaries and full Annual Audit Report archives by LGU and fiscal year. Record the official download URL, report title, publication/access dates, exact page or workbook sheet/cells, units, and audit opinion. Keep extracted observations separate from original files.
-- Executive summaries provide financial highlights and audit context. Verify definitions and calculations against the full financial statements and notes before publishing a series. Do not assume Income, Revenue, Expense, Expenditure, Appropriations, Obligations, and cash flows are interchangeable.
-- Use explicit measure labels such as LGU Income and LGU Expenses where those match the source. Keep private-business metrics and PSA economic/household measures distinct.
-- Show the source year, absolute change, and percentage change only for comparable consecutive fiscal years. Missing years stay unavailable; a zero prior value has no percentage change. Retain restatements and the relevant audit qualifications. An increase is not automatically an improvement.
-- As of October 24, 2026, fiscal year 2026 is incomplete. Collect its full-year actuals after an appropriate report is released; never substitute a budget or partial-year figure for audited annual actuals.
-- City/municipal government accounts and provincial government accounts describe different reporting entities. A sum of municipal accounts must not be labeled as the provincial government's finances.
-- Project and audit findings may provide dated context about infrastructure or service delivery. Preserve the report period and status wording; do not infer current completion, business profitability, or misconduct from a financial trend alone.
+- Government Revenue, Government Expenses, and Surplus or Deficit
+- budget utilization
+- revenue sources and local revenue detail
+- expense types
+- spending by sector
 
-The supplied Tuguegarao City Executive Summary 2025 was reviewed: pages i–ii contain 2025/2024 financial highlights and increases/decreases; subsequent pages cover projects, audit opinion, findings, and recommendations. The document reports a qualified audit opinion. Its public-market finding is dated context, not a measurement of customer demand. Source verification and metric definitions are prerequisites to implementing this view. The foundation UI-copy and live-data accuracy review was completed in the subsequent foundation session; historical source collection remains deferred.
+Definitions are M19 to M27 in metrics.md, approved 26-10-28. The view stays separate from business revenue, resident income, measured demand, and investment recommendations.
+
+- Do not assume Income, Revenue, Expense, Expenditure, Appropriations, Obligations, and cash flows are interchangeable. Each line names its source and basis.
+- Show change only between consecutive comparable years (M26). Missing years stay unavailable, and a zero prior value has no percentage change. Restatements are kept. An increase is not automatically an improvement.
+- Fiscal year 2026 waits for its released report. Never substitute a budget or partial-year figure for audited annual actuals.
+- A sum of municipal accounts is labeled Sum of Reporting Towns (M27). It is never labeled as the provincial government's finances.
+- Audit opinions, audit findings, and infrastructure project lists are excluded from extraction and display (user, 26-10-27).
 
 ## October 24 Handoff: Direction Recorded, Implementation Deferred
 

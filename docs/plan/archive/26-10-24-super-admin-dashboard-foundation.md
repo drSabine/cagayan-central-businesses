@@ -27,7 +27,7 @@ Finish the user's approved compact, map-first workspace foundation and outstandi
 
 ## Deferred or Excluded
 
-Business entry/editing, business-year records/metrics, review/publication actions, account-management screens, role/assignment-management UIs, editable categories, business maps/directories, permits, exports, forecasts, OAuth, and the [deferred financial/economic history plan](../active/26-10-24-government-finances-economic-context.md). No new landing-page PR: [PR #15](https://github.com/drSabine/cagayan-central-businesses/pull/15) is already merged into staging.
+Business entry/editing, business-year records/metrics, review/publication actions, account-management screens, role/assignment-management UIs, editable categories, business maps/directories, permits, exports, forecasts, OAuth, and the [deferred financial/economic history plan](26-10-24-government-finances-economic-context.md). No new landing-page PR: [PR #15](https://github.com/drSabine/cagayan-central-businesses/pull/15) is already merged into staging.
 
 ## Decisions and Sources
 
