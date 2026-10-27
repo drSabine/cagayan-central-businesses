@@ -8,7 +8,7 @@ Dates inside plans use the requested `yy-mm-dd` format in Asia/Manila. Filenames
 
 | Plan | Status | Scope |
 | :- | :- | :- |
-| [Government Finances and Economic Context](active/26-10-24-government-finances-economic-context.md) | Deferred | Source collection and later economic/financial history |
+| [Government Finances and Economic Context](active/26-10-24-government-finances-economic-context.md) | Deferred remainder | COA Executive Summaries 2020 to 2025 collected 26-10-27; extraction, verification and history screen deferred |
 
 ## Archive
 
