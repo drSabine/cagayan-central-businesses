@@ -197,13 +197,26 @@ return [
     ],
 
     /*
-    | The administrator the seeder creates for the demo. The password comes
-    | from .env and is never written in code (database.md, seeder item 11).
+    | The demo accounts the seeder creates, one per role, keyed by role value.
+    | Names, emails, and passwords come from .env and are never written in code
+    | (database.md, seeder item 11). A role without an email and password is skipped.
     */
-    'demo_admin' => [
-        'name' => env('DEMO_ADMIN_NAME', 'Demo Administrator'),
-        'email' => env('DEMO_ADMIN_EMAIL'),
-        'password' => env('DEMO_ADMIN_PASSWORD'),
+    'demo_accounts' => [
+        'super_admin' => [
+            'name' => env('DEMO_SUPER_ADMIN_NAME', 'Demo Super Admin'),
+            'email' => env('DEMO_SUPER_ADMIN_EMAIL'),
+            'password' => env('DEMO_SUPER_ADMIN_PASSWORD'),
+        ],
+        'admin' => [
+            'name' => env('DEMO_ADMIN_NAME', 'Demo Administrator'),
+            'email' => env('DEMO_ADMIN_EMAIL'),
+            'password' => env('DEMO_ADMIN_PASSWORD'),
+        ],
+        'staff' => [
+            'name' => env('DEMO_STAFF_NAME', 'Demo Staff'),
+            'email' => env('DEMO_STAFF_EMAIL'),
+            'password' => env('DEMO_STAFF_PASSWORD'),
+        ],
     ],
 
     'inputs' => [
