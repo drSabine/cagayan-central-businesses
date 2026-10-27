@@ -1,8 +1,7 @@
-import { router, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { Grip, Square } from 'lucide-react';
 import { LazyProvinceMap } from '@/components/lazy-province-map';
 import type { MapStyle } from '@/components/province-map';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
     Select,
     SelectContent,
@@ -10,36 +9,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { formatNumber, formatPesos } from '@/lib/format';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import {
+    formatFigure,
+    formatNumber,
+    sourceName,
+    townFigures,
+} from '@/lib/format';
+import { pageSearchParams, replaceLocalQuery } from '@/lib/navigation';
 import { home } from '@/routes';
-import type { TownAtlas as Atlas, TownFigure, TownProfile } from '@/types/data';
+import type { TownAtlas as Atlas } from '@/types/data';
 
 const NONE = 'province';
-
-const SOURCE_NAMES: Record<string, string> = {
-    'psa.gov.ph': 'Philippine Statistics Authority',
-    'www.coa.gov.ph': 'Commission on Audit',
-};
-
-function figures(town: TownProfile) {
-    return [
-        { label: 'Population', figure: town.population, format: formatNumber },
-        {
-            label: 'Government Revenue',
-            figure: town.revenue,
-            format: formatPesos,
-        },
-        {
-            label: 'Government Expenses',
-            figure: town.expenditure,
-            format: formatPesos,
-        },
-    ];
-}
-
-function show(figure: TownFigure | null, format: (value: string) => string) {
-    return figure ? format(figure.value) : 'Not available';
-}
 
 export function TownAtlas({
     atlas,
@@ -51,37 +32,12 @@ export function TownAtlas({
     onMapStyleChange: (style: MapStyle) => void;
 }) {
     const { url } = usePage();
-    const town =
-        atlas.towns.find(
-            (item) =>
-                item.code ===
-                new URL(url, 'http://localhost').searchParams.get('town'),
-        ) ?? null;
+    const townCode = pageSearchParams(url).get('town');
+    const town = atlas.towns.find((item) => item.code === townCode) ?? null;
     const shown = town ?? atlas.province;
-    const rows = figures(shown);
-    const years = [
-        ...new Set(rows.flatMap(({ figure }) => (figure ? [figure.year] : []))),
-    ];
-    const sources = [
-        ...new Set(
-            rows.flatMap(({ figure }) =>
-                figure?.sourceUrl ? [figure.sourceUrl] : [],
-            ),
-        ),
-    ];
-
-    const choose = (code: string | null) => {
-        const query = Object.fromEntries(
-            new URL(url, 'http://localhost').searchParams,
-        );
-        if (code) query.town = code;
-        else delete query.town;
-        router.replace({
-            url: home({ query }).url,
-            preserveScroll: true,
-            preserveState: true,
-        });
-    };
+    const { rows, years, sources } = townFigures(shown.population, shown);
+    const choose = (code: string | null) =>
+        replaceLocalQuery(url, home, { town: code });
 
     return (
         <div className="dark grid gap-6 text-foreground lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-8">
@@ -104,7 +60,7 @@ export function TownAtlas({
                             <span className="flex flex-col gap-0.5">
                                 <span className="font-medium">{name}</span>
                                 <span className="tabular-nums opacity-80">
-                                    {show(population ?? null, formatNumber)}{' '}
+                                    {formatFigure(population, formatNumber)}{' '}
                                     people
                                 </span>
                             </span>
@@ -191,7 +147,7 @@ export function TownAtlas({
                     </div>
 
                     <dl className="flex flex-col gap-3">
-                        {rows.map(({ label, figure, format }) => (
+                        {rows.map(({ label, value }) => (
                             <div
                                 key={label}
                                 className="flex items-baseline justify-between gap-4"
@@ -200,7 +156,7 @@ export function TownAtlas({
                                     {label}
                                 </dt>
                                 <dd className="text-right font-mono text-sm tabular-nums">
-                                    {show(figure, format)}
+                                    {value}
                                 </dd>
                             </div>
                         ))}
@@ -223,8 +179,7 @@ export function TownAtlas({
                                     rel="noreferrer"
                                     className="underline underline-offset-2 hover:text-foreground"
                                 >
-                                    {SOURCE_NAMES[new URL(source).hostname] ??
-                                        new URL(source).hostname}
+                                    {sourceName(source)}
                                     <span className="sr-only">
                                         (opens in a new tab)
                                     </span>

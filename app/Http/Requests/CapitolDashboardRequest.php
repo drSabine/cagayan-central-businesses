@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Queries\WorkspaceMapQuery;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\File;
 use Illuminate\Validation\Rule;
 
 final class CapitolDashboardRequest extends FormRequest
@@ -34,10 +34,8 @@ final class CapitolDashboardRequest extends FormRequest
                 $validator->errors()->add('town', 'Choose a town before viewing barangays.');
             }
             if ($this->filled('barangay')) {
-                $path = base_path('data/barangays/maps/'.$this->string('town').'.json');
-                /** @var array{features?: list<array{properties: array{psgc_code: string}}> } $data */
-                $data = is_file($path) ? json_decode(File::get($path), true) : [];
-                if (! collect($data['features'] ?? [])->contains(fn ($f) => $f['properties']['psgc_code'] === $this->input('barangay'))) {
+                $census = app(WorkspaceMapQuery::class)->census($this->string('town')->toString());
+                if (! collect($census['features'] ?? [])->contains(fn (array $f) => $f['properties']['psgc_code'] === $this->input('barangay'))) {
                     $validator->errors()->add('barangay', 'Choose a barangay in the selected town.');
                 }
             }

@@ -13,4 +13,11 @@ final readonly class TownFigure
         public int $year,
         public ?string $sourceUrl,
     ) {}
+
+    public static function fromNullable(mixed $value, mixed $year, mixed $sourceUrl = null): ?self
+    {
+        return $value === null || $year === null
+            ? null
+            : new self((string) $value, (int) $year, is_string($sourceUrl) ? $sourceUrl : null);
+    }
 }

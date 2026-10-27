@@ -1,22 +1,23 @@
+import { HIDDEN_FIGURE, LOCALE, NOT_AVAILABLE, TIME_ZONE } from '@/lib/format';
 import type { EconomicObservation } from '@/types/economic-performance';
 
-const pesos = new Intl.NumberFormat('en-PH', {
+const pesos = new Intl.NumberFormat(LOCALE, {
     style: 'currency',
     currency: 'PHP',
     minimumFractionDigits: 2,
 });
-const signedPesos = new Intl.NumberFormat('en-PH', {
+const signedPesos = new Intl.NumberFormat(LOCALE, {
     style: 'currency',
     currency: 'PHP',
     signDisplay: 'exceptZero',
     minimumFractionDigits: 2,
 });
-const percent = new Intl.NumberFormat('en-PH', {
+const percent = new Intl.NumberFormat(LOCALE, {
     signDisplay: 'exceptZero',
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
 });
-const compact = new Intl.NumberFormat('en-PH', {
+const compact = new Intl.NumberFormat(LOCALE, {
     notation: 'compact',
     maximumFractionDigits: 1,
 });
@@ -30,34 +31,31 @@ export function formatPesoTick(value: number): string {
 }
 
 export function observationLabel(point?: EconomicObservation): string {
-    if (point?.state === 'hidden')
-        return 'Hidden to protect individual businesses';
+    if (point?.state === 'hidden') return HIDDEN_FIGURE;
     return point?.state === 'shown' && point.value !== null
         ? formatExactPesos(point.value)
-        : 'Not available';
+        : NOT_AVAILABLE;
 }
 
 export function changeLabel(point?: EconomicObservation): string {
-    if (point?.state === 'hidden')
-        return 'Hidden to protect individual businesses';
+    if (point?.state === 'hidden') return HIDDEN_FIGURE;
     return point?.state === 'shown' && point.comparable && point.change !== null
         ? signedPesos.format(Number(point.change))
-        : 'Not available';
+        : NOT_AVAILABLE;
 }
 
 export function percentageLabel(point?: EconomicObservation): string {
-    if (point?.state === 'hidden')
-        return 'Hidden to protect individual businesses';
+    if (point?.state === 'hidden') return HIDDEN_FIGURE;
     return point?.state === 'shown' &&
         point.comparable &&
         point.percentageChange !== null
         ? `${percent.format(point.percentageChange)}%`
-        : 'Not available';
+        : NOT_AVAILABLE;
 }
 
 export function snapshotDate(value: string): string {
-    return new Intl.DateTimeFormat('en-PH', {
+    return new Intl.DateTimeFormat(LOCALE, {
         dateStyle: 'long',
-        timeZone: 'Asia/Manila',
+        timeZone: TIME_ZONE,
     }).format(new Date(`${value}T00:00:00+08:00`));
 }

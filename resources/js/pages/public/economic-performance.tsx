@@ -13,6 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { NOT_AVAILABLE } from '@/lib/format';
 import { economicPerformance } from '@/routes/public';
 import { index as suggestions } from '@/routes/public/wishes';
 import type {
@@ -150,7 +151,7 @@ export default function EconomicPerformancePage({
                             role="status"
                             className="grid min-h-48 content-center gap-2"
                         >
-                            <p className="type-heading">Not available</p>
+                            <p className="type-heading">{NOT_AVAILABLE}</p>
                             <p className="type-meta">
                                 Reliable financial data for this town is still
                                 being gathered.

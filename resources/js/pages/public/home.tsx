@@ -1,11 +1,12 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import type { MapStyle } from '@/components/province-map';
-import { DefinitionList } from '@/components/definition-list';
 import { BarangayAtlas } from '@/components/barangay-atlas';
+import { DefinitionList } from '@/components/definition-list';
+import type { MapStyle } from '@/components/province-map';
 import { TownAtlas } from '@/components/town-atlas';
 import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
+import { pageSearchParams } from '@/lib/navigation';
 import { economicPerformance } from '@/routes/public';
 import { index as suggestions } from '@/routes/public/wishes';
 import type { HomeOverview } from '@/types/data';
@@ -16,7 +17,7 @@ type Props = {
 
 export default function Home({ overview }: Props) {
     const { url } = usePage();
-    const townCode = new URL(url, 'http://localhost').searchParams.get('town');
+    const townCode = pageSearchParams(url).get('town');
     const town = overview.atlas.towns.find((item) => item.code === townCode);
     const query = town ? { town: town.code } : {};
     const [mapStyle, setMapStyle] = useState<MapStyle>('dotted');

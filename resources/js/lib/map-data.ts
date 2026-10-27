@@ -10,6 +10,7 @@ export type AreaCollection = FeatureCollection<Geometry, AreaProperties>;
 export type CensusCollection = AreaCollection & {
     year: number;
     source: string;
+    raw: string;
 };
 const loaders = import.meta.glob('../../../data/barangays/maps/*.json', {
     query: '?raw',
@@ -23,7 +24,10 @@ export function loadTownBoundaries(code: string): Promise<CensusCollection> {
     const loader = loaders['../../../data/barangays/maps/' + code + '.json'];
     if (!loader) return Promise.reject(new Error('Boundary data unavailable'));
     const pending = loader()
-        .then((raw) => JSON.parse(raw as string) as CensusCollection)
+        .then((raw) => ({
+            ...(JSON.parse(raw as string) as CensusCollection),
+            raw: raw as string,
+        }))
         .catch((error: unknown) => {
             cached.delete(code);
             throw error;
