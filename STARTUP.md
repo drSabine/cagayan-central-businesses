@@ -79,12 +79,9 @@ composer setup
 composer dev
 ```
 
-Open http://localhost:8000 and log in as the demo administrator:
+Open http://localhost:8000/staff-sign-in (the path is `CAGAYAN_ADMIN_LOGIN_PATH` in your `.env`). The page shows a quick sign in button for each demo role: Super Admin, Admin, and Staff. The buttons exist only while `APP_ENV=local`.
 
-- Email: `admin@cagayan.test`
-- Password: `password`
-
-Both come from `DEMO_ADMIN_EMAIL` and `DEMO_ADMIN_PASSWORD` in your `.env`. Press `Ctrl+C` in the terminal to stop.
+The accounts come from `DEMO_SUPER_ADMIN_*`, `DEMO_ADMIN_*`, and `DEMO_STAFF_*` in your `.env`. To change a role's login, edit those lines and run `php artisan db:seed --class=DemoAccountSeeder`. It adds missing accounts and leaves existing ones alone. Press `Ctrl+C` in the terminal to stop.
 
 **Check:** you see the dashboard after logging in.
 
