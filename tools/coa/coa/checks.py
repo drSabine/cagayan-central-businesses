@@ -42,12 +42,14 @@ def restatement_checks(by_report: dict[int, list[Figure]]) -> list[tuple[int, Is
         earlier = {figure.code: figure for figure in by_report.get(report_year - 1, []) if figure.fiscal_year == report_year - 1}
         for figure in figures:
             # A current-year figure equal to last year's own figure usually means swapped column headers.
-            if figure.fiscal_year == report_year and figure.code in earlier and earlier[figure.code].value == figure.value and figure.value != 0:
+            # Sector budgets such as Aid to Barangays are often the same fixed amount every year.
+            repeats = figure.fiscal_year == report_year and figure.code in earlier and earlier[figure.code].value == figure.value
+            if repeats and figure.value != 0 and not figure.code.startswith("sector."):
                 issues.append((report_year, Issue(
-                    "error", "repeats_previous_year", figure.code, f"{report_year} equals the {report_year - 1} report's own {report_year - 1} figure; columns may be swapped", figure.page
+                    "error", "repeats_previous_year", figure.code, f"{report_year} equals the {report_year - 1} report's own {report_year - 1} figure; columns may be swapped", getattr(figure, "page", None)
                 )))
             elif figure.fiscal_year == report_year - 1 and figure.code in earlier and earlier[figure.code].value != figure.value:
                 issues.append((report_year, Issue(
-                    "info", "restated", figure.code, f"{figure.fiscal_year} was {earlier[figure.code].value} in the {report_year - 1} report", figure.page
+                    "info", "restated", figure.code, f"{figure.fiscal_year} was {earlier[figure.code].value} in the {report_year - 1} report", getattr(figure, "page", None)
                 )))
     return issues

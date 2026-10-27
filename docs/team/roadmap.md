@@ -169,8 +169,8 @@ A Python parser reads the COA Executive Summaries and audit-report workbooks int
 - Government Revenue, Government Expenses, and Surplus or Deficit
 - budget utilization
 - revenue sources and local revenue detail
-- expense types
-- spending by sector
+- business taxes and fees
+- development spending (the 20% Development Fund and Economic Services)
 
 Definitions are M19 to M27 in metrics.md, approved 26-10-28. The view stays separate from business revenue, resident income, measured demand, and investment recommendations.
 
