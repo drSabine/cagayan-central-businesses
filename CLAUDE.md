@@ -26,6 +26,8 @@ All work in PowerShell. Add new tasks as Composer scripts, never as bash or Powe
 - `composer lint`: fix PHP formatting. `npm run check:fix`: fix front end formatting and lint.
 - `composer db:up`: start the database. `composer db:reset`: rebuild the demo dataset.
 - `composer data:towns`: reload town figures (`data/towns/`) and Tuguegarao barangay population (`data/barangays/`).
+- `composer data:finances`: load COA finance figures and sign-offs into the ledger (`data/towns/finances/`). `php artisan finances:export` saves sign-offs and manual figures back to those CSVs.
+- `composer data:finances:extract` and `composer data:finances:test`: rerun or test the local Python COA parser (`tools/coa/`, D34).
 - `php artisan metrics:refresh`: rebuild every `stats_` summary table.
 - `composer doctor`: check this machine and the database, with a fix for each failure.
 

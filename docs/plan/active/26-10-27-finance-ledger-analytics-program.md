@@ -3,7 +3,7 @@ title: "Finance Ledger and Analytics Program"
 created: "26-10-27"
 updated: "26-10-28"
 status: in-progress
-branch: "data/coa-parser (Phase 1)"
+branch: "feat/finance-ledger (Phase 2)"
 base: staging
 predecessor: "archive/26-10-24-government-finances-economic-context.md"
 ---
@@ -30,8 +30,8 @@ Each phase gets its own branch from `staging` and its own pull request.
 | Phase | Branch | Status |
 | :- | :- | :- |
 | 0 Docs and decisions | `docs/finance-ledger-decisions` | [PR #22](https://github.com/m-njp/cagayan-central-businesses/pull/22) open |
-| 1 Python parser for Executive Summaries | `data/coa-parser` | Done, pull request open |
-| 2 Finance ledger schema and import | `feat/finance-ledger` | Not started |
+| 1 Python parser for Executive Summaries | `data/coa-parser` | [PR #23](https://github.com/m-njp/cagayan-central-businesses/pull/23) open |
+| 2 Finance ledger schema and import | `feat/finance-ledger` | Done, pull request open |
 | 3 Manual entry and sign-off in the Capitol | `feat/finance-review` | Not started |
 | 4 Workbook collection and workbook parser | `data/coa-workbooks` | Not started; may run alongside Phase 2 |
 | 5 Industries, Focus Tags, simulated businesses, privacy guard | `feat/business-industries` | Not started |
@@ -63,12 +63,12 @@ Each phase gets its own branch from `staging` and its own pull request.
 
 ### Phase 2: Finance Ledger
 
-- [ ] Create the `finance_lines`, `finance_documents` and `finance_figures` tables. A partial unique index allows only one verified figure per town, year, line and basis.
-- [ ] `finances:import`:
+- [x] Create the `finance_lines`, `finance_documents` and `finance_figures` tables. A partial unique index allows only one verified figure per town, year, line and basis.
+- [x] `finances:import`:
   - never deletes or overwrites manual rows
   - resets a figure to pending when its value changes
-- [ ] `finances:export` writes sign-offs and manual entries to committed CSVs, so they survive `composer db:reset`.
-- [ ] Move revenue and expenditure out of `town_facts`. Home and the workspace map read the newest verified ledger figures, with the Data shapes unchanged.
+- [x] `finances:export` writes sign-offs and manual entries to committed CSVs, so they survive `composer db:reset`.
+- [x] Move revenue and expenditure out of `town_facts`. Home and the workspace map read the newest verified ledger figures, with the Data shapes unchanged.
 
 ### Phase 3: Capitol Review
 
@@ -154,6 +154,7 @@ The following are out of scope:
 | 26-10-27 | Program recorded and Phase 0 documentation drafted | User approved the umbrella plan after two rounds of questions |
 | 26-10-27 | Audit opinions and infrastructure projects excluded | User correction during plan review |
 | 26-10-28 | Metric definitions M19 to M31 approved; Phases 1 and 2 authorized | User approval |
+| 26-10-28 | Phase 2 ledger built with three changes to the column plan. Review columns are `reviewed_by` and `reviewed_on`, because rejections need them too. The report year comes from `finance_document_id`, not a separate `reported_in_year` column. A nullable `source_url` lets a manual figure cite a report that is not in `documents.csv`. A check constraint requires a document or a URL | Found while building |
 | 26-10-28 | Phase 1 parser built. Summaries that print Appropriations, Allotments or Obligations without current or continuing map to the current line with `definition_variant` `unspecified_period`, as the catalog requires. A new `repeats_previous_year` check flags swapped columns | Found while reading all 158 summaries |
 
 ## Verification and Handoff
@@ -176,3 +177,27 @@ Phase 0 is documentation only. No application code, data or database changed, so
   - 92 informational: restatements and reversed change signs.
   - Details are in `data/towns/finances/README.md`.
 - **Doctor:** `composer doctor` reports the optional parser venv state without failing.
+
+### Phase 2 Verification, 26-10-28
+
+- **Schema:** two new migrations.
+  - `create_finance_ledger_tables`
+  - `move_government_finances_out_of_town_facts`: deletes revenue and expenditure rows and narrows the `town_facts.measure` check
+- **Tests:** `php artisan test --compact` passed 168 tests, including 15 new ledger tests in `tests/Feature/Finances/`. They cover:
+  - all-or-nothing validation
+  - pending by default
+  - a sign-off publishing with its report link
+  - a changed value returning to pending
+  - manual rows surviving a re-import
+  - the latest report winning whatever the review order
+  - an export and re-import round trip
+  - the committed data publishing exactly the four checked 2024 pairs
+  - self-sign-off refused
+  - the one-verified index
+- **Static checks:** PHPStan and Pint are clean.
+- **Clean rebuild:** the steps of `composer db:reset` (migrate, seed and `metrics:refresh`) were run on a separate `cagayan_business_finance` database, so the shared dev database was untouched.
+  - The import loaded 174 documents and 2,440 parsed figures: 8 verified and 2,432 pending.
+  - The Home atlas shows exactly the four previous towns, with the same values to the cent.
+  - `finances:export` reproduces `reviews.csv`.
+- **Known pre-existing issue:** the demo-admin seed fails on `users.public_id`, because the seeder runs without model events. It is unrelated to this phase and was flagged as a separate task. The rebuild above ran with the demo-admin email blank.
+- **Not run:** the shared dev database was not migrated, because the other checkout uses it. Teammates run `composer db:reset` after merging.

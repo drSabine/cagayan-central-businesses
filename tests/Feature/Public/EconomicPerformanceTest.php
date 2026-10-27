@@ -1,8 +1,7 @@
 <?php
 
-use App\Enums\TownMeasure;
+use App\Models\FinanceFigure;
 use App\Models\Municipality;
-use App\Models\TownFact;
 use App\Models\Wish;
 use App\Queries\EconomicPerformanceQuery;
 use Illuminate\Database\Eloquent\Factories\Sequence;
@@ -38,9 +37,9 @@ test('the public overview includes both datasets and preserves exact cents', fun
         ->has('performance.datasets.0201529000.wishes.items', 26));
 });
 
-test('other towns remain unavailable even if they have verified facts and live wishes', function () {
+test('other towns remain unavailable even if they have verified finances and live wishes', function () {
     $town = Municipality::factory()->create(['psgc_code' => '0201501000']);
-    TownFact::factory()->verified()->for($town)->measure(TownMeasure::Revenue, 2024, '987654321.12')->create();
+    FinanceFigure::factory()->verified()->for($town)->line('performance.revenue', 2024, '987654321.12')->create();
     Wish::factory()->for($town)->create(['specific_business' => 'PRIVATE COMPANY SENTINEL', 'reason' => 'PRIVATE REASON SENTINEL']);
 
     $response = $this->get(route('public.economic-performance', ['town' => $town->psgc_code]));

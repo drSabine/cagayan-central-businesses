@@ -170,7 +170,12 @@ Each flag states which condition raised it.
 
 ## Town figures (home page map)
 
-Public figures per town from `town_facts`, loaded from `data/towns/town-facts.csv` (`data/towns/README.md`). They are real published figures, not business records, so no privacy rule applies. The page shows population, Government Revenue, and Government Expenses, each from the newest verified year for that town. A row needs a verification date and source URL before publication. Unchecked newer rows do not displace verified older rows. The legacy `expenditure` key holds accrual total expenses, including non-cash expenses and transfers to other entities; it is not cash disbursements or obligations. Exact COA source-cell calculations, financial highlights cross-checks and qualified opinions are recorded in `data/towns/verified-finances-2024.md`.
+Real published figures per town, not business records, so no privacy rule applies. The page shows three figures, each from the newest verified year for that town:
+
+- **Population:** from `town_facts`, loaded from `data/towns/town-facts.csv` (`data/towns/README.md`).
+- **Government Revenue and Government Expenses (M19):** the newest signed-off `performance.revenue` and `performance.expenses` in the finance ledger (D35). The response keys stay `revenue` and `expenditure`. The expenses figure is accrual total expenses, not cash disbursements or obligations.
+
+A figure needs a verification date, or a ledger sign-off, and a source URL before publication. Unchecked or pending newer figures do not displace verified older ones.
 
 ### M18. Map shade
 

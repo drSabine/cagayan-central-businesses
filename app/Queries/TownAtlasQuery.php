@@ -10,15 +10,18 @@ use Illuminate\Support\Facades\DB;
 /**
  * Town figures for the home page map: the newest year of population, revenue,
  * and expenditure, plus the M18 shade, all computed in SQL
- * (metrics.md, "Town figures").
+ * (metrics.md, "Town figures"). Revenue and expenditure are the newest signed-off
+ * Government Revenue and Government Expenses in the finance ledger (D35).
  */
 final class TownAtlasQuery
 {
     private const array MEASURES = ['population', 'revenue', 'expenditure', 'barangay_count', 'income_class', 'poverty_incidence'];
 
+    private const array FACT_MEASURES = ['population', 'barangay_count', 'income_class', 'poverty_incidence'];
+
     public function get(): TownAtlas
     {
-        $measures = "'".implode("', '", self::MEASURES)."'";
+        $measures = "'".implode("', '", self::FACT_MEASURES)."'";
         $pivot = collect(self::MEASURES)->map(fn (string $measure) => <<<SQL
             max(l.value) filter (where l.measure = '{$measure}') as {$measure},
             max(l.year) filter (where l.measure = '{$measure}') as {$measure}_year,
@@ -35,16 +38,26 @@ final class TownAtlasQuery
         /** @var list<object> $rows */
         $rows = DB::select(<<<SQL
             with latest as (
-                select distinct on (municipality_id, measure) municipality_id, measure, year, value, source_url
+                select distinct on (municipality_id, measure) municipality_id, measure::text as measure, year, value, source_url
                 from town_facts
                 where checked_on is not null and source_url is not null
                     and measure in ({$measures})
                 order by municipality_id, measure, year desc
             ),
+            finances as (
+                select distinct on (f.municipality_id, f.line_code) f.municipality_id,
+                    case f.line_code when 'performance.revenue' then 'revenue' else 'expenditure' end as measure,
+                    f.fiscal_year as year, f.value, coalesce(d.source_url, f.source_url) as source_url
+                from finance_figures f
+                left join finance_documents d on d.id = f.finance_document_id
+                where f.status = 'verified' and f.basis = 'actual'
+                    and f.line_code in ('performance.revenue', 'performance.expenses')
+                order by f.municipality_id, f.line_code, f.fiscal_year desc
+            ),
             facts as (
                 select m.psgc_code, m.name, m.kind, {$pivot}
                 from municipalities m
-                left join latest l on l.municipality_id = m.id
+                left join (select * from latest union all select * from finances) l on l.municipality_id = m.id
                 group by m.id
             )
             select *,
