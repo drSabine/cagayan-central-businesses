@@ -3,7 +3,7 @@ title: "Finance Ledger and Analytics Program"
 created: "26-10-27"
 updated: "26-10-28"
 status: in-progress
-branch: "feat/finance-ledger (Phase 2)"
+branch: "data/coa-workbooks (Phase 4)"
 base: staging
 predecessor: "archive/26-10-24-government-finances-economic-context.md"
 ---
@@ -31,9 +31,9 @@ Each phase gets its own branch from `staging` and its own pull request.
 | :- | :- | :- |
 | 0 Docs and decisions | `docs/finance-ledger-decisions` | [PR #22](https://github.com/m-njp/cagayan-central-businesses/pull/22) open |
 | 1 Python parser for Executive Summaries | `data/coa-parser` | [PR #23](https://github.com/m-njp/cagayan-central-businesses/pull/23) open |
-| 2 Finance ledger schema and import | `feat/finance-ledger` | Done, pull request open |
+| 2 Finance ledger schema and import | `feat/finance-ledger` | [PR #24](https://github.com/m-njp/cagayan-central-businesses/pull/24) open |
 | 3 Manual entry and sign-off in the Capitol | `feat/finance-review` | Not started |
-| 4 Workbook collection and workbook parser | `data/coa-workbooks` | Not started; may run alongside Phase 2 |
+| 4 Workbook collection and workbook parser | `data/coa-workbooks` | Parser and the 17 existing workbooks done, pull request open; remaining collection deferred |
 | 5 Industries, Focus Tags, simulated businesses, privacy guard | `feat/business-industries` | Not started |
 | 6 Analytics engine and pages | `feat/analytics-engine` | Not started; needs Phases 2 to 5 |
 
@@ -80,11 +80,11 @@ Each phase gets its own branch from `staging` and its own pull request.
 
 ### Phase 4: Workbook Collection and Parser
 
-- [ ] Collect the Annual Audit Report ZIPs for 29 towns, 2020 to 2025, through the browser, one file at a time.
-- [ ] Read the FS and Annex workbooks, finding sheets by keyword.
-- [ ] Extract three breakdowns: revenue sources, expense types and spending by sector.
-- [ ] Extract Local Revenue Detail from the General Fund annex.
-- [ ] Reproduce the values read during planning.
+- [ ] Collect the remaining Annual Audit Report ZIPs. Deferred 26-10-28 by the user to a separate session; this phase uses the 17 archives already on disk.
+- [x] Read the FS and Annex workbooks, finding sheets by their content.
+- [x] Extract the business-focused breakdowns: revenue sources, business taxes and fees, and development spending (trimmed 26-10-28).
+- [x] Extract business taxes and fees from the General Fund annex.
+- [x] Reproduce the values read during planning.
 
 ### Phase 5: Industries and Business Data
 
@@ -110,11 +110,10 @@ The catalog is the contract for the parser, the ledger, the entry form and the s
 | :- | :- | :- | :- |
 | A Totals | Government Revenue, Government Expenses, Surplus or Deficit | Executive Summary (all towns); FS workbook as a cross-check | Home map panel (revenue and expenses only); Analytics |
 | B Budget Execution | Current Appropriations, Current Obligations, Budget Utilization | Executive Summary | Analytics |
-| C Revenue Sources | Local Taxes, National Tax Allotment Share, Other National Tax Shares, Fees and Business Income, Grants and Donations, Other Revenue, Locally Generated Share | FS, Statement of Financial Performance | Analytics |
-| D Local Revenue Detail | Business Tax, Real Property Tax, Community Tax, Permit Fees, Market Operations (General Fund) | Annex C-1 | Analytics |
-| E Expense Types | Personnel, Operations and Maintenance, Depreciation and Other Non-Cash, Interest and Financial Charges, Transfers to Other Entities | FS, Statement of Financial Performance | Analytics |
-| F Spending by Sector | General Public Services, Education, Health, Social Welfare, Housing and Community Development, Labor and Employment, Economic Services, Development Fund, Disaster Risk Fund, Aid to Barangays, Debt Service; capital outlay and final budget for each | FS, SCBAA | Analytics |
-| G Checks only | Assets, Liabilities, Equity, allotments, continuing appropriations and continuing obligations | Executive Summary | Not displayed |
+| C Revenue Sources | Local Taxes, National Tax Allotment Share, Fees and Business Income; Other Revenue and Locally Generated Share derived | FS, Statement of Financial Performance | Analytics |
+| D Business Taxes and Fees | Business Tax, Permit Fees, Market Operations, Real Property Tax (General Fund) | Annex | Analytics |
+| E Development Spending | 20% Development Fund, Economic Services, with final budget and utilization | FS, SCBAA | Analytics |
+| G Checks only | Assets, Liabilities, Equity, Net Income, allotments, continuing items, other revenue lines, expense types, other sector headings | Summary and workbooks | Read for arithmetic and section boundaries, never stored |
 
 ## Deferred or Excluded
 
@@ -154,6 +153,7 @@ The following are out of scope:
 | 26-10-27 | Program recorded and Phase 0 documentation drafted | User approved the umbrella plan after two rounds of questions |
 | 26-10-27 | Audit opinions and infrastructure projects excluded | User correction during plan review |
 | 26-10-28 | Metric definitions M19 to M31 approved; Phases 1 and 2 authorized | User approval |
+| 26-10-28 | Scope trimmed to a business focus by the user. Expense types, health, education, social welfare and other sector spending, per-sector capital outlay, Community Tax, and stored assets, liabilities, net income and allotments are dropped. M21 to M23 were revised and M24 withdrawn. Remaining ZIP collection deferred; Phase 4 uses the 17 archives on disk | User review of the workbook results |
 | 26-10-28 | Phase 2 ledger built with three changes to the column plan. Review columns are `reviewed_by` and `reviewed_on`, because rejections need them too. The report year comes from `finance_document_id`, not a separate `reported_in_year` column. A nullable `source_url` lets a manual figure cite a report that is not in `documents.csv`. A check constraint requires a document or a URL | Found while building |
 | 26-10-28 | Phase 1 parser built. Summaries that print Appropriations, Allotments or Obligations without current or continuing map to the current line with `definition_variant` `unspecified_period`, as the catalog requires. A new `repeats_previous_year` check flags swapped columns | Found while reading all 158 summaries |
 
@@ -201,3 +201,20 @@ Phase 0 is documentation only. No application code, data or database changed, so
   - `finances:export` reproduces `reviews.csv`.
 - **Known pre-existing issue:** the demo-admin seed fails on `users.public_id`, because the seeder runs without model events. It is unrelated to this phase and was flagged as a separate task. The rebuild above ran with the demo-admin email blank.
 - **Not run:** the shared dev database was not migrated, because the other checkout uses it. Teammates run `composer db:reset` after merging.
+
+### Phase 4 Verification, 26-10-28
+
+- **Scope:** the user approved committing the workbooks and using only the 17 archives already on disk.
+  - Those are Abulug, Alcala, Allacapan and Tuguegarao for 2024, and 13 towns for 2025.
+  - A browser collection of the remaining ZIPs was started by mistake and stopped at the user's request. Two files reached the user's Downloads folder and were left for the user to delete.
+  - Collecting the rest is deferred to a separate session.
+- **Workbook files:** `python tools/coa/run.py add-workbooks` copied 34 workbooks (5.9 MB) into `data/towns/financial-statements/`. Each copy has its checksum and the ZIP's checksum.
+  - Abulug's ZIP checksum matches the one recorded at the 2024 verification.
+- **Scope trim:** the user approved trimming to a business focus.
+  - M21 to M23 were revised and M24 was withdrawn.
+  - 13 stored lines remain. Other lines are read for checks only.
+- **Parser tests:** `composer data:finances:test` passed 57 tests.
+  - 11 of them cover the workbooks, with values read from the cells by hand.
+  - They include hand-added sector totals and a General Fund column inside a multi-fund annex.
+- **Ledger tests:** `php artisan test --compact tests/Feature/Finances` passed 15 tests after adding the `document_kind` column and the `annex_workbook` kind migration.
+- **Import:** `finances:import` loaded 240 documents and 1,339 stored figures. The 8 verified sign-offs survive.

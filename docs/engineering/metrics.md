@@ -227,7 +227,7 @@ Every finance and business observation has one state. When it is not shown, it a
 | :- | :- | :- |
 | Government Revenue | `performance.revenue` | Total revenue for the year. Executive Summary: "Income", "Total Income", "Total Revenues". FS: "Total Revenue" |
 | Government Expenses | `performance.expenses` | Total expenses, including non-cash expenses and transfers to other entities. It is not cash disbursements or obligations |
-| Surplus or Deficit | `performance.net_income` | Government Revenue minus Government Expenses. Labels: "Net Income", "Surplus (Deficit) for the period" |
+| Surplus or Deficit | derived | Government Revenue minus Government Expenses, computed in SQL. The summaries' own "Net Income" is read only to check their arithmetic, not stored |
 
 When a source label states a different definition, the figure carries a `definition_variant`. Example: "Includes Subsidy from Other Funds".
 
@@ -239,75 +239,50 @@ When a source label states a different definition, the figure carries a `definit
 
 ### M21. Revenue by Source and Locally Generated Share
 
-Source lines, from the FS Statement of Financial Performance:
+Revised 26-10-28 by user approval to a business focus. Source lines come from the FS Statement of Financial Performance:
 
 | Revenue source | Code |
 | :- | :- |
 | Local Taxes | `revenue.tax` |
 | National Tax Allotment Share | `revenue.national_share` |
-| Other National Tax Shares | `revenue.other_national_share` |
 | Fees and Business Income | `revenue.service_business` |
-| Grants and Donations | `revenue.grants` |
-| Other Revenue | `revenue.other` |
 
-- **Share of a source:** the source ÷ the total of the source lines × 100.
-- **Total check:** the source lines must add up to Government Revenue within ₱1.00. Otherwise that year's breakdown stays pending review.
-- **Locally Generated Share:** (Local Taxes + Fees and Business Income) ÷ Government Revenue × 100.
+- **Other Revenue** is Government Revenue minus the three sources, computed in SQL. It covers grants, other national tax shares and miscellaneous income, which are not stored separately.
+- **Share of a source** is the source ÷ Government Revenue × 100.
+- **Locally Generated Share** is (Local Taxes + Fees and Business Income) ÷ Government Revenue × 100.
+- The parser checks that every revenue line in the statement adds up to its Total Revenue, within ₱1.00, before the year's breakdown can be signed off.
+- When a statement has no national share line, Local Taxes carries `definition_variant` `may_include_national_share`, and Locally Generated Share is not available for that year.
 
-### M22. Local Revenue Detail
+### M22. Business Taxes and Fees
 
-From Annex C-1, General Fund only:
+From the Part 4 Annex detailed statement, General Fund only:
 
 | Line | Code | Note |
 | :- | :- | :- |
 | Business Tax | `local.business_tax` | |
-| Real Property Tax | `local.real_property_tax` | Basic tax, net of its discount |
-| Community Tax | `local.community_tax` | |
 | Permit Fees | `local.permit_fees` | |
 | Market Operations | `local.market_operations` | |
+| Real Property Tax | `local.real_property_tax` | Basic tax, net of its discount |
 
-These figures are always labeled General Fund. They are never added to, or compared with, the consolidated totals in M19 and M21.
+These figures are always labeled General Fund. They are never added to, or compared with, the consolidated totals in M19 and M21. Community Tax was removed on 26-10-28.
 
-### M23. Expense Types
+### M23. Development Spending
 
-From the FS Statement of Financial Performance:
+From the SCBAA (budget and actual) sheet, Current Appropriations:
 
-| Expense type | Code | Note |
-| :- | :- | :- |
-| Personnel | `expense.personnel` | |
-| Operations and Maintenance | `expense.mooe` | |
-| Depreciation and Other Non-Cash | `expense.non_cash` | |
-| Interest and Financial Charges | `expense.financial` | |
-| Transfers to Other Entities | `expense.transfers` | Stored as a positive amount |
-
-- **Share of a type:** the type ÷ Government Expenses × 100.
-- **Total check:** the types must add up to Government Expenses within ₱1.00.
-
-### M24. Spending by Sector
-
-**Sector actual:** for each sector under Current Appropriations in the SCBAA, the sum of the actual amounts for Personnel, Operations and Maintenance, and Capital Outlay.
-
-**Sectors:**
-
-- General Public Services
-- Education
-- Health
-- Social Welfare
-- Housing and Community Development
-- Labor and Employment
-- Economic Services
-- Development Fund
-- Disaster Risk Fund
-- Aid to Barangays
-- Debt Service
-
-Heading aliases live in `data/towns/finances/lines.csv`. An unknown heading is reported as an issue and is never placed under another sector.
-
-| Derived measure | Definition |
+| Line | Code |
 | :- | :- |
-| Capital Spending by Sector | The sector's Capital Outlay actual |
-| Utilization by Sector | Sector actual ÷ sector final budget × 100. Not available when the final budget is zero |
-| Sector Share | Sector actual ÷ the sum of all sector actuals for that year × 100 |
+| Development Fund | `sector.development_fund` (the 20% Development Fund) |
+| Economic Services | `sector.economic_services` (agriculture, trade, tourism and other economic offices) |
+
+- **Value:** the sum of every actual amount (personnel, operations, capital outlay, other) listed under the heading.
+- **Budget:** the sum of the final budget column is stored with basis `budget_final`.
+- **Utilization** is the actual ÷ the final budget × 100. Not available when the final budget is zero.
+- **Unknown headings:** the parser recognizes the other sector headings only to know where each section ends. Spending under headings outside the catalog is reported as an issue, never added to these two lines.
+
+### M24. Spending by Sector (Withdrawn)
+
+Withdrawn 26-10-28 by the user. Health, education, social welfare and other sector spending, per-sector capital outlay, and expense types are not stored or displayed. The SCBAA headings proved too inconsistent across towns for a reliable cross-town comparison, and they fall outside the business focus.
 
 ### M25. Per Capita
 

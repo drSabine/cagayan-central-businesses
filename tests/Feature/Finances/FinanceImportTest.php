@@ -40,12 +40,12 @@ function writeFinanceFolder(array $override = []): void
         '0201501000,Abulug,2025,executive_summary,not_published,,,,2026-10-27',
     ]));
     File::put("{$folder}/extracted/2024.csv", $csv(implode(',', ImportFinancesCommand::EXTRACTED_COLUMNS), $override['extracted'] ?? [
-        '0201501000,Abulug,2024,2024,performance.revenue,actual,500.00,,Income,page 1,'.SHA_2024.',1',
-        '0201501000,Abulug,2024,2023,performance.revenue,actual,400.00,,Income,page 1,'.SHA_2024.',1',
-        '0201501000,Abulug,2024,2024,performance.expenses,actual,450.00,,Expense,page 1,'.SHA_2024.',1',
+        '0201501000,Abulug,2024,executive_summary,2024,performance.revenue,actual,500.00,,Income,page 1,'.SHA_2024.',1',
+        '0201501000,Abulug,2024,executive_summary,2023,performance.revenue,actual,400.00,,Income,page 1,'.SHA_2024.',1',
+        '0201501000,Abulug,2024,executive_summary,2024,performance.expenses,actual,450.00,,Expense,page 1,'.SHA_2024.',1',
     ]));
     File::put("{$folder}/extracted/2023.csv", $csv(implode(',', ImportFinancesCommand::EXTRACTED_COLUMNS), [
-        '0201501000,Abulug,2023,2023,performance.revenue,actual,390.00,,Income,page 1,'.SHA_2023.',1',
+        '0201501000,Abulug,2023,executive_summary,2023,performance.revenue,actual,390.00,,Income,page 1,'.SHA_2023.',1',
     ]));
     File::put("{$folder}/reviews.csv", $csv(implode(',', ImportFinancesCommand::REVIEW_COLUMNS), $override['reviews'] ?? []));
 }
@@ -75,16 +75,16 @@ it('loads parsed figures as pending and publishes none of them', function () {
 });
 
 it('imports nothing when any row is wrong', function (string $row, string $problem) {
-    writeFinanceFolder(['extracted' => ['0201501000,Abulug,2024,2024,performance.revenue,actual,500.00,,Income,page 1,'.SHA_2024.',1', $row]]);
+    writeFinanceFolder(['extracted' => ['0201501000,Abulug,2024,executive_summary,2024,performance.revenue,actual,500.00,,Income,page 1,'.SHA_2024.',1', $row]]);
 
     importFinances()->expectsOutputToContain("extracted/2024.csv line 3: {$problem}")->assertFailed();
 
     expect(FinanceFigure::query()->count())->toBe(0)->and(FinanceLine::query()->count())->toBe(0);
 })->with([
-    'unknown line' => ['0201501000,Abulug,2024,2024,performance.profit,actual,1.00,,Profit,page 1,'.SHA_2024.',1', 'unknown line_code performance.profit'],
-    'different file' => ['0201501000,Abulug,2024,2024,performance.expenses,actual,1.00,,Expense,page 1,'.SHA_2023.',1', 'document_sha256 does not match documents.csv'],
-    'not a number' => ['0201501000,Abulug,2024,2024,performance.expenses,actual,"1,000",,Expense,page 1,'.SHA_2024.',1', 'value 1,000 is not a number'],
-    'unpublished report' => ['0201501000,Abulug,2025,2025,performance.expenses,actual,1.00,,Expense,page 1,'.SHA_2024.',1', 'no available document for this town and report year'],
+    'unknown line' => ['0201501000,Abulug,2024,executive_summary,2024,performance.profit,actual,1.00,,Profit,page 1,'.SHA_2024.',1', 'unknown line_code performance.profit'],
+    'different file' => ['0201501000,Abulug,2024,executive_summary,2024,performance.expenses,actual,1.00,,Expense,page 1,'.SHA_2023.',1', 'document_sha256 does not match documents.csv'],
+    'not a number' => ['0201501000,Abulug,2024,executive_summary,2024,performance.expenses,actual,"1,000",,Expense,page 1,'.SHA_2024.',1', 'value 1,000 is not a number'],
+    'unpublished report' => ['0201501000,Abulug,2025,executive_summary,2025,performance.expenses,actual,1.00,,Expense,page 1,'.SHA_2024.',1', 'no available document for this town, report year, and kind'],
 ]);
 
 it('publishes a signed-off figure with its report link', function () {
@@ -105,8 +105,8 @@ it('keeps sign-offs on re-import but sends a changed value back to pending', fun
     importFinances()->assertSuccessful();
 
     writeFinanceFolder(['extracted' => [
-        '0201501000,Abulug,2024,2024,performance.revenue,actual,510.00,,Income,page 1,'.SHA_2024.',2',
-        '0201501000,Abulug,2024,2024,performance.expenses,actual,450.00,,Expense,page 1,'.SHA_2024.',2',
+        '0201501000,Abulug,2024,executive_summary,2024,performance.revenue,actual,510.00,,Income,page 1,'.SHA_2024.',2',
+        '0201501000,Abulug,2024,executive_summary,2024,performance.expenses,actual,450.00,,Expense,page 1,'.SHA_2024.',2',
     ], 'reviews' => [
         '0201501000,2024,executive_summary,performance.revenue,2024,actual,500.00,verified,2026-10-28,',
     ]]);

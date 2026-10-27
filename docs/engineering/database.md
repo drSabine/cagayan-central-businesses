@@ -115,7 +115,7 @@ The line catalog, one row per `data/towns/finances/lines.csv` row.
 | `code` | string(80) | unique, such as `performance.revenue` |
 | `parent_code` | string(80), nullable | The total a breakdown line belongs to |
 | `label` | string(120) | Display label, such as "Government Revenue" |
-| `group` | string(40) | Field Catalog section: `totals`, `budget`, `revenue_sources`, `local_revenue`, `expense_types`, `sectors`, `checks` |
+| `group` | string(40) | Field Catalog section: `totals`, `budget`, `revenue_sources`, `business_taxes`, `development`, or `checks` (read for arithmetic only, never stored) |
 | `unit` | string(10) | `php` |
 | `displayed` | boolean | False for lines kept only for the arithmetic checks |
 | `source` | string(40) | `executive_summary`, `fs_workbook`, `annex_c1`, `fs_scbaa` |
@@ -130,7 +130,7 @@ A COA report for one town and fiscal year, or the record that COA had not publis
 | `id` | id | |
 | `municipality_id` | foreign key | restrict on delete |
 | `fiscal_year` | smallint | The report year |
-| `kind` | enum `executive_summary`, `fs_workbook` | `App\Enums\FinanceDocumentKind` |
+| `kind` | enum `executive_summary`, `fs_workbook`, `annex_workbook` | `App\Enums\FinanceDocumentKind` |
 | `availability` | enum `available`, `not_published` | `App\Enums\FinanceAvailability`. Not published shows as Not available, never zero |
 | `file` | string(300), nullable | Path inside `data/towns/` |
 | `source_url` | string(500), nullable | The exact COA download |

@@ -33,7 +33,7 @@ final class ImportFinancesCommand extends Command
 
     public const array DOCUMENT_COLUMNS = ['psgc_code', 'town', 'fiscal_year', 'kind', 'availability', 'file', 'source_url', 'sha256', 'checked_on'];
 
-    public const array EXTRACTED_COLUMNS = ['psgc_code', 'town', 'reported_in_year', 'fiscal_year', 'line_code', 'basis', 'value', 'definition_variant', 'source_label', 'location', 'document_sha256', 'extractor_version'];
+    public const array EXTRACTED_COLUMNS = ['psgc_code', 'town', 'reported_in_year', 'document_kind', 'fiscal_year', 'line_code', 'basis', 'value', 'definition_variant', 'source_label', 'location', 'document_sha256', 'extractor_version'];
 
     public const array REVIEW_COLUMNS = ['psgc_code', 'reported_in_year', 'document_kind', 'line_code', 'fiscal_year', 'basis', 'value', 'decision', 'reviewed_on', 'note'];
 
@@ -168,7 +168,7 @@ final class ImportFinancesCommand extends Command
         $changed = 0;
         foreach ($extracted as $item) {
             $row = $item['row'];
-            $documentId = $documentIds["{$row['psgc_code']} {$row['reported_in_year']} executive_summary"];
+            $documentId = $documentIds["{$row['psgc_code']} {$row['reported_in_year']} {$row['document_kind']}"];
             $key = "{$documentId} {$row['line_code']} {$row['fiscal_year']} {$row['basis']}";
             $seen[$key] = true;
             $details = [
@@ -305,16 +305,19 @@ final class ImportFinancesCommand extends Command
     {
         $seen = [];
         foreach ($extracted as ['file' => $file, 'line' => $line, 'row' => $row]) {
-            $document = $documents["{$row['psgc_code']} {$row['reported_in_year']} executive_summary"] ?? null;
-            $key = "{$row['psgc_code']} {$row['reported_in_year']} {$row['line_code']} {$row['fiscal_year']} {$row['basis']}";
+            $document = $documents["{$row['psgc_code']} {$row['reported_in_year']} {$row['document_kind']}"] ?? null;
+            $key = "{$row['psgc_code']} {$row['reported_in_year']} {$row['document_kind']} {$row['line_code']} {$row['fiscal_year']} {$row['basis']}";
             $this->problem($file, $line, match (true) {
                 ! isset($towns[$row['psgc_code']]) => "unknown town code {$row['psgc_code']}",
-                $document === null || ! $document['available'] => 'no available document for this town and report year in documents.csv',
+                FinanceDocumentKind::tryFrom($row['document_kind']) === null => "unknown document_kind {$row['document_kind']}",
+                $document === null || ! $document['available'] => 'no available document for this town, report year, and kind in documents.csv',
                 $document['sha256'] !== $row['document_sha256'] => 'document_sha256 does not match documents.csv',
                 ! isset($codes[$row['line_code']]) => "unknown line_code {$row['line_code']}",
                 FinanceBasis::tryFrom($row['basis']) === null => "unknown basis {$row['basis']}",
                 ! ctype_digit($row['fiscal_year']) => "fiscal_year {$row['fiscal_year']} is not a year",
                 ! is_numeric($row['value']) => "value {$row['value']} is not a number",
+                mb_strlen($row['location']) > 60 => 'location is longer than 60 characters',
+                mb_strlen($row['source_label']) > 300 => 'source_label is longer than 300 characters',
                 isset($seen[$key]) => "repeats line {$seen[$key]}",
                 default => null,
             });
