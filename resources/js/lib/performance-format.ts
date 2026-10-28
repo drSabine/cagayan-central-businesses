@@ -38,7 +38,9 @@ const signedNumber = new Intl.NumberFormat(LOCALE, {
 
 const REASONS: Record<string, string> = {
     not_published: 'COA has not published this report',
-    not_reported: 'Not in the signed-off figures for this year',
+    not_reported: 'Not in the COA report for this year',
+    not_collected: 'The COA workbook for this year has not been added yet',
+    pending_review: 'Awaiting sign-off',
     small_group: 'Too few businesses in this group',
     dominance: 'One business holds most of this total',
     complementary: 'Hidden so another hidden figure cannot be worked out',
@@ -60,7 +62,7 @@ export function reasonLabel(point?: EconomicObservation): string | null {
     return point?.reason ? (REASONS[point.reason] ?? null) : null;
 }
 
-/** Coverage for a Sum of Reporting Towns (M27), the census behind a per-resident value (M25), or why a value is missing. */
+/** Coverage for a Sum of Reporting Towns (M27), the census behind a per-resident value (M25), a restated year (M26), or why a value is missing. */
 export function observationNote(point?: EconomicObservation): string | null {
     if (point?.coverage) {
         const { reporting, total, matched } = point.coverage;
@@ -70,6 +72,7 @@ export function observationNote(point?: EconomicObservation): string | null {
             : `${towns}, change over ${matched} reporting both years`;
     }
     if (point?.censusYear) return `Using the ${point.censusYear} census`;
+    if (point?.restatedIn) return `Restated in the ${point.restatedIn} report`;
     return reasonLabel(point);
 }
 

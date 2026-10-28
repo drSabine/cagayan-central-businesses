@@ -22,6 +22,8 @@ export type EconomicObservation = {
     reason?:
         | 'not_published'
         | 'not_reported'
+        | 'not_collected'
+        | 'pending_review'
         | 'small_group'
         | 'dominance'
         | 'complementary'
@@ -29,6 +31,7 @@ export type EconomicObservation = {
     band?: string | null;
     coverage?: { reporting: number; total: number; matched: number } | null;
     censusYear?: number | null;
+    restatedIn?: number | null;
 };
 
 export type MetricUnit = 'php' | 'percent' | 'count';

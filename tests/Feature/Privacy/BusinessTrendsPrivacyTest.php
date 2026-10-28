@@ -150,3 +150,21 @@ it('gives the Capitol Focus Tag sales as bands, so a tag cannot be subtracted fr
             ->where('catalog.businesses.datasets.tag:retail.sales.rows.0.observations.sales.band', '₱10 million to ₱50 million')
             ->where('catalog.businesses.datasets.tag:retail.share.metrics', fn ($metrics) => count($metrics) === 1));
 });
+
+it('shows a year with no records as not available, never zero and never bridged', function () {
+    // Retail trades in 2023 and 2025 but not 2024; the beforeEach groups supply 2024 for the town.
+    $retail = BusinessType::query()->where('psic_section', 'G')->sole();
+    BusinessYear::query()->whereIn('business_id', Business::query()->where('business_type_id', $retail->id)->select('id'))->delete();
+    Business::query()->where('business_type_id', $retail->id)->each(function (Business $business) {
+        BusinessYear::factory()->for($business)->status(BusinessStatus::New, 2023)->sales('5000000.00')->create();
+        BusinessYear::factory()->for($business)->status(BusinessStatus::Renewed, 2025)->sales('5000000.00')->create();
+    });
+    $this->artisan('metrics:refresh')->assertSuccessful();
+
+    $this->actingAs(User::factory()->create())->get(route('capitol.analytics'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('catalog.businesses.datasets.industry:G.counts.rows.1.year', 2024)
+            ->where('catalog.businesses.datasets.industry:G.counts.rows.1.observations.active.state', 'unavailable')
+            ->where('catalog.businesses.datasets.industry:G.counts.rows.1.observations.active.value', null)
+            ->where('catalog.businesses.datasets.industry:G.counts.rows.2.observations.active.change', null));
+});

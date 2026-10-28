@@ -4,16 +4,23 @@ delete from stats_finance_year;
 
 insert into stats_finance_year (
     municipality_id, fiscal_year, metric, value, definition_variant,
-    change, percent_change, comparable, census_year, reporting_towns, total_towns, matched_towns
+    change, percent_change, comparable, census_year, restated_in, reporting_towns, total_towns, matched_towns
 )
 with verified as (
-    select f.municipality_id, f.fiscal_year, f.line_code as metric, f.basis, f.value, f.definition_variant as variant
+    select f.municipality_id, f.fiscal_year, f.line_code as metric, f.basis, f.value, f.definition_variant as variant,
+        -- M26: a later report restated the year when it replaced a different earlier figure.
+        case when exists (
+            select 1 from finance_figures s
+            where s.municipality_id = f.municipality_id and s.fiscal_year = f.fiscal_year and s.line_code = f.line_code
+                and s.basis = f.basis and s.status = 'superseded' and s.value <> f.value
+        ) then d.fiscal_year end as restated_in
     from finance_figures f
     join finance_lines l on l.code = f.line_code
+    left join finance_documents d on d.id = f.finance_document_id
     where f.status = 'verified' and l.displayed and l.source <> 'derived'
 ),
 actual as (
-    select municipality_id, fiscal_year, metric, value, variant from verified where basis = 'actual'
+    select municipality_id, fiscal_year, metric, value, variant, restated_in from verified where basis = 'actual'
 ),
 pivot as (
     select municipality_id, fiscal_year,
@@ -78,9 +85,9 @@ derived as (
     from pivot p join census c using (municipality_id, fiscal_year) where p.expenses is not null and c.population > 0
 ),
 series as (
-    select municipality_id, fiscal_year, metric, value, variant, null::smallint as census_year from actual
+    select municipality_id, fiscal_year, metric, value, variant, null::smallint as census_year, restated_in::smallint from actual
     union all
-    select municipality_id, fiscal_year, metric, value, variant, census_year from derived
+    select municipality_id, fiscal_year, metric, value, variant, census_year, null from derived
 ),
 ordered as (
     select s.*,
@@ -92,7 +99,7 @@ ordered as (
 ),
 towns as (
     -- M26: change only between consecutive years with the same definition variant; no percent from a zero base.
-    select municipality_id, fiscal_year, metric, value, variant, census_year, prior_value,
+    select municipality_id, fiscal_year, metric, value, variant, census_year, restated_in, prior_value,
         coalesce(prior_year = fiscal_year - 1 and variant is not distinct from prior_variant, false) as comparable
     from ordered
 ),
@@ -112,11 +119,11 @@ sums as (
 select municipality_id, fiscal_year, metric, value, variant,
     case when comparable then value - prior_value end,
     case when comparable and prior_value <> 0 then round((value - prior_value) / prior_value * 100, 1) end,
-    comparable, census_year, null, null, null
+    comparable, census_year, restated_in, null, null, null
 from towns
 union all
 select null, fiscal_year, metric, value, null,
     change,
     case when prior_total <> 0 then round(change / prior_total * 100, 1) end,
-    matched_towns > 0, null, reporting_towns, (select count(*) from municipalities), matched_towns
+    matched_towns > 0, null, null, reporting_towns, (select count(*) from municipalities), matched_towns
 from sums;

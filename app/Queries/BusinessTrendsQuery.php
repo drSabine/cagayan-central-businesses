@@ -41,6 +41,7 @@ final class BusinessTrendsQuery
         $tags = [];
         $datasets = [];
         $guarded = $this->guardSales($cells);
+        $years = range((int) $cells->min('year'), (int) $cells->max('year'));
         foreach ($cells->groupBy(fn (stdClass $cell) => "{$cell->dimension}:{$cell->code}") as $key => $series) {
             $first = $series->first();
             $option = new SelectOption((string) $key, (string) $first->label);
@@ -51,9 +52,9 @@ final class BusinessTrendsQuery
             }
             $banded = $public || $first->dimension === 'tag';
             $datasets[$key] = [
-                'counts' => $this->counts($series),
-                'sales' => $this->sales($series, $guarded, $banded),
-                'share' => $this->share($series, $guarded, $banded),
+                'counts' => $this->withGaps($this->counts($series), $years),
+                'sales' => $this->withGaps($this->sales($series, $guarded, $banded), $years),
+                'share' => $this->withGaps($this->share($series, $guarded, $banded), $years),
             ];
         }
 
@@ -212,6 +213,24 @@ final class BusinessTrendsQuery
             rows: $rows,
             axisMaximum: '100',
             source: ['mode' => 'simulated', 'label' => 'Registered businesses only', 'sourceUrl' => null, 'verifiedOn' => null],
+        );
+    }
+
+    /**
+     * A year with no records for the group is a gap: Not available, never zero and never bridged (M26).
+     *
+     * @param  list<int>  $years
+     */
+    private function withGaps(FinancialHistory $history, array $years): FinancialHistory
+    {
+        $byYear = array_column($history->rows, null, 'year');
+        $missing = array_fill_keys(array_map(fn (EconomicMetric $metric) => $metric->id, $history->metrics), new EconomicObservation('unavailable', null, false, null, null, null));
+
+        return new FinancialHistory(
+            metrics: $history->metrics,
+            rows: array_map(fn (int $year) => $byYear[$year] ?? ['year' => $year, 'observations' => $missing], $years),
+            axisMaximum: $history->axisMaximum,
+            source: $history->source,
         );
     }
 }
