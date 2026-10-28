@@ -214,6 +214,15 @@ The exact words are in `privacy-rules.md`, "Words on screen".
 
 ## Files and names
 
+### Shared Workspace Navigation and Forms
+
+- Every Capitol page uses `CapitolLayout`. Its `WorkspaceBreadcrumbs` component renders the single breadcrumb trail; do not add back-links or a second breadcrumb inside page content. Top-level destinations resolve from `workspaceNavigation`. A nested controller supplies `breadcrumbs` as an ordered list of `{ label, href? }`, excluding Dashboard; the layout adds Dashboard and marks only the final item current. Use named routes for parent links. Example: Dashboard > Government Finances > Abulug > Report 2024. Dashboard geography retains its local map navigation. Paginated top-level pages append the current page after page 1.
+- Every paginated workspace list uses `components/capitol/pagination.tsx` with the shared `Pagination` Data object from `Pagination::from($results)`. Display only quiet Previous / Page n of m / Next controls, with unavailable directions disabled; hide pagination for a single page. Do not show a bare Page 1 footer, redundant record counts or a boxed numbered strip. Finance, Community Wishes and Activity Logs use this contract.
+- Use `<FieldLabel required>` for required fields, together with `required` on the actual input or Select. This adds the same visible asterisk and screen-reader required text everywhere. Conditional requirements must change both controls together; optional fields have no marker. Server validation remains authoritative. Do not make a separate required-marker component per form.
+- Use the existing shadcn Dialog and Sheet primitives. A finance entry opens only through Enter a Figure in a right-hand Sheet. Sign Off and Reject have separate dialogs: Review Note is optional for sign-off, while Reason for Rejection is required only for rejection. Keep errors inside the open form, retain values after failed validation, and close only after success or deliberate cancellation.
+- Finance report fiscal years are selected in the right-hand filter panel, newest first. These figures are already loaded: year changes use local Inertia history, including Back/Forward, and must make zero application requests. Index pagination and filters query missing authorized records. Use one table with category separator rows and fixed shared columns. The compact source attribution and each figure citation link directly to the original COA report. `formatFinanceSource` formats page or workbook references; never append a second COA Source link under the citation.
+- The default finance table is for reading. Review Figures reveals selection controls; bulk actions and a count appear only when selection is non-empty. Page-width limits and gutters come from CapitolLayout, not an additional max-width wrapper inside the finance pages.
+
 - File names are kebab-case: `barangay-profile.tsx`, `use-filters.ts`.
 - Components are PascalCase. Hooks start with `use`.
 - One shared component per file. Small helpers used only by that component stay in the same file.
@@ -269,3 +278,17 @@ Approved 26-10-25. This supersedes separate kind snapshots and table/view fields
 Finance always renders its chart and retains exact observations in a screen-reader list. Wishes render either the full-label ranked bar list or cloud with omitted-label count chips. No table branch remains. Shared WishTooltip supplies actual dataset town and exact count on hover/focus/activation; duplicate visible phrases retain separate namespaced IDs. Long ranked lists scroll within a bounded region instead of expanding an SVG indefinitely. Bar widths are visual encodings of finished counts. Cloud word size is the count's position between the smallest and largest displayed count on a log scale, as visx `scaleLog` does (`lib/wish-cloud-size.ts`), so any set of counts keeps its order, fills the same size range, and one large outlier cannot flatten the rest. No count, label length, or word has its own size cap; one shared maximum is lowered until every label fits the width. A layout that drops a displayed word is retried smaller, and the cloud never shows a word while a higher-demand wish is left to the count chips. Larger words in the upper half of the range use the chart accent, the rest use the foreground.
 
 Home action links use Wayfinder with the valid selected atlas town from the current Inertia URL. The removed protection copy's smallGroupMin prop was removed from HomeOverview, its Query and TypeScript contract. No privacy enforcement threshold changed. Existing map selection/cache behavior is unchanged.
+
+### Shared Workspace Controls "26-10-28"
+
+Use `WorkspaceFilters` for the right-hand filter/action panel in finance, Activity Logs and Community Wishes. It centralizes panel spacing, mobile ordering and accessible labeling.
+
+Use `FieldHelp` beside `FieldLabel` for requested contextual explanations. It uses the existing tooltip primitive with a named, keyboard-focusable help button; clicking also opens it. Use `FieldLabel required` plus native required controls for mandatory fields. Do not repeat limits as permanent helper copy when validation already enforces them.
+
+`workspaceNavigation` is the single source of destination labels, icons, permission visibility and group placement. Account destinations remain available to breadcrumbs but render only in the bottom account menu. Preserve Wayfinder's logout method.
+
+`WorkspaceStatus` owns session activity, expiry reloads and renewal warnings. Do not remove it when changing page chrome. It intentionally renders no greeting/date/clock row.
+
+Figure entry has six possible fields: year, item, basis, amount, source report and a conditional official source URL. It sends no note; the request prohibits an entry note. Review notes and historical imported notes are separate concerns and remain supported. All source, amount, year, role and independent-review restrictions still apply.
+
+Finance index report-year navigation is URL-backed. The query defaults to the newest available authorized report year, always scopes rows to one year and includes that year in pagination links. Tab/filter changes reset pagination. Revisited first-page selections use a component-local cache and Inertia history; missing selections fetch authorized data. Leaving the index discards this cache so later visits read current review counts.

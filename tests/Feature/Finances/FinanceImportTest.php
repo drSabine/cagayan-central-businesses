@@ -10,6 +10,7 @@ use App\Models\Municipality;
 use App\Queries\TownAtlasQuery;
 use Database\Seeders\MunicipalitySeeder;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Illuminate\Testing\PendingCommand;
 
 const TEST_FINANCE_FOLDER = 'storage/framework/testing/finances';
@@ -73,6 +74,26 @@ it('loads parsed figures as pending and publishes none of them', function () {
         ->and(FinanceFigure::query()->where('status', '!=', FinanceFigureStatus::Pending)->count())->toBe(0)
         ->and(abulugRevenue())->toBeNull();
 });
+
+it('rejects manual imports that bypass the finance entry limits', function (string $value, string $basis, string $source, bool $hasDocument = false) {
+    writeFinanceFolder();
+    $row = [(string) Str::uuid(), '0201501000', '2024', 'performance.revenue', $basis, $value, '', $hasDocument ? '2024' : '', $hasDocument ? 'executive_summary' : '', $source, '', 'Checked the report', 'pending', ''];
+    $handle = fopen(base_path(TEST_FINANCE_FOLDER.'/manual-figures.csv'), 'w');
+    fputcsv($handle, ImportFinancesCommand::MANUAL_COLUMNS, escape: '');
+    fputcsv($handle, $row, escape: '');
+    fclose($handle);
+
+    importFinances()->assertFailed();
+
+    $this->assertDatabaseCount('finance_figures', 0);
+    $this->assertDatabaseCount('finance_documents', 0);
+})->with([
+    'negative amount' => ['-1.00', 'actual', 'https://www.coa.gov.ph/report.pdf'],
+    'over maximum' => ['1000000000000.00', 'actual', 'https://www.coa.gov.ph/report.pdf'],
+    'invalid basis for revenue' => ['1.00', 'budget_final', 'https://www.coa.gov.ph/report.pdf'],
+    'unofficial source' => ['1.00', 'actual', 'https://example.com/report.pdf'],
+    'unofficial override beside a valid document' => ['1.00', 'actual', 'https://example.com/report.pdf', true],
+]);
 
 it('imports nothing when any row is wrong', function (string $row, string $problem) {
     writeFinanceFolder(['extracted' => ['0201501000,Abulug,2024,executive_summary,2024,performance.revenue,actual,500.00,,Income,page 1,'.SHA_2024.',1', $row]]);

@@ -2,6 +2,10 @@
 
 The plan from today to the submission, and the status of every feature. Update the status lines in the same pull request that finishes the work.
 
+Local preview integration, 26-10-28: quick sign in, wish-cloud polishing, and the finance-review screens are available together on port 8000 using the existing finance preview database. Combined CI passes (201 tests). See [Client Facing Polishing](../plan/active/26-10-27-client-facing-polishing.md).
+
+Government Finances correction, 26-10-28: one aligned report table, right-hand fiscal-year selector, compact linked citations, on-demand review controls, centralized breadcrumbs/required markers, and quiet shared pagination. Web and manual CSV input checks are strict and share configured limits. CI passes 224 tests (1,343 assertions); desktop light/dark flows are checked. See [Finance Ledger and Analytics Program](../plan/active/26-10-27-finance-ledger-analytics-program.md).
+
 Status words: `Not started`, `In progress`, `Done`.
 
 ## Dates that do not move
@@ -228,3 +232,5 @@ Completed 26-10-25: compact Cagayan Economy overview with stacked finance/wishes
 26-10-25: Final Home correction removes action-card icons/shadows, reduces padding to 16px and gaps to 12px, and uses Explore Your Town's Economy. The complete Economy session is being prepared in focused review batches; no merge or deployment is authorized. [Handoff plan](../plan/archive/26-10-25-compact-home-session-handoff.md).
 
 Published review batches: foundation PR #16 targets staging; Economy PR #17 depends on #16 and contains this session in focused commits. Required hooks passed; remote CI and human review are pending. No merge/deployment performed.
+
+26-10-28: The finance follow-up moves entry into the filter panel, reorders and explains required inputs, removes entry notes and shared greetings, and compacts grouped sidebar navigation with a bottom account menu. Activity Logs and Community Wishes reuse the right-hand filter panel; Profile uses the shared required marker. Session security and permissions remain active. Latest follow-up browser testing is explicitly waived by the user; automated results are recorded in the active finance plan.

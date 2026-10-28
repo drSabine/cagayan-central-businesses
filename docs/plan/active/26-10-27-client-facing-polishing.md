@@ -1,7 +1,7 @@
 ---
 title: "Client Facing Polishing"
 created: "26-10-27"
-updated: "26-10-27"
+updated: "26-10-28"
 status: in-progress
 branch: "feat/client-facing-polishing"
 base: staging
@@ -39,6 +39,17 @@ Make local review of the Capitol workspace faster without putting credentials in
 - Any production or staging sign in shortcut, and any Microsoft or Google sign in (D28).
 - Further client facing polishing items, which get their own entries here when requested.
 
+### Local Finance Preview Integration, 26-10-28
+
+Requested by the user so the finance review and quick sign in are available together on port 8000. The `feat/local-finance-polishing` branch combines polishing commit `2a08ba7`, finance ledger commit `4b864f0`, and a snapshot of the 28 staged finance review files from the finance checkout. The finance checkout itself is unchanged. This is a local integration, with no push or shared-branch merge.
+
+- [x] Retain the three local quick sign-in buttons and wish-cloud polishing.
+- [x] Include Government Finances list, report, manual entry, and review routes from the finance implementation.
+- [x] Use the existing `cagayan_business_finance` database for port 8000; only add missing demo users with `DemoAccountSeeder`. No migration or reset of the shared development database.
+- [x] Restore the saved seeder fix in `DemoAccountSeeder`, assigning public UUIDs explicitly while the parent `DatabaseSeeder` suppresses model events.
+- [x] Add full-seeder PostGIS UUID and existing-account regression tests and same-app quick-sign-in-to-finance coverage for all roles.
+- [x] Complete full CI verification of the combined branch.
+
 ## Decisions and Sources
 
 - 26-10-27: Gate by `app()->isLocal()` checked on each request, not at route registration, so tests can exercise both states and a cached route list cannot enable it elsewhere. Reason: the shortcut bypasses the password, so it must fail closed.
@@ -65,3 +76,6 @@ Make local review of the Capitol workspace faster without putting credentials in
 - Phone correction, 26-10-27 (user screenshot: three words in the cloud at about 300px): the retry only shrank the base maximum while the width limit was already lower, so retries repeated the same layout; the 280px canvas and 7px padding were too tight for 20 words; the width fit ignored padding, so a long label (rank 4) could not place and the rank rule cut the cloud off at three words. Fixed in `lib/wish-cloud-size.ts` and `wish-word-cloud.tsx`: the shrink now scales the final maximum, the width fit reserves padding, and height (280 to 420px) and padding (3 to 7px) follow the card width. A scratchpad script confirmed that at 280 to 1070px every label fits the canvas and each retry strictly shrinks sizes; estimated fill at 300px is about 50% (typical d3-cloud limit), so a few of the lowest-demand words can still become chips on very narrow phones. Not run in a browser; `check:fix`, `check`, `types:check`, `build` and `EconomicPerformanceTest` passed.
 - Known limits: min-max scaling makes small gaps look large when counts are nearly equal (84 against 72 alone is 53px against 12px); long labels occupy more area than short ones at equal size, so Bars is the exact ranking.
 - `composer ci:check` not run as a whole; its parts ran through the commit hooks and the checks above. No pull request opened.
+- 26-10-28: The polishing `composer ci:check` and production build completed successfully before integration (164 tests, 1,013 assertions). Committed wish-cloud work as `2a08ba7` with hooks enabled.
+- 26-10-28: Combined preview build passed. Focused seeder, quick sign-in and finance-review tests passed (30 tests, 173 assertions), explicitly on `cagayan_business_test`. Browser verification on port 8000: all three quick sign-in buttons are visible, Super Admin signs in, and Government Finances opens the populated review list. Other roles are covered automatically; manual review/sign-off writes were not performed.
+- 26-10-28: Combined `composer ci:check` passed (201 tests, 1,211 assertions; frontend format/lint, TypeScript, Pint and PHPStan clean). Corrected the imported `FinanceReviewListQuery` callback to accept the query builder's `stdClass` rows. Saved browser evidence of the populated Government Finances list on port 8000. The saved standalone seeder stash remains available as a backup; its UUID fix is now adapted to the three-role seeder in this integration.

@@ -10,6 +10,9 @@ import {
     ChevronRight,
     RotateCcw,
     ListChecks,
+    PhilippinePeso,
+    ChevronDown,
+    CircleHelp,
 } from 'lucide-react';
 
 export const icons = {
@@ -24,4 +27,7 @@ export const icons = {
     breadcrumb: ChevronRight,
     reset: RotateCcw,
     work: ListChecks,
+    finances: PhilippinePeso,
+    expand: ChevronDown,
+    help: CircleHelp,
 } as const;

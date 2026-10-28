@@ -37,7 +37,7 @@
 
     /* Space. section: between page sections. gutter: page edge on phones. */
     --spacing-section: 2.5rem;
-    --workspace-sidebar-width: 14rem;
+    --workspace-sidebar-width: 13rem;
     --workspace-map-height: clamp(22rem, 57dvh, 38rem);
     --spacing-gutter: 1rem;
 

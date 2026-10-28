@@ -46,6 +46,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('capitol', fn (User $user): bool => $user->canEnterWorkspace());
         Gate::define('community-wishes', fn (User $user): bool => $user->isCapitolAdmin());
         Gate::define('activity-logs', fn (User $user): bool => $user->canEnterWorkspace() && $user->role === UserRole::SuperAdmin);
+        // D35. Admins sign off finance figures; FinanceSignOff also refuses a figure the reviewer entered.
+        Gate::define('finance-review', fn (User $user): bool => $user->isCapitolAdmin());
         Gate::define('edit-town', fn (User $user, Municipality $town): bool => $user->canEnterWorkspace()
             && ($user->isCapitolAdmin() || $user->assignedTowns()->whereKey($town->id)->exists()));
 

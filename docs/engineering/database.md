@@ -143,6 +143,10 @@ Unique `(municipality_id, fiscal_year, kind)`.
 
 One figure, parsed from a report or entered by hand.
 
+Manual-entry validation is centralized in `config/cagayan.php` under `finances` and enforced server-side. The browser receives the same year, amount, source-length, note-length and review-batch limits. New form entries require a displayed catalog line, a supported fiscal year no later than the selected report, a non-negative amount with at most two decimal places within `value_max`, a matching basis from the line's catalog group, and a plain-text note up to `note_max`. Only Development Spending permits Final Budget. These 13 stored lines do not include the derived surplus/deficit, so negative entries are rejected without changing M19.
+
+Sources must be an existing report for the selected town/report year or an HTTPS URL whose actual host is `coa.gov.ph` or a subdomain. Credentials, alternate ports and lookalike domains are rejected. `OfficialCoaUrl` is shared by the form and CSV import. Manual CSV replay enforces the same amount, year, basis, source and text-length limits; historical empty notes can still round-trip. Structural database checks continue to enforce references, source presence and the unique verified observation. This UI correction changes no schema and does not certify a source's contents automatically.
+
 | Column | Type | Notes |
 | :- | :- | :- |
 | `id` | id | |
