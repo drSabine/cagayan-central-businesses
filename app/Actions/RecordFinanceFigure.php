@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 final class RecordFinanceFigure
 {
     /**
-     * @param  array{line_code: string, fiscal_year: int, basis: string, value: string, document_kind: string|null, source_url: string|null, note: string}  $input
+     * @param  array{line_code: string, fiscal_year: int, basis: string, value: string, document_kind: string|null, source_url: string|null}  $input
      */
     public function handle(User $user, Municipality $town, int $reportYear, array $input): FinanceFigure
     {
@@ -39,7 +39,6 @@ final class RecordFinanceFigure
                 'entry_method' => FinanceEntryMethod::Manual,
                 'status' => FinanceFigureStatus::Pending,
                 'entered_by' => $user->id,
-                'note' => $input['note'],
             ]);
             ActivityLog::record('finance_figure_entered', $user->id);
 

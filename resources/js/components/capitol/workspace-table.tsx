@@ -1,5 +1,6 @@
-import { Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
+import { WorkspaceFilters } from '@/components/capitol/workspace-filters';
+import { router } from '@inertiajs/react';
+import { Pagination } from '@/components/capitol/pagination';
 import {
     Select,
     SelectContent,
@@ -55,13 +56,81 @@ export function WorkspaceTable({
             : [{ key: 'event', label: 'Event', options: data.categories }];
 
     return (
-        <section className="flex min-w-0 flex-col gap-4">
-            <div className="flex flex-wrap items-end gap-3">
+        <section className="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
+            <div className="min-w-0 space-y-4">
+                <div className="overflow-hidden rounded-sm border bg-card">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                {columns.map((column, i) => (
+                                    <TableHead
+                                        key={column}
+                                        className={
+                                            kind === 'wishes' && i === 2
+                                                ? 'text-right'
+                                                : ''
+                                        }
+                                    >
+                                        {column}
+                                    </TableHead>
+                                ))}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {data.rows.length ? (
+                                data.rows.map((row, i) => (
+                                    <TableRow key={String(row.id ?? i)}>
+                                        {kind === 'wishes' ? (
+                                            <>
+                                                <TableCell>
+                                                    {row.town}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {row.category}
+                                                </TableCell>
+                                                <TableCell className="text-right font-mono tabular-nums">
+                                                    {formatCount(
+                                                        Number(row.count),
+                                                    )}
+                                                </TableCell>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <TableCell>
+                                                    {row.event}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {row.actor}
+                                                </TableCell>
+                                                <TableCell className="font-mono tabular-nums">
+                                                    {formatDateTime(
+                                                        String(row.occurredAt),
+                                                    )}
+                                                </TableCell>
+                                            </>
+                                        )}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={3}
+                                        className="py-8 text-center text-muted-foreground"
+                                    >
+                                        {kind === 'wishes'
+                                            ? 'No community wishes match these filters.'
+                                            : 'No activity events match these filters.'}
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                <Pagination data={data.pagination} />
+            </div>
+            <WorkspaceFilters>
                 {filters.map(({ key, label, options }) => (
-                    <div
-                        key={key}
-                        className="flex w-full flex-col gap-2 sm:w-60"
-                    >
+                    <div key={key} className="flex w-full flex-col gap-2">
                         <label id={key + '-label'} className="type-label">
                             {label}
                         </label>
@@ -89,88 +158,7 @@ export function WorkspaceTable({
                         </Select>
                     </div>
                 ))}
-            </div>
-            <div className="overflow-hidden rounded-sm border bg-card">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            {columns.map((column, i) => (
-                                <TableHead
-                                    key={column}
-                                    className={
-                                        kind === 'wishes' && i === 2
-                                            ? 'text-right'
-                                            : ''
-                                    }
-                                >
-                                    {column}
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {data.rows.length ? (
-                            data.rows.map((row, i) => (
-                                <TableRow key={String(row.id ?? i)}>
-                                    {kind === 'wishes' ? (
-                                        <>
-                                            <TableCell>{row.town}</TableCell>
-                                            <TableCell>
-                                                {row.category}
-                                            </TableCell>
-                                            <TableCell className="text-right font-mono tabular-nums">
-                                                {formatCount(Number(row.count))}
-                                            </TableCell>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <TableCell>{row.event}</TableCell>
-                                            <TableCell>{row.actor}</TableCell>
-                                            <TableCell className="font-mono tabular-nums">
-                                                {formatDateTime(
-                                                    String(row.occurredAt),
-                                                )}
-                                            </TableCell>
-                                        </>
-                                    )}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={3}
-                                    className="py-8 text-center text-muted-foreground"
-                                >
-                                    {kind === 'wishes'
-                                        ? 'No community wishes match these filters.'
-                                        : 'No activity events match these filters.'}
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            <nav
-                aria-label="Pagination"
-                className="flex items-center justify-between gap-3"
-            >
-                <span className="type-meta">
-                    Page{' '}
-                    <span className="font-mono tabular-nums">{data.page}</span>
-                </span>
-                <div className="flex gap-2">
-                    {data.previous && (
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href={data.previous}>Previous</Link>
-                        </Button>
-                    )}
-                    {data.next && (
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href={data.next}>Next</Link>
-                        </Button>
-                    )}
-                </div>
-            </nav>
+            </WorkspaceFilters>
         </section>
     );
 }

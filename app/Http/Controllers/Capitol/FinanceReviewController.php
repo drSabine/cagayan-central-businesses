@@ -26,7 +26,14 @@ final class FinanceReviewController extends Controller
 
     public function show(FinanceReportRequest $request, Municipality $town, FinanceReportQuery $query): Response
     {
-        return Inertia::render('capitol/finances/show', ['report' => $query->get($request->user(), $town, $request->reportYear())]);
+        return Inertia::render('capitol/finances/show', [
+            'report' => $query->get($request->user(), $town, $request->reportYear()),
+            'breadcrumbs' => [
+                ['label' => 'Government Finances', 'href' => route('capitol.finances.index', absolute: false)],
+                ['label' => $town->name],
+                ['label' => 'Report '.$request->reportYear()],
+            ],
+        ]);
     }
 
     public function store(ReviewFinanceRequest $request, Municipality $town, ReviewFinanceFigures $review): RedirectResponse

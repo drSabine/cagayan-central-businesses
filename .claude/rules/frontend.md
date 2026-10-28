@@ -56,3 +56,11 @@ Don't:
 - More Details modals, Suggest a Business Here on maps, double-click requirements, duplicate style controls, or the extra barangay dropdown.
 
 Run `npm run check:fix` after editing. The pre-commit hook runs the lint and TypeScript checks.
+
+## Repeated UI Corrections
+
+Follow design.md, "Government Finances Simplification", for the final approved pattern. Do not reintroduce source-card strips, repeated report-year subtitles, zero-selection counters, always-visible bulk-edit controls, independently sized category tables, loud pagination boxes or feature-level width caps that leave an empty side strip. Use compact source attribution, linked citation text, one shared table grid, right-hand fiscal filters and on-demand review mode. The shared pagination and breadcrumb contracts in frontend.md apply across the workspace.
+
+Apply the later workspace-controls correction in design.md: actions must look actionable (Review/Cancel use outlines), Enter a Figure belongs in the right panel, source selection is called Source Report, and entry has no Note. Use contextual FieldHelp instead of permanent explanations. Do not restore shared greeting/clock rows or duplicate Profile in the primary nav. Preserve session renewal/expiry behavior, profile limits, permission-based destinations and independent review restrictions when simplifying presentation.
+
+Sidebar account controls use a single-row Account trigger with Profile and Sign Out in its dropdown. Never show the account name or role in the sidebar; keep the appearance toggle aligned beside the trigger.

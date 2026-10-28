@@ -26,6 +26,20 @@ export function formatExactPesos(value: string): string {
     return pesos.format(Number(value));
 }
 
+export function formatFinanceSource(
+    source: string,
+    location: string | null,
+): string {
+    if (!location) return source;
+    const pages = location.match(/^pages?\s+(\d+)(?:\s*-\s*(\d+))?$/i);
+    if (pages)
+        return `${source} ${pages[2] ? `pp. ${pages[1]}-${pages[2]}` : `p. ${pages[1]}`}`;
+    const cell = location.match(/^(.+)!([A-Z]+\d+(?::[A-Z]+\d+)?)$/i);
+    if (cell)
+        return `${source} ${cell[1].replace(/\s*\([^)]*\)/g, '').trim()}!${cell[2]}`;
+    return `${source} ${location}`;
+}
+
 export function formatPesoTick(value: number): string {
     return `₱${compact.format(value)}`;
 }

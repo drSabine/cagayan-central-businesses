@@ -5,6 +5,7 @@ namespace App\Queries;
 use App\Data\FinanceDocumentLink;
 use App\Data\FinanceFigureRow;
 use App\Data\FinanceIssue;
+use App\Data\FinanceLineOption;
 use App\Data\FinanceReport;
 use App\Data\SelectOption;
 use App\Enums\FinanceAvailability;
@@ -32,14 +33,14 @@ final class FinanceReportQuery
     public function get(User $user, Municipality $town, int $year): FinanceReport
     {
         $figures = FinanceFigure::query()
-            ->select('finance_figures.*', 'l.label as line_label')
+            ->select('finance_figures.*', 'l.label as line_label', 'l.group as line_group')
             ->join('finance_lines as l', 'l.code', '=', 'finance_figures.line_code')
             ->leftJoin('finance_documents as d', 'd.id', '=', 'finance_figures.finance_document_id')
             ->where('l.displayed', true)
             ->where('finance_figures.municipality_id', $town->id)
             ->where(fn (Builder $query) => $query->where('d.fiscal_year', $year)
                 ->orWhere(fn (Builder $manual) => $manual->whereNull('finance_figures.finance_document_id')->where('finance_figures.fiscal_year', $year)))
-            ->with('document:id,kind')
+            ->with('document:id,kind,source_url')
             ->orderBy('l.sort')->orderByDesc('finance_figures.fiscal_year')->orderBy('finance_figures.basis')->orderBy('finance_figures.entry_method')
             ->get();
 
@@ -54,12 +55,16 @@ final class FinanceReportQuery
                     $document->kind->value, self::KINDS[$document->kind->value],
                     $document->availability === FinanceAvailability::Available, $document->source_url,
                 ))->all()),
-            lines: array_values(FinanceLine::query()->where('displayed', true)->orderBy('sort')->get(['code', 'label'])
-                ->map(fn (FinanceLine $line) => new SelectOption($line->code, $line->label))->all()),
+            lines: array_values(FinanceLine::query()->where('displayed', true)->orderBy('sort')->get(['code', 'label', 'group'])
+                ->map(fn (FinanceLine $line) => new FinanceLineOption($line->code, $line->label,
+                    config('cagayan.finances.groups.'.$line->getAttribute('group').'.bases', ['actual'])))->all()),
             limits: [
                 'firstYear' => (int) config('cagayan.finances.first_year'),
-                'lastYear' => (int) config('cagayan.finances.last_year'),
+                'lastYear' => min($year, (int) config('cagayan.finances.last_year')),
                 'noteMax' => (int) config('cagayan.finances.note_max'),
+                'valueMax' => (string) config('cagayan.finances.value_max'),
+                'sourceUrlMax' => (int) config('cagayan.finances.source_url_max'),
+                'reviewBatchMax' => (int) config('cagayan.finances.review_batch_max'),
             ],
         );
     }
@@ -84,6 +89,9 @@ final class FinanceReportQuery
             enteredByYou: $figure->entered_by === $user->id,
             reviewedOn: $figure->reviewed_on?->toDateString(),
             note: $figure->note,
+            group: (string) $figure->getAttribute('line_group'),
+            groupLabel: (string) config('cagayan.finances.groups.'.$figure->getAttribute('line_group').'.label'),
+            sourceUrl: $figure->source_url ?? $figure->document?->source_url,
         );
     }
 

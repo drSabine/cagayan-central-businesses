@@ -9,8 +9,8 @@ final readonly class FinanceReport
      * @param  list<FinanceFigureRow>  $figures
      * @param  list<FinanceIssue>  $issues
      * @param  list<FinanceDocumentLink>  $documents
-     * @param  list<SelectOption>  $lines
-     * @param  array{firstYear: int, lastYear: int, noteMax: int}  $limits
+     * @param  list<FinanceLineOption>  $lines
+     * @param  array{firstYear: int, lastYear: int, noteMax: int, valueMax: string, sourceUrlMax: int, reviewBatchMax: int}  $limits
      */
     public function __construct(
         public SelectOption $town,

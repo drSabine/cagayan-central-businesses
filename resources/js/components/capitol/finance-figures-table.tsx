@@ -1,9 +1,7 @@
-import { useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
+import { FinanceReviewDialog } from '@/components/capitol/finance-review-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Spinner } from '@/components/ui/spinner';
 import {
     Table,
     TableBody,
@@ -12,9 +10,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
-import { formatExactPesos } from '@/lib/performance-format';
-import { store as review } from '@/routes/capitol/finances/reviews';
+import {
+    formatExactPesos,
+    formatFinanceSource,
+} from '@/lib/performance-format';
 import type { FinanceFigureRow, FinanceReport } from '@/types/finance';
 
 const STATUS: Record<FinanceFigureRow['status'], string> = {
@@ -24,61 +23,111 @@ const STATUS: Record<FinanceFigureRow['status'], string> = {
     superseded: 'Superseded',
 };
 
-const BASIS: Record<FinanceFigureRow['basis'], string> = {
-    actual: 'Actual',
-    budget_final: 'Final Budget',
-};
-
-export function FinanceFiguresTable({ report }: { report: FinanceReport }) {
+export function FinanceFiguresTable({
+    report,
+    fiscalYear,
+}: {
+    report: FinanceReport;
+    fiscalYear: number;
+}) {
+    const [reviewing, setReviewing] = useState(false);
     const [selected, setSelected] = useState<string[]>([]);
-    const form = useForm({
-        decision: 'verified',
-        figures: [] as string[],
-        note: '',
-    });
-    const reviewable = report.figures.filter(
+    const [decision, setDecision] = useState<'verified' | 'rejected' | null>(
+        null,
+    );
+    const reviewTrigger = useRef<HTMLButtonElement>(null);
+    const figures = report.figures.filter(
+        (figure) => figure.fiscalYear === fiscalYear,
+    );
+    const groups = [...new Set(figures.map((figure) => figure.group))];
+    const reviewable = figures.filter(
         (figure) => figure.status === 'pending' && !figure.enteredByYou,
     );
-    const toggle = (id: string, on: boolean) =>
+    const toggle = (id: string, checked: boolean) =>
         setSelected((ids) =>
-            on ? [...ids, id] : ids.filter((value) => value !== id),
+            checked ? [...ids, id] : ids.filter((value) => value !== id),
         );
-    const submit = (decision: 'verified' | 'rejected') => {
-        form.transform((data) => ({ ...data, decision, figures: selected }));
-        form.post(review({ town: report.town.value, year: report.year }).url, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setSelected([]);
-                form.reset('note');
-            },
-        });
+    const openReview = (
+        value: 'verified' | 'rejected',
+        trigger: HTMLButtonElement,
+    ) => {
+        reviewTrigger.current = trigger;
+        setDecision(value);
     };
-
-    if (!report.figures.length) {
+    if (!figures.length)
         return (
             <p className="rounded-sm border bg-card p-4 type-body text-muted-foreground">
-                No figures for this report yet.
+                No figures for this fiscal year.
             </p>
         );
-    }
-
     return (
-        <section className="flex min-w-0 flex-col gap-4">
-            <div className="overflow-x-auto rounded-sm border bg-card">
-                <Table>
+        <div className="flex min-w-0 flex-col gap-2">
+            {report.canReview && reviewable.length > 0 && (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                    {selected.length > 0 && (
+                        <>
+                            <span className="type-meta">
+                                <span className="font-mono tabular-nums">
+                                    {selected.length}
+                                </span>{' '}
+                                selected
+                            </span>
+                            <Button
+                                size="sm"
+                                onClick={(event) =>
+                                    openReview('verified', event.currentTarget)
+                                }
+                            >
+                                Sign Off
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(event) =>
+                                    openReview('rejected', event.currentTarget)
+                                }
+                            >
+                                Reject
+                            </Button>
+                        </>
+                    )}
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                            setReviewing(!reviewing);
+                            setSelected([]);
+                        }}
+                    >
+                        {reviewing ? 'Cancel Review' : 'Review Figures'}
+                    </Button>
+                </div>
+            )}
+            <div className="overflow-hidden rounded-sm border bg-card">
+                <Table className="w-full min-w-[40rem] table-fixed">
+                    <colgroup>
+                        {reviewing && <col className="w-10" />}
+                        <col />
+                        <col className="w-1/4" />
+                        <col className="w-[30%]" />
+                        <col className="w-32" />
+                    </colgroup>
                     <TableHeader>
                         <TableRow>
-                            {report.canReview && (
-                                <TableHead className="w-10">
+                            {reviewing && (
+                                <TableHead>
                                     <input
                                         type="checkbox"
-                                        aria-label="Select every figure you can sign off"
                                         className="size-4 accent-primary"
-                                        disabled={!reviewable.length}
+                                        aria-label="Select all pending figures"
                                         checked={
-                                            reviewable.length > 0 &&
                                             selected.length ===
-                                                reviewable.length
+                                                reviewable.length &&
+                                            selected.length > 0
+                                        }
+                                        disabled={
+                                            reviewable.length >
+                                            report.limits.reviewBatchMax
                                         }
                                         onChange={(event) =>
                                             setSelected(
@@ -92,136 +141,160 @@ export function FinanceFiguresTable({ report }: { report: FinanceReport }) {
                                     />
                                 </TableHead>
                             )}
-                            <TableHead>Line</TableHead>
-                            <TableHead>Fiscal Year</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
+                            <TableHead>Item</TableHead>
+                            <TableHead className="text-right">
+                                Amount in PHP (₱)
+                            </TableHead>
                             <TableHead>Source</TableHead>
                             <TableHead>Status</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {report.figures.map((figure) => (
-                            <TableRow key={figure.id}>
-                                {report.canReview && (
-                                    <TableCell>
-                                        {reviewable.includes(figure) && (
-                                            <input
-                                                type="checkbox"
-                                                aria-label={`Select ${figure.label} ${figure.fiscalYear}`}
-                                                className="size-4 accent-primary"
-                                                checked={selected.includes(
-                                                    figure.id,
+                        {groups.map((group) => {
+                            const rows = figures.filter(
+                                (figure) => figure.group === group,
+                            );
+                            return (
+                                <Fragment key={group}>
+                                    <TableRow className="bg-muted/40 hover:bg-muted/40">
+                                        <TableCell
+                                            colSpan={reviewing ? 5 : 4}
+                                            className="py-2 type-body font-medium"
+                                        >
+                                            {rows[0].groupLabel}
+                                            {group === 'business_taxes' && (
+                                                <span className="ml-3 type-meta">
+                                                    General Fund
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                    {rows.map((figure) => (
+                                        <TableRow key={figure.id}>
+                                            {reviewing && (
+                                                <TableCell>
+                                                    {reviewable.includes(
+                                                        figure,
+                                                    ) && (
+                                                        <input
+                                                            type="checkbox"
+                                                            className="size-4 accent-primary"
+                                                            aria-label={`Select ${figure.label} ${figure.fiscalYear} ${figure.basis === 'budget_final' ? 'Final Budget' : 'Actual'}`}
+                                                            checked={selected.includes(
+                                                                figure.id,
+                                                            )}
+                                                            disabled={
+                                                                !selected.includes(
+                                                                    figure.id,
+                                                                ) &&
+                                                                selected.length >=
+                                                                    report
+                                                                        .limits
+                                                                        .reviewBatchMax
+                                                            }
+                                                            onChange={(event) =>
+                                                                toggle(
+                                                                    figure.id,
+                                                                    event.target
+                                                                        .checked,
+                                                                )
+                                                            }
+                                                        />
+                                                    )}
+                                                </TableCell>
+                                            )}
+                                            <TableCell className="whitespace-normal">
+                                                <span className="type-body">
+                                                    {figure.label}
+                                                </span>
+                                                {figure.basis ===
+                                                    'budget_final' && (
+                                                    <span className="block type-meta">
+                                                        Final Budget
+                                                    </span>
                                                 )}
-                                                onChange={(event) =>
-                                                    toggle(
-                                                        figure.id,
-                                                        event.target.checked,
+                                            </TableCell>
+                                            <TableCell className="text-right font-mono tabular-nums">
+                                                {formatExactPesos(figure.value)}
+                                            </TableCell>
+                                            <TableCell className="type-meta whitespace-normal">
+                                                {figure.sourceUrl ? (
+                                                    <a
+                                                        href={figure.sourceUrl}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="underline underline-offset-4"
+                                                        title={[
+                                                            figure.source,
+                                                            figure.location,
+                                                        ]
+                                                            .filter(Boolean)
+                                                            .join(' ')}
+                                                        aria-label={`${formatFinanceSource(figure.source, figure.location)} (opens in a new tab)`}
+                                                    >
+                                                        {formatFinanceSource(
+                                                            figure.source,
+                                                            figure.location,
+                                                        )}
+                                                    </a>
+                                                ) : (
+                                                    formatFinanceSource(
+                                                        figure.source,
+                                                        figure.location,
                                                     )
-                                                }
-                                            />
-                                        )}
-                                    </TableCell>
-                                )}
-                                <TableCell>
-                                    <span className="type-body">
-                                        {figure.label}
-                                    </span>
-                                    {figure.basis !== 'actual' && (
-                                        <span className="block type-meta">
-                                            {BASIS[figure.basis]}
-                                        </span>
-                                    )}
-                                </TableCell>
-                                <TableCell className="font-mono tabular-nums">
-                                    {figure.fiscalYear}
-                                </TableCell>
-                                <TableCell className="text-right font-mono tabular-nums">
-                                    {formatExactPesos(figure.value)}
-                                </TableCell>
-                                <TableCell>
-                                    <span className="type-body">
-                                        {figure.source}
-                                    </span>
-                                    {figure.location && (
-                                        <span className="block font-mono type-meta">
-                                            {figure.location}
-                                        </span>
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    <Badge
-                                        variant={
-                                            figure.status === 'pending'
-                                                ? 'outline'
-                                                : figure.status === 'rejected'
-                                                  ? 'destructive'
-                                                  : 'secondary'
-                                        }
-                                    >
-                                        {STATUS[figure.status]}
-                                    </Badge>
-                                    {figure.enteredByYou &&
-                                        figure.status === 'pending' && (
-                                            <span className="block type-meta">
-                                                Entered by you
-                                            </span>
-                                        )}
-                                    {figure.note && (
-                                        <span className="block type-meta">
-                                            {figure.note}
-                                        </span>
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="whitespace-normal">
+                                                <Badge
+                                                    variant={
+                                                        figure.status ===
+                                                        'rejected'
+                                                            ? 'destructive'
+                                                            : figure.status ===
+                                                                'pending'
+                                                              ? 'outline'
+                                                              : 'secondary'
+                                                    }
+                                                >
+                                                    {STATUS[figure.status]}
+                                                </Badge>
+                                                {figure.enteredByYou &&
+                                                    figure.status ===
+                                                        'pending' && (
+                                                        <span className="block type-meta">
+                                                            Entered by you
+                                                        </span>
+                                                    )}
+                                                {figure.note && (
+                                                    <p className="mt-1 type-meta break-words">
+                                                        {figure.note}
+                                                    </p>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </Fragment>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </div>
-            {report.canReview && reviewable.length > 0 && (
-                <div className="flex flex-col gap-3 rounded-sm border bg-card p-4">
-                    <Field data-invalid={!!form.errors.note}>
-                        <FieldLabel htmlFor="review-note">
-                            Reason for Rejecting
-                        </FieldLabel>
-                        <Textarea
-                            id="review-note"
-                            value={form.data.note}
-                            maxLength={report.limits.noteMax}
-                            aria-invalid={!!form.errors.note}
-                            aria-describedby="review-note-error"
-                            onChange={(event) =>
-                                form.setData('note', event.target.value)
-                            }
-                        />
-                        <FieldError id="review-note-error">
-                            {form.errors.note ?? form.errors.figures}
-                        </FieldError>
-                    </Field>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            type="button"
-                            disabled={!selected.length || form.processing}
-                            onClick={() => submit('verified')}
-                        >
-                            {form.processing && <Spinner />}Sign Off Selected
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            disabled={!selected.length || form.processing}
-                            onClick={() => submit('rejected')}
-                        >
-                            Reject Selected
-                        </Button>
-                        <span className="type-meta">
-                            <span className="font-mono tabular-nums">
-                                {selected.length}
-                            </span>{' '}
-                            selected
-                        </span>
-                    </div>
-                </div>
+            {decision && (
+                <FinanceReviewDialog
+                    key={decision}
+                    report={report}
+                    fiscalYear={fiscalYear}
+                    decision={decision}
+                    ids={selected}
+                    onClose={() => setDecision(null)}
+                    onReturnFocus={() => reviewTrigger.current?.focus()}
+                    onComplete={() => {
+                        setSelected([]);
+                        setDecision(null);
+                        setReviewing(false);
+                    }}
+                />
             )}
-        </section>
+        </div>
     );
 }

@@ -3,7 +3,7 @@ title: "Finance Ledger and Analytics Program"
 created: "26-10-27"
 updated: "26-10-28"
 status: in-progress
-branch: "data/coa-workbooks (Phase 4)"
+branch: "bug/finance-review-ui (Phase 3 corrections in kickoff)"
 base: staging
 predecessor: "archive/26-10-24-government-finances-economic-context.md"
 ---
@@ -32,7 +32,7 @@ Each phase gets its own branch from `staging` and its own pull request.
 | 0 Docs and decisions | `docs/finance-ledger-decisions` | [PR #22](https://github.com/m-njp/cagayan-central-businesses/pull/22) open |
 | 1 Python parser for Executive Summaries | `data/coa-parser` | [PR #23](https://github.com/m-njp/cagayan-central-businesses/pull/23) open |
 | 2 Finance ledger schema and import | `feat/finance-ledger` | [PR #24](https://github.com/m-njp/cagayan-central-businesses/pull/24) open |
-| 3 Manual entry and sign-off in the Capitol | `feat/finance-review` | Not started |
+| 3 Manual entry and sign-off in the Capitol | `bug/finance-review-ui` in kickoff | Implemented foundation; UI and input corrections in progress |
 | 4 Workbook collection and workbook parser | `data/coa-workbooks` | Parser and the 17 existing workbooks done, pull request open; remaining collection deferred |
 | 5 Industries, Focus Tags, simulated businesses, privacy guard | `feat/business-industries` | Not started |
 | 6 Analytics engine and pages | `feat/analytics-engine` | Not started; needs Phases 2 to 5 |
@@ -72,11 +72,41 @@ Each phase gets its own branch from `staging` and its own pull request.
 
 ### Phase 3: Capitol Review
 
-- [ ] Capitol finance index, detail page, entry form and sign-off.
-- [ ] Gates:
+#### UI and Input Corrections Requested 26-10-28
+
+Work only in `cagayan-business-kickoff`, on `bug/finance-review-ui` from the integrated preview branch. The finance folder is a preserved earlier working copy, not the active implementation.
+
+The index answers which town/report needs review; its first screen should show a compact report list, explicit pagination and a right filter panel. The report answers which figures belong to each fiscal year and which are ready for review.
+
+- [x] Shared pagination with previous/next, numbered pages, total pages and record range, reused by finance, Community Wishes and Activity Logs.
+- [x] Central breadcrumbs in the workspace layout, including nested town/report routes; document the page contract and required use.
+- [x] Compact index table and right-hand desktop filters, stacked on phones.
+- [x] Fiscal-year tabs, newest first, and category groups. Switching already-loaded years uses local URL history without a request.
+- [x] Source cards with official COA destinations and per-figure source provenance; remove redundant back-links from content.
+- [x] Enter a Figure opens a right-hand drawer; Sign Off and Reject use separate dialogs. Rejection requires a reason; sign-off notes are optional.
+- [x] Shared accessible required marker on labels, used with actual required controls.
+- [x] Central input limits on server and browser; official COA HTTPS URLs only, line-appropriate basis, no negative values for the 13 stored lines, no figure year later than its report. Existing maximum is preserved.
+- [x] PostGIS validation and pagination regressions, full CI, production build and desktop browser flow verification.
+
+Audit before changes: 1,339 figures, 240 documents, 0 manual entries and 9 verified figures in the finance preview database (read-only query). There are 13 stored financial lines. Manual entry has seven submitted fields: line, fiscal year, basis, value, source kind, conditional source URL and note. Prior implementation accepted either basis for every line, negative values for all lines, any HTTPS source, and any configured year regardless of report year. Structural database constraints enforce source presence, enums, foreign keys and a single verified observation; they do not enforce all form semantics. No database reset or change to metric definitions is authorized by these UI corrections.
+
+#### Follow-up Simplification, 26-10-28
+
+The user's screenshot review superseded the earlier tabs, source-card strip and expanded pagination. The uniform table and concise layout below are the final accepted direction; the earlier checked items describe the first draft only.
+
+- [x] Replace separate category tables with one aligned table and internal category rows; use Item and Amount in PHP (₱).
+- [x] Put Fiscal Year in the right filter panel while retaining local history, newest-first choices and Back/Forward.
+- [x] Remove the repeated report-year subtitle. Replace source cards with compact Source attribution; link the actual source/page or sheet/cell citation in each row.
+- [x] Default to reading mode. Reveal checkboxes through Review Figures; show bulk actions and a selection count only for a non-empty selection.
+- [x] Use quiet Previous / Page n of m / Next pagination and remove the inner width cap causing the screenshot's asymmetric empty strip.
+- [x] Document the repeated unwanted patterns in design.md, frontend.md, CLAUDE.md and the path-scoped frontend rule.
+- [x] Rerun the frontend checks and record verification of this simplified revision.
+
+- [x] Capitol finance index, detail page, entry form and sign-off.
+- [x] Gates:
   - `finance-entry`: Staff for their assigned towns; Admin and Super Admin anywhere.
   - `finance-review`: Admin and Super Admin, never on a figure they entered themselves.
-- [ ] Activity Log events carry an event code and an actor key only.
+- [x] Activity Log events carry an event code and an actor key only.
 
 ### Phase 4: Workbook Collection and Parser
 
@@ -159,6 +189,15 @@ The following are out of scope:
 
 ## Verification and Handoff
 
+### Phase 3 UI and Input Verification, 26-10-28
+
+- All changes are in `cagayan-business-kickoff` on `bug/finance-review-ui`; the older finance checkout is unchanged. The original phase status was stale and has been corrected. No new dependency, schema change or database reset.
+- Final `composer ci:check` passed: frontend format/lint, TypeScript, Pint, PHPStan (0 errors), and 224 tests with 1,343 assertions. All database tests use `cagayan_business_test` on PostGIS. `npm run build` passed with existing bundle-size warnings.
+- Added regressions for exact amount limits and digit count, decimals/scientific notation, report/fiscal-year ordering, line-specific basis, note length, unofficial/lookalike/credential-bearing sources, malicious line input, pagination links/metadata, manual source provenance, and manual CSV bypasses. The unofficial-source test failed when the URL rule was disabled only inside a test process; the rule was immediately restored and final checks passed.
+- Browser on port 8000: index pagination and Page 2 breadcrumbs; town/report breadcrumbs; fiscal-year selector and Back restoring 2025 from 2024; one report table; no checkboxes in reading mode; no bulk actions with empty selection; Sign Off opens an optional note and Reject a required reason; Cancel restores focus. No finance entry or review was submitted during these browser checks.
+- The simplified revision was visually checked in light and dark at a 1,210px browser width. DOM bounds confirm the filter's right edge is 24px inside the workspace edge, matching its gutter instead of leaving the old asymmetric strip. The final narrow-phone revision has not been visually rechecked.
+- The first draft's fiscal-year tabs, source cards and verbose pagination are explicitly superseded by Follow-up Simplification above. Shared usage and the recurring unwanted patterns are documented in frontend.md, design.md, CLAUDE.md and `.claude/rules/frontend.md`. No UI correction is treated as permission to alter metric definitions or source data.
+
 Phase 0 is documentation only. No application code, data or database changed, so no tests or builds were run. Relative links and anchors in the changed docs were checked.
 
 ### Phase 1 Verification, 26-10-28
@@ -218,3 +257,17 @@ Phase 0 is documentation only. No application code, data or database changed, so
   - They include hand-added sector totals and a General Fund column inside a multi-fund annex.
 - **Ledger tests:** `php artisan test --compact tests/Feature/Finances` passed 15 tests after adding the `document_kind` column and the `annex_workbook` kind migration.
 - **Import:** `finances:import` loaded 240 documents and 1,339 stored figures. The 8 verified sign-offs survive.
+
+### Workspace Controls Follow-up "26-10-28"
+
+User correction supersedes the entry button in the page header, required entry note, ghost review/cancel controls and shared greeting row. Entry now starts from the fiscal-filter panel. The drawer orders Year, Item, Basis, Amount and Source Report, uses contextual help and required markers, and sends no note. The server prohibits submitted entry notes; existing imported notes and separate review reasons are preserved. Activity Logs and Community Wishes move existing filters to the right without adding sorting behavior. Profile removes the character caption and marks Display Name required. Compact grouped navigation puts Profile and Sign Out in a bottom account dropdown; destination permissions and breadcrumbs share the existing navigation registry. The finance icon is a peso sign. Session activity and expiry warnings remain active.
+
+Browser testing is explicitly excluded by the user for this follow-up. Automated verification results are recorded below once complete. No shared development database reset is authorized or performed.
+
+Follow-up verification "26-10-28": `composer ci:check` passed with 223 tests and 1,342 assertions on PostGIS `cagayan_business_test`. The updated entry test asserts a stored null note; an unsolicited entry note is rejected, and rejection-reason tests remain intact. Frontend formatting/lint, TypeScript and production build passed. Source review checked shared controls, required markers, permissions, logout route method and preserved session expiry/renewal logic. No browser verification was performed, as requested. No shared development database reset, commit, merge or deployment was performed.
+
+Bottom-bar correction "26-10-28": replaced the name/role block with a single-row Account dropdown trigger, aligned beside the appearance toggle. Profile and Sign Out remain in the menu. This supersedes showing identity details in the sidebar. Tests and browser checks were skipped for this small follow-up at the user's request.
+
+Report-year navigation correction "26-10-28": Government Finances index now answers which towns need review in the selected report year. Available authorized years appear newest first, defaulting to the newest; rows never combine years. Removed the Report Year dropdown and redundant table column. Town/status and pagination preserve the active year. Returning to a loaded first-page selection uses local Inertia history; unrequested selections fetch missing data. This supersedes the aggregated index with a year dropdown. Automated tests and browser testing remain skipped as requested; frontend compilation checks are recorded separately.
+
+Year-tab verification "26-10-28": frontend format/lint, TypeScript and production build passed; the changed PHP query passed syntax checking. No automated test suite or browser checks were run for this follow-up.

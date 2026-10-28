@@ -42,7 +42,9 @@ export default function Profile({ profile }: { profile: AccountProfile }) {
                     </div>
                 )}
                 <Field data-invalid={!!form.errors.display_name}>
-                    <FieldLabel htmlFor="display_name">Display Name</FieldLabel>
+                    <FieldLabel required htmlFor="display_name">
+                        Display Name
+                    </FieldLabel>
                     <Input
                         id="display_name"
                         name="display_name"
@@ -51,14 +53,11 @@ export default function Profile({ profile }: { profile: AccountProfile }) {
                         maxLength={profile.displayNameMax}
                         required
                         aria-invalid={!!form.errors.display_name}
-                        aria-describedby="name-limit name-error"
+                        aria-describedby="name-error"
                         onChange={(e) =>
                             form.setData('display_name', e.target.value)
                         }
                     />
-                    <p id="name-limit" className="type-meta">
-                        Up to {profile.displayNameMax} characters.
-                    </p>
                     <FieldError id="name-error">
                         {form.errors.display_name}
                     </FieldError>

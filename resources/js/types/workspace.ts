@@ -15,12 +15,20 @@ export type Workspace = {
 export type WorkspaceMap = { atlas: TownAtlas; barangays: BarangayProfile[] };
 export type WorkspaceTable = {
     rows: Record<string, string | number | null>[];
-    previous: string | null;
-    next: string | null;
-    page: number;
+    pagination: Pagination;
     towns: SelectOption[];
     categories: SelectOption[];
     filters: Record<string, string | null>;
+};
+export type Pagination = {
+    previous: string | null;
+    next: string | null;
+    page: number;
+    lastPage: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+    links: { page: number; url: string }[];
 };
 export type AccountProfile = {
     displayName: string;

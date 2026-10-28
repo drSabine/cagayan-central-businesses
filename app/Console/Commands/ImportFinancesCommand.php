@@ -11,13 +11,16 @@ use App\Models\FinanceDocument;
 use App\Models\FinanceFigure;
 use App\Models\FinanceLine;
 use App\Models\Municipality;
+use App\Rules\OfficialCoaUrl;
 use App\Services\FinanceSignOff;
 use Carbon\CarbonInterface;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 /**
  * Loads data/towns/finances into the ledger (D35). Parsed figures arrive pending; reviews.csv and
@@ -65,7 +68,7 @@ final class ImportFinancesCommand extends Command
         $documentKeys = $this->validateDocuments($documents, $towns);
         $this->validateExtracted($extracted, $towns, $codes, $documentKeys);
         $this->validateReviews($reviews, $codes);
-        $this->validateManual($manual, $towns, $codes, $documentKeys);
+        $this->validateManual($manual, $towns, array_column(array_column($lines, 'row'), 'group', 'code'), $documentKeys);
 
         if ($this->errors !== []) {
             foreach ($this->errors as $error) {
@@ -283,7 +286,7 @@ final class ImportFinancesCommand extends Command
                 ! ctype_digit($row['fiscal_year']) => "fiscal_year {$row['fiscal_year']} is not a year",
                 FinanceDocumentKind::tryFrom($row['kind']) === null => "unknown kind {$row['kind']}",
                 FinanceAvailability::tryFrom($row['availability']) === null => "unknown availability {$row['availability']}",
-                $available && ! str_starts_with($row['source_url'], 'https://') => 'source_url is missing or not https',
+                $available && Validator::make(['source_url' => $row['source_url']], ['source_url' => ['required', 'url:https', 'max:'.config('cagayan.finances.source_url_max'), new OfficialCoaUrl]])->fails() => 'source_url must be an official HTTPS COA link',
                 $available && ! preg_match('/^[0-9a-f]{64}$/', $row['sha256']) => 'sha256 must be 64 lower-case hex characters',
                 ! $this->isDate($row['checked_on']) => 'checked_on must be YYYY-MM-DD',
                 isset($keys[$key]) => 'repeats an earlier document for the same town, year, and kind',
@@ -347,14 +350,24 @@ final class ImportFinancesCommand extends Command
     /**
      * @param  list<array{file: string, line: int, row: array<string, string>}>  $manual
      * @param  array<string, int>  $towns
-     * @param  array<string, int>  $codes
+     * @param  array<array-key, string>  $codes
      * @param  array<string, array{available: bool, sha256: string}>  $documents
      */
     private function validateManual(array $manual, array $towns, array $codes, array $documents): void
     {
+        $digits = strlen(explode('.', (string) config('cagayan.finances.value_max'))[0]);
         foreach ($manual as ['line' => $line, 'row' => $row]) {
             $hasDocument = $row['reported_in_year'] !== '';
             $status = FinanceFigureStatus::tryFrom($row['status']);
+            $group = $codes[$row['line_code']] ?? '';
+            $lastYear = $hasDocument ? min((int) $row['reported_in_year'], (int) config('cagayan.finances.last_year')) : (int) config('cagayan.finances.last_year');
+            $validation = Validator::make($row, [
+                'fiscal_year' => ['required', 'integer', 'between:'.config('cagayan.finances.first_year').','.$lastYear],
+                'basis' => [Rule::in(config("cagayan.finances.groups.{$group}.bases", []))],
+                'value' => ['required', 'regex:/^\d{1,'.$digits.'}(\.\d{1,2})?$/', 'numeric', 'between:0,'.config('cagayan.finances.value_max')],
+                'note' => ['max:'.config('cagayan.finances.note_max'), 'not_regex:/[\p{Cc}\p{Cf}<>]/u'],
+                'source_url' => [$hasDocument ? 'nullable' : 'required', 'url:https', 'max:'.config('cagayan.finances.source_url_max'), new OfficialCoaUrl],
+            ]);
             $this->problem('manual-figures.csv', $line, match (true) {
                 ! Str::isUuid($row['public_id']) => 'public_id must be a UUID',
                 ! isset($towns[$row['psgc_code']]) => "unknown town code {$row['psgc_code']}",
@@ -362,10 +375,11 @@ final class ImportFinancesCommand extends Command
                 FinanceBasis::tryFrom($row['basis']) === null => "unknown basis {$row['basis']}",
                 ! ctype_digit($row['fiscal_year']) => "fiscal_year {$row['fiscal_year']} is not a year",
                 ! is_numeric($row['value']) => "value {$row['value']} is not a number",
-                $hasDocument && ! isset($documents["{$row['psgc_code']} {$row['reported_in_year']} {$row['document_kind']}"]) => 'the document is not in documents.csv',
+                $hasDocument && ! ($documents["{$row['psgc_code']} {$row['reported_in_year']} {$row['document_kind']}"]['available'] ?? false) => 'the document is not available in documents.csv',
                 ! $hasDocument && ! str_starts_with($row['source_url'], 'https://') => 'needs a document or an https source_url',
                 $status === null => "unknown status {$row['status']}",
                 $status !== FinanceFigureStatus::Pending && ! $this->isDate($row['reviewed_on']) => 'reviewed_on must be YYYY-MM-DD once reviewed',
+                $validation->fails() => $validation->errors()->first(),
                 default => null,
             });
         }

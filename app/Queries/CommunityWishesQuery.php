@@ -2,6 +2,7 @@
 
 namespace App\Queries;
 
+use App\Data\Pagination;
 use App\Data\SelectOption;
 use App\Data\WorkspaceTable;
 use App\Models\BusinessType;
@@ -22,7 +23,7 @@ final class CommunityWishesQuery
 
         return new WorkspaceTable(
             array_values(array_map(fn ($r) => ['town' => (string) $r->town, 'category' => (string) $r->category, 'count' => (int) $r->count], $results->items())),
-            $results->previousPageUrl(), $results->nextPageUrl(), $results->currentPage(),
+            Pagination::from($results),
             array_values(Municipality::query()->orderBy('name')->get(['psgc_code', 'name'])->map(fn ($m) => new SelectOption($m->psgc_code, $m->name))->all()),
             array_values(BusinessType::query()->orderBy('name')->get(['code', 'name'])->map(fn ($b) => new SelectOption($b->code, $b->name))->all()),
             ['town' => $town, 'category' => $category],

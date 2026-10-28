@@ -15,8 +15,8 @@ final class ReviewFinanceRequest extends FinanceReportRequest
         return [
             ...parent::rules(),
             'decision' => ['required', 'in:verified,rejected'],
-            'figures' => ['required', 'array', 'min:1', 'max:200'],
-            'figures.*' => ['required', 'uuid'],
+            'figures' => ['required', 'array', 'min:1', 'max:'.config('cagayan.finances.review_batch_max')],
+            'figures.*' => ['required', 'uuid', 'distinct'],
             'note' => ['nullable', 'required_if:decision,rejected', 'string', 'max:'.config('cagayan.finances.note_max'), 'not_regex:/[\p{Cc}\p{Cf}<>]/u'],
         ];
     }

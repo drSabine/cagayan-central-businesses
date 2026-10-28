@@ -1,5 +1,6 @@
 // Mirrors of the finance review Data objects in app/Data, field for field.
 import type { SelectOption } from '@/types/data';
+import type { Pagination } from '@/types/workspace';
 
 export type FinanceReportRow = {
     townCode: string;
@@ -12,9 +13,7 @@ export type FinanceReportRow = {
 
 export type FinanceReviewList = {
     rows: FinanceReportRow[];
-    previous: string | null;
-    next: string | null;
-    page: number;
+    pagination: Pagination;
     towns: SelectOption[];
     years: SelectOption[];
     filters: {
@@ -45,6 +44,9 @@ export type FinanceFigureRow = {
     enteredByYou: boolean;
     reviewedOn: string | null;
     note: string | null;
+    group: string;
+    groupLabel: string;
+    sourceUrl: string | null;
 };
 
 export type FinanceIssue = {
@@ -69,6 +71,13 @@ export type FinanceReport = {
     figures: FinanceFigureRow[];
     issues: FinanceIssue[];
     documents: FinanceDocumentLink[];
-    lines: SelectOption[];
-    limits: { firstYear: number; lastYear: number; noteMax: number };
+    lines: (SelectOption & { bases: ('actual' | 'budget_final')[] })[];
+    limits: {
+        firstYear: number;
+        lastYear: number;
+        noteMax: number;
+        valueMax: string;
+        sourceUrlMax: number;
+        reviewBatchMax: number;
+    };
 };

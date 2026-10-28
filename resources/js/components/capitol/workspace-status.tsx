@@ -3,11 +3,6 @@ import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useWorkspaceClock } from '@/hooks/use-workspace-clock';
 import { useWorkspaceActivity } from '@/hooks/use-workspace-activity';
-import {
-    formatClock,
-    formatWorkspaceDate,
-    greeting,
-} from '@/lib/workspace-format';
 import type { Workspace } from '@/types/workspace';
 
 export function WorkspaceStatus({
@@ -36,28 +31,6 @@ export function WorkspaceStatus({
 
     return (
         <>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-4">
-                <div className="min-w-0">
-                    <p className="type-item">
-                        {greeting(now)}, {workspace.displayName}
-                    </p>
-                    {workspace.isBirthday && (
-                        <p className="type-body">
-                            Happy birthday, {workspace.displayName}.
-                        </p>
-                    )}
-                </div>
-                <div className="text-right">
-                    <time
-                        dateTime={now.toISOString()}
-                        className="font-mono type-body tabular-nums"
-                        aria-live="off"
-                    >
-                        {formatClock(now)} PHT
-                    </time>
-                    <p className="type-meta">{formatWorkspaceDate(now)}</p>
-                </div>
-            </div>
             {ending && (
                 <div
                     role="status"

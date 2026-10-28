@@ -204,9 +204,9 @@ Page titles: pass only the page name to `<Head title="Home" />`. The app adds it
 - Content is centered at `max-w-6xl`, `px-gutter` on phones and `px-6` from `md`, sections `gap-section` apart.
 - Capitol uses a fixed, non-collapsible labeled desktop sidebar and a mobile menu. One compact breadcrumb strip follows actual geography/page hierarchy. The content fills the remaining width.
 - Compact spacing, readable type, hairline separators, no oversized greeting or decorative metric cards. New workspace dimensions live in app.css tokens.
-- A short greeting row shows stored name, date, HH:mm:ss Philippine time, and a private birthday greeting when appropriate. The clock has no live-region announcements.
+- Do not render a shared greeting, birthday, date or clock row. Keep session activity, expiry checks and renewal warnings active independently of page decoration.
 - Dashboard: MapLibre population map and selected-area details. Omit the requests/approvals placeholder until functional. Community Wishes never appears on the dashboard.
-- Selected sidebar destinations use background and weight, without an accent bar. The greeting omits the role; retain it in the sidebar account area. No repeated helper paragraphs about expressed interest, unavailable workflows, or boundary limitations.
+- Selected sidebar destinations use background and weight, without an accent bar. Use a compact Account trigger in the bottom bar; do not show the account name or role in the sidebar. No repeated helper paragraphs about expressed interest, unavailable workflows, or boundary limitations.
 - One click selects an area locally, without a server visit or remounting the map. Geographic breadcrumbs also update locally. View Barangays explicitly drills down. Town/barangay selects provide equivalent access; URL filters preserve navigation. Sources and missing figures remain explicit.
 - Community Wishes is separate, accessible only to Admin and Super Admin. Activity Logs is Super Admin only. Profile is available to each signed-in role.
 - Future business publication uses labeled stages 1 Prepare, 2 Review, 3 Publish. No preview approval controls before that workflow is implemented.
@@ -372,3 +372,35 @@ Ranked bars are a bounded, scrollable ordered list. Put the full wrapping label 
 ### Compact Home Action Cards
 
 26-10-25 follow-up: remove icons from the two Home action cards. Use 16px vertical/horizontal padding, 12px content gaps, no shadow and no extra description. The Economy heading is Explore Your Town's Economy. Preserve the wish heading, working town-aware links and phone stacking. This supersedes the preceding question-style Economy heading and roomy icon-card treatment.
+
+### Government Finances Review Correction
+
+Approved 26-10-28. Keep the index compact with a report table and a right-hand desktop filter panel; stack filters above the list on phones. Use the shared pagination and workspace breadcrumbs documented in frontend.md. A town report separates report year from fiscal year: fiscal-year tabs run newest first and figures sit within catalog categories. Sources are labeled COA source cards with official report links, not a loose row of report-name hyperlinks. Remove the duplicated Government Finances back-link from page content.
+
+Enter a Figure is an action that opens a right-hand drawer. Sign Off and Reject open separate dialogs only after selection; do not leave a rejection reason or entry form permanently on the screen. Rejection requires a reason; a sign-off note is optional. Required controls use the shared FieldLabel marker and actual required state. Preserve role, assigned-town and independent-review restrictions.
+
+### Government Finances Simplification
+
+Later user correction, 26-10-28. This supersedes the fiscal-year tabs, source cards and verbose pagination in the earlier correction.
+
+- Use one table with one header and shared column widths. Category separators belong inside that table; do not render each category as an independently sized table. Use Item, Amount in PHP (₱), Source and Status. Align amounts right and keep rows consistent.
+- Sources are a compact Source attribution line, like the landing page. In a figure row, the citation itself is the link: Executive Summary p. 1 or pp. 1-2. Do not append a repeated COA Source line. Workbook citations keep a concise sheet/cell reference with the complete reference available to assistive technology and the link title.
+- Fiscal Year is a selector in the right-hand filter panel, matching the index pattern. It still updates local URL history over already loaded figures. Do not repeat Report Year 2025 below the town title; report context already appears in the breadcrumb.
+- Reading is the default. Checkboxes appear only after Review Figures is activated. Sign Off, Reject and the selection count appear only after at least one figure is selected. Never show 0 selected or a permanently empty bulk-action container.
+- Pagination is quiet Previous / Page n of m / Next navigation. No record-range sentence, boxed numbered strip, filled active-page button or separate card surface. Hide the control for a single page.
+- The workspace shell owns page gutters and width. Its table/filter grid fills the available content width; do not add a feature-level max-width that leaves an unexplained empty strip on one side.
+
+Repeated patterns to avoid: expanding a source credit into cards, adding subtitles that repeat navigation context, displaying inactive workflow controls, splitting a single dataset into misaligned table surfaces, and presenting every pagination statistic at once. Check these explicitly before calling a UI improvement complete. A user request to improve clarity does not authorize extra framing or helper copy.
+
+### Workspace Controls Correction "26-10-28"
+
+- Put Enter a Figure below the fiscal-year selector in the right panel. Use visible outlined Review Figures and Cancel Review buttons; reserve ghost styling for secondary icon controls.
+- Figure entry order is Fiscal Year, Item, Basis, Amount in PHP (₱), Source Report, then a conditional official COA link. No entry Note. Keep sign-off notes optional and rejection reasons required.
+- Use FieldHelp for requested field explanations, rather than permanent helper paragraphs. FieldLabel required markers accompany actual required controls.
+- Activity Logs and Community Wishes use the same right-side filter layout, with filters above the table on narrow screens.
+- Keep the sidebar compact, with Workspace and authorized Management destinations. The bottom account dropdown contains Profile and Sign Out; do not repeat Profile in the primary navigation. Government Finances uses the peso icon.
+- Profile shows the required name marker, without a permanent character-limit caption. Preserve the limit itself.
+
+The bottom bar has one single-row Account dropdown beside the appearance toggle. Profile and Sign Out stay inside the dropdown. Do not use a two-line name/role block or expose identity details in the sidebar (user correction "26-10-28").
+
+Government Finances index uses report-year navigation tabs, newest available year first and selected by default. Show one year at a time. Do not repeat Report Year in the right-hand filters or every table row. Town and Status remain in the filter panel; Clear Filters preserves the active year.

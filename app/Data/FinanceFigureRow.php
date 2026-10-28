@@ -20,5 +20,8 @@ final readonly class FinanceFigureRow
         public bool $enteredByYou,
         public ?string $reviewedOn,
         public ?string $note,
+        public string $group,
+        public string $groupLabel,
+        public ?string $sourceUrl,
     ) {}
 }

@@ -12,9 +12,7 @@ final readonly class FinanceReviewList
      */
     public function __construct(
         public array $rows,
-        public ?string $previous,
-        public ?string $next,
-        public int $page,
+        public Pagination $pagination,
         public array $towns,
         public array $years,
         public array $filters,

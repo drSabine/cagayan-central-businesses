@@ -5,6 +5,7 @@ use App\Enums\UserRole;
 use App\Models\ActivityLog;
 use App\Models\FinanceDocument;
 use App\Models\FinanceFigure;
+use App\Models\FinanceLine;
 use App\Models\Municipality;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,7 @@ function manualEntry(array $overrides = []): array
 {
     return [...[
         'line_code' => 'performance.revenue', 'fiscal_year' => 2024, 'basis' => 'actual',
-        'value' => '196960688.40', 'document_kind' => 'executive_summary', 'note' => 'Corrected from page 2',
+        'value' => '196960688.40', 'document_kind' => 'executive_summary',
     ], ...$overrides];
 }
 
@@ -76,6 +77,7 @@ it('lets assigned staff enter a figure that waits as pending', function () {
     expect($entry->status)->toBe(FinanceFigureStatus::Pending)
         ->and($entry->entered_by)->toBe($staff->id)
         ->and($entry->value)->toBe('196960688.40')
+        ->and($entry->note)->toBeNull()
         ->and($entry->finance_document_id)->toBe($this->figure->finance_document_id)
         ->and(ActivityLog::EVENTS)->toHaveKey('finance_figure_entered')
         ->and(DB::table('activity_logs')->where('event', 'finance_figure_entered')->where('actor_id', $staff->id)->count())->toBe(1);
@@ -92,7 +94,7 @@ it('rejects an entry without a report or link, or with a malformed amount', func
     'report not on file' => [['document_kind' => 'annex_workbook'], 'document_kind'],
     'commas in the amount' => [['value' => '196,960,688.40'], 'value'],
     'a line that is not displayed' => [['line_code' => 'position.assets'], 'line_code'],
-    'markup in the note' => [['note' => '<b>fixed</b>'], 'note'],
+    'removed note field' => [['note' => 'Unrequested entry note'], 'note'],
 ]);
 
 it('lets an admin sign off pending figures and logs it', function () {
@@ -127,6 +129,77 @@ it('requires a reason to reject', function () {
     $this->actingAs($admin)->post($route, ['decision' => 'rejected', 'figures' => [$this->figure->public_id], 'note' => 'Columns swapped'])->assertRedirect();
 
     expect($this->figure->refresh()->status)->toBe(FinanceFigureStatus::Rejected);
+});
+
+it('rejects invalid finance inputs without writing a figure', function (array $overrides, string $field) {
+    $this->actingAs(User::factory()->create())
+        ->post(route('capitol.finances.figures.store', ['town' => '0201501000', 'year' => 2024]), manualEntry($overrides))
+        ->assertSessionHasErrors($field);
+
+    $this->assertDatabaseCount('finance_figures', 1);
+    $this->assertDatabaseCount('activity_logs', 0);
+})->with([
+    'negative amount' => [['value' => '-1.00'], 'value'],
+    'over the configured cap' => [['value' => '1000000000000.00'], 'value'],
+    'three decimals' => [['value' => '1.001'], 'value'],
+    'scientific notation' => [['value' => '1e4'], 'value'],
+    'too many digits including leading zeros' => [['value' => '0000000000001.00'], 'value'],
+    'later than its report' => [['fiscal_year' => 2025], 'fiscal_year'],
+    'outside the supported years' => [['fiscal_year' => 2018], 'fiscal_year'],
+    'final budget on a revenue line' => [['basis' => 'budget_final'], 'basis'],
+    'array instead of a line' => [['line_code' => ['performance.revenue']], 'line_code'],
+    'unofficial source' => [['document_kind' => null, 'source_url' => 'https://example.com/report.pdf'], 'source_url'],
+    'lookalike COA domain' => [['document_kind' => null, 'source_url' => 'https://coa.gov.ph.example.com/report.pdf'], 'source_url'],
+    'COA name in path' => [['document_kind' => null, 'source_url' => 'https://example.com/coa.gov.ph/report.pdf'], 'source_url'],
+    'HTTP source' => [['document_kind' => null, 'source_url' => 'http://www.coa.gov.ph/report.pdf'], 'source_url'],
+    'credentials in source' => [['document_kind' => null, 'source_url' => 'https://name:pass@www.coa.gov.ph/report.pdf'], 'source_url'],
+]);
+
+it('accepts exact cents up to the cap and publishes the manual source to reviewers', function () {
+    $source = 'https://www.coa.gov.ph/download/report.pdf';
+    $admin = User::factory()->create();
+
+    $this->actingAs($admin)->post(route('capitol.finances.figures.store', ['town' => '0201501000', 'year' => 2024]), manualEntry([
+        'value' => config('cagayan.finances.value_max'), 'document_kind' => null, 'source_url' => $source,
+    ]))->assertSessionHasNoErrors()->assertRedirect();
+
+    $entry = FinanceFigure::query()->where('entry_method', 'manual')->sole();
+    expect($entry->value)->toBe(config('cagayan.finances.value_max'));
+    $this->get(route('capitol.finances.show', ['town' => '0201501000', 'year' => 2024]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('breadcrumbs.0.label', 'Government Finances')
+            ->where('breadcrumbs.1.label', 'Abulug')
+            ->where('breadcrumbs.2.label', 'Report 2024')
+            ->where('report.limits.lastYear', 2024)
+            ->where('report.figures', fn ($rows) => collect($rows)->firstWhere('id', $entry->public_id)['sourceUrl'] === $source
+                && collect($rows)->firstWhere('id', $entry->public_id)['groupLabel'] === 'Government Totals'));
+});
+
+it('allows final budget only for the development spending lines', function () {
+    FinanceLine::factory()->create(['code' => 'sector.economic_services', 'group' => 'development']);
+
+    $this->actingAs(User::factory()->create())->post(route('capitol.finances.figures.store', ['town' => '0201501000', 'year' => 2024]), manualEntry([
+        'line_code' => 'sector.economic_services', 'basis' => 'budget_final',
+    ]))->assertSessionHasNoErrors()->assertRedirect();
+
+    $this->assertDatabaseHas('finance_figures', ['line_code' => 'sector.economic_services', 'basis' => 'budget_final', 'entry_method' => 'manual']);
+});
+
+it('returns reusable pagination metadata with filtered page links', function () {
+    foreach (range(1, 20) as $index) {
+        $town = Municipality::factory()->create(['psgc_code' => '029990'.str_pad((string) $index, 4, '0', STR_PAD_LEFT)]);
+        FinanceFigure::factory()->for($town)->create();
+    }
+    $admin = User::factory()->create();
+
+    $this->actingAs($admin)->get(route('capitol.finances.index', ['status' => 'pending']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('list.pagination.total', 21)->where('list.pagination.lastPage', 2)
+            ->where('list.pagination.page', 1)->where('list.pagination.from', 1)->where('list.pagination.to', 20)
+            ->where('list.pagination.previous', null)
+            ->where('list.pagination.links.1.url', fn (string $url) => str_contains($url, 'status=pending') && str_contains($url, 'page=2')));
+    $this->get(route('capitol.finances.index', ['status' => 'pending', 'page' => 2]))
+        ->assertInertia(fn (Assert $page) => $page->where('list.pagination.page', 2)->where('list.pagination.from', 21)->where('list.pagination.to', 21)->where('list.pagination.next', null));
 });
 
 it('does not let staff review', function () {

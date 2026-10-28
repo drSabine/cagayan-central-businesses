@@ -232,8 +232,17 @@ return [
         'first_year' => 2019,
         'last_year' => 2025,
         'value_max' => '999999999999.99',
+        'source_url_max' => 500,
+        'review_batch_max' => 200,
         'note_max' => 500,
         'per_page' => 20,
+        'groups' => [
+            'totals' => ['label' => 'Government Totals', 'bases' => ['actual']],
+            'budget' => ['label' => 'Budget Execution', 'bases' => ['actual']],
+            'revenue_sources' => ['label' => 'Revenue Sources', 'bases' => ['actual']],
+            'business_taxes' => ['label' => 'Business Taxes and Fees', 'bases' => ['actual']],
+            'development' => ['label' => 'Development Spending', 'bases' => ['actual', 'budget_final']],
+        ],
     ],
 
 ];

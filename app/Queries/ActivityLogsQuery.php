@@ -2,6 +2,7 @@
 
 namespace App\Queries;
 
+use App\Data\Pagination;
 use App\Data\SelectOption;
 use App\Data\WorkspaceTable;
 use App\Models\ActivityLog;
@@ -19,7 +20,7 @@ final class ActivityLogsQuery
         return new WorkspaceTable(
             array_values(array_map(fn ($r) => ['id' => (string) $r->id, 'event' => ActivityLog::EVENTS[$r->event] ?? 'Account Event',
                 'occurredAt' => (string) $r->occurred_at, 'actor' => is_string($r->name) ? $r->name : 'Unknown Account'], $results->items())),
-            $results->previousPageUrl(), $results->nextPageUrl(), $results->currentPage(),
+            Pagination::from($results),
             categories: array_map(fn ($value, $label) => new SelectOption($value, $label), array_keys(ActivityLog::EVENTS), array_values(ActivityLog::EVENTS)),
             filters: ['event' => $event],
         );
