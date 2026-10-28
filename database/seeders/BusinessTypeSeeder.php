@@ -16,6 +16,7 @@ class BusinessTypeSeeder extends Seeder
      * @var array<string, string>
      */
     private const array SECTIONS = [
+        'A' => 'Agriculture, forestry and fishing',
         'C' => 'Manufacturing',
         'G' => 'Wholesale and retail trade; repair of motor vehicles and motorcycles',
         'I' => 'Accommodation and food service activities',
@@ -56,6 +57,11 @@ class BusinessTypeSeeder extends Seeder
         ['salon', 'Salon or barbershop', 'S'],
         ['laundry', 'Laundry shop', 'S'],
         ['repair-shop', 'Gadget and appliance repair', 'S'],
+        ['crop-farm', 'Rice and corn farm', 'A'],
+        ['livestock-farm', 'Poultry and livestock farm', 'A'],
+        ['fishpond', 'Fishpond or aquaculture', 'A'],
+        ['agri-supply', 'Agricultural supply store', 'G'],
+        ['rice-mill', 'Rice mill', 'C'],
     ];
 
     public function run(): void

@@ -96,6 +96,16 @@ return [
 
     ],
 
+    /*
+    | The simulated business dataset (database.md, "Seeder requirements"). A fixed
+    | seed keeps the demo identical on every machine.
+    */
+    'simulation' => [
+        'seed' => 20261028,
+        'businesses_per_thousand_residents' => 9,
+        'minimum_per_barangay' => 3,
+    ],
+
     'data' => [
 
         'first_year' => 2020,
@@ -222,6 +232,7 @@ return [
     'inputs' => [
         'display_name_max' => 100,
         'business_name_max' => 55,
+        'focus_tag_name_max' => 60,
     ],
 
     /*

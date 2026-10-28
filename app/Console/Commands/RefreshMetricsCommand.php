@@ -6,14 +6,12 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Rebuilds every stats_ summary table from the raw records (decisions.md, D7).
- *
- * This is an empty shell until F4. The team adds one SQL file per summary
- * table under database/sql/metrics/ and runs them from here, in dependency
- * order, inside one transaction. Use the metric-builder skill.
+ * Rebuilds every stats_ summary table from the raw records (decisions.md, D7). Each file in
+ * database/sql/metrics/ fills one table; files run in name order, all inside one transaction.
  */
 #[Signature('metrics:refresh')]
 #[Description('Rebuild every summary table from the raw business records')]
@@ -30,8 +28,16 @@ class RefreshMetricsCommand extends Command
      */
     public function handle(): int
     {
-        $this->components->info('No summary tables exist yet. Nothing to refresh.');
-        $this->line('  The first summary table, stats_area_year, is created with metric M1 (roadmap F4).');
+        $files = glob(database_path('sql/metrics/*.sql')) ?: [];
+        sort($files);
+
+        DB::transaction(function () use ($files): void {
+            foreach ($files as $file) {
+                // Each file is a trusted multi-statement script from the repository, so it runs through PDO.
+                DB::connection()->getPdo()->exec((string) file_get_contents($file));
+                $this->components->twoColumnDetail(basename($file), '<fg=green;options=bold>DONE</>');
+            }
+        });
 
         Storage::disk('local')->put(self::STAMP_PATH, now()->toIso8601String());
 

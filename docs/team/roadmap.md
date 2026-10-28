@@ -97,8 +97,8 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 
 - F1 Core schema: In progress (towns and business types done)
 - F2 Boundaries and population: In progress (29 town and 820 browser barangay populations verified against the PSA 2024 workbook; database barangay populations cover Tuguegarao's 49 barangays. Reference figures are imported from `data/towns/`, but economic rows still need source verification and replacement. COA figures describe government finances, not budgets or private-business revenue. Shapes in PostGIS and urban or rural class remain)
-- F3 Seeder: Not started
-- F4 Metrics refresh: Not started
+- F3 Seeder: In progress (simulated Tuguegarao businesses 2020 to 2026 with the fixed seed, requirements 3 to 6 and 9 tested; early-warning and peer cases 7 and 8 wait on C10 and C11)
+- F4 Metrics refresh: In progress (`metrics:refresh` runs `database/sql/metrics/`; `stats_area_year` is built. M1 to M4 screens remain)
 - F5 Privacy guard: Not started
 - F6 Map component: In progress (public SVG and protected MapLibre population maps work. The PostGIS-backed business map remains unbuilt)
 - F7 Layouts, label, login: Done (public shell and compact Capitol workspace, three roles, discreet login, protected sessions, and private profile)

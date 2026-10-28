@@ -13,6 +13,7 @@ import {
     PhilippinePeso,
     ChevronDown,
     CircleHelp,
+    Tags,
 } from 'lucide-react';
 
 export const icons = {
@@ -30,4 +31,5 @@ export const icons = {
     finances: PhilippinePeso,
     expand: ChevronDown,
     help: CircleHelp,
+    categories: Tags,
 } as const;

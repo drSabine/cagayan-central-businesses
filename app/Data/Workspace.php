@@ -13,6 +13,7 @@ final readonly class Workspace
         public string $role,
         public bool $canViewWishes,
         public bool $canViewLogs,
+        public bool $canManageCategories,
         public bool $isBirthday,
         public int $idleExpiresAt,
         public int $absoluteExpiresAt,
@@ -28,6 +29,7 @@ final readonly class Workspace
         return new self(
             $user->name, $user->role?->label() ?? '', $user->isCapitolAdmin(),
             $user->role === UserRole::SuperAdmin,
+            $user->can('manage-categories'),
             $user->birthday_month === $today->month && $user->birthday_day === $today->day,
             (int) $request->session()->get('workspace.last_activity', now()->getTimestamp()) + (int) config('cagayan.admin.idle_seconds'),
             (int) $request->session()->get('workspace.started_at', now()->getTimestamp()) + (int) config('cagayan.admin.absolute_seconds'),

@@ -5,6 +5,7 @@ export type Workspace = {
     role: string;
     canViewWishes: boolean;
     canViewLogs: boolean;
+    canManageCategories: boolean;
     isBirthday: boolean;
     idleExpiresAt: number;
     absoluteExpiresAt: number;
@@ -37,4 +38,18 @@ export type AccountProfile = {
     birthdayMonth: number | null;
     birthdayDay: number | null;
     displayNameMax: number;
+};
+
+export type BusinessCategoryRow = {
+    code: string;
+    name: string;
+    industry: string;
+    tags: string[];
+};
+
+export type BusinessCategories = {
+    types: BusinessCategoryRow[];
+    tags: SelectOption[];
+    tag: string | null;
+    tagNameMax: number;
 };
