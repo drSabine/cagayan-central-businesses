@@ -14,6 +14,7 @@ final class ActivityLog
         'profile_updated' => 'Profile Updated', 'role_assigned_from_console' => 'Role Assigned from Console',
         'finance_figure_entered' => 'Finance Figure Entered', 'finance_figures_signed_off' => 'Finance Figures Signed Off',
         'finance_figures_rejected' => 'Finance Figures Rejected',
+        'focus_tag_created' => 'Focus Tag Created', 'business_type_tags_updated' => 'Business Type Tags Updated',
     ];
 
     public static function record(string $event, ?int $actorId): void

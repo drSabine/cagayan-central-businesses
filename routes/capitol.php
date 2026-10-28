@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Capitol\ActivityLogController;
+use App\Http\Controllers\Capitol\BusinessCategoryController;
 use App\Http\Controllers\Capitol\CommunityWishController;
 use App\Http\Controllers\Capitol\DashboardController;
 use App\Http\Controllers\Capitol\FinanceFigureController;
@@ -16,6 +17,11 @@ Route::middleware([PreventIndexing::class, 'auth', 'can:capitol'])
         Route::post('session-activity', SessionActivityController::class)->middleware('throttle:workspace-activity')->name('session.activity');
         Route::get('community-wishes', CommunityWishController::class)->middleware('can:community-wishes')->name('wishes.index');
         Route::get('activity-logs', ActivityLogController::class)->middleware('can:activity-logs')->name('logs.index');
+        Route::middleware('can:manage-categories')->prefix('business-categories')->name('categories.')->group(function (): void {
+            Route::get('/', [BusinessCategoryController::class, 'index'])->name('index');
+            Route::post('focus-tags', [BusinessCategoryController::class, 'storeTag'])->name('tags.store');
+            Route::put('{type:code}/focus-tags', [BusinessCategoryController::class, 'updateTags'])->name('types.tags.update');
+        });
         Route::get('finances', [FinanceReviewController::class, 'index'])->name('finances.index');
         Route::get('finances/{town:psgc_code}/{year}', [FinanceReviewController::class, 'show'])->whereNumber('year')->name('finances.show');
         Route::post('finances/{town:psgc_code}/{year}/figures', [FinanceFigureController::class, 'store'])->whereNumber('year')->name('finances.figures.store');

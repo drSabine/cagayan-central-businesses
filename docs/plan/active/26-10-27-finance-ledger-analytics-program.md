@@ -119,10 +119,10 @@ The user's screenshot review superseded the earlier tabs, source-card strip and 
 ### Phase 5: Industries and Business Data
 
 - [ ] Have the PSIC sections verified with a dated record.
-- [ ] Add Focus Tags and the Business Categories page.
-- [ ] Add the `businesses` and `business_years` tables, plus a simulated seed.
-- [ ] Add `PrivacyGuard`.
-- [ ] Implement `metrics:refresh` with `stats_area_year` and `stats_industry_year`.
+- [x] Add Focus Tags and the Business Categories page.
+- [x] Add the `businesses` and `business_years` tables, plus a simulated seed.
+- [x] Add `PrivacyGuard`.
+- [x] Implement `metrics:refresh` with `stats_area_year`. Industry and Focus Tag totals are summed from it in SQL instead of a second `stats_industry_year` table (26-10-28).
 
 ### Phase 6: Analytics Engine
 
@@ -271,3 +271,19 @@ Bottom-bar correction "26-10-28": replaced the name/role block with a single-row
 Report-year navigation correction "26-10-28": Government Finances index now answers which towns need review in the selected report year. Available authorized years appear newest first, defaulting to the newest; rows never combine years. Removed the Report Year dropdown and redundant table column. Town/status and pagination preserve the active year. Returning to a loaded first-page selection uses local Inertia history; unrequested selections fetch missing data. This supersedes the aggregated index with a year dropdown. Automated tests and browser testing remain skipped as requested; frontend compilation checks are recorded separately.
 
 Year-tab verification "26-10-28": frontend format/lint, TypeScript and production build passed; the changed PHP query passed syntax checking. No automated test suite or browser checks were run for this follow-up.
+
+### Phase 5 Verification, 26-10-28
+
+- **Base:** built on the user's committed Phase 3 redesign (`bug/finance-review-ui`, commit `dfeee4e`). The only change to it was one PHPStan list fix, made with the user's approval.
+- **Schema:** one migration adds `focus_tags`, `business_type_focus_tag`, `businesses` (with a UUID `public_id`), `business_years` (sales allowed only on active years) and `stats_area_year`.
+- **Not duplicated:** industry and Focus Tag totals read `stats_area_year` through SQL joins, so there is no second summary table holding the same counts.
+- **Seed data:**
+  - `BarangaySeeder` now stores the 49 barangay shapes.
+  - `SimulatedBusinessSeeder` produces 1,508 businesses and 6,473 business-year rows for 2020 to 2026, with every point inside its barangay.
+  - Seeder requirements 7 and 8 (early warning, peer median) wait on C10 and C11, which are outside this program.
+- **Tests:**
+  - privacy guard unit tests for P2 to P4, P6 and P7
+  - a hand-computed `stats_area_year` test
+  - seeder status-rule and requirement tests
+  - Business Categories tests for roles, validation and audit events
+- **Data member action:** the PSIC sections still need verification against the PSA classification, with a recorded date.

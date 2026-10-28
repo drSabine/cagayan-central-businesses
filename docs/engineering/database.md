@@ -214,7 +214,20 @@ The list a resident picks from and the level every breakdown uses. Friendly name
 
 Aim for 25 to 35 types a resident would recognize: sari-sari store, grocery, pharmacy, hardware store, coffee shop, restaurant, bakery, salon or barbershop, repair shop, boarding house, bank or lending, clinic, tutorial center. Check each PSIC section against the PSA classification before seeding.
 
-`BusinessTypeSeeder` holds a starter list of 25. Its PSIC sections are not yet verified by the data member.
+`BusinessTypeSeeder` holds 30 types, including the Section A farms and fishponds added for Focus Tags (26-10-28). Its PSIC sections are not yet verified by the data member.
+
+### focus_tags
+
+Admin-managed groupings of Business Types, such as Agriculture and Fishery (D36). Managed on the Capitol Business Categories page; `FocusTagSeeder` adds four starter tags.
+
+| Column | Type | Notes |
+| :- | :- | :- |
+| `id` | id | |
+| `code` | string(40) | unique slug of the name |
+| `name` | string(60) | Limit in `cagayan.inputs.focus_tag_name_max` |
+| `sort_order` | smallint | |
+
+`business_type_focus_tag` joins them: `business_type_id` and `focus_tag_id`, both cascade on delete, primary key on the pair. A type can carry several tags, so tag totals are never added together across tags (M28).
 
 ### businesses
 
@@ -223,12 +236,13 @@ One row per registered business.
 | Column | Type | Class | Notes |
 | :- | :- | :- | :- |
 | `id` | id | Public | |
-| `business_name` | string | Public | |
+| `public_id` | uuid | Public | unique; the identifier in URLs, as for every private record |
+| `business_name` | string(55) | Public | |
 | `business_type_id` | foreign key | Public | indexed |
 | `description` | string(280) | Public | |
 | `year_established` | smallint | Public | Year first registered |
 | `barangay_id` | foreign key | Public | indexed |
-| `location` | geometry(Point, 4326) | Public | Spatial index. Must fall inside the barangay. |
+| `location` | geometry(Point, 4326) | Public | Spatial index. Must fall inside the barangay; `BarangaySeeder` loads the barangay shapes the seeder places points in. |
 | `owner_name` | string | Admin | |
 | `contact_number` | string | Admin | |
 | `ownership_type` | enum `sole_proprietorship`, `partnership`, `corporation`, `cooperative` | Admin | |
@@ -247,7 +261,7 @@ One row per business per year. Every trend, survival rate, and outlook reads thi
 | `business_id` | foreign key, cascade on delete | |
 | `year` | smallint | |
 | `status` | enum `new`, `renewed`, `not_renewed`, `closed` | |
-| `declared_gross_sales` | decimal(16, 2), nullable | **Never displayed.** Present only when status is `new` or `renewed`. In `#[Hidden]`. Read only by `database/sql/metrics/`. |
+| `declared_gross_sales` | decimal(16, 2), nullable | **Never displayed.** Present only when status is `new` or `renewed` (a check constraint enforces it). In `#[Hidden]`. Read only by `database/sql/metrics/`. |
 
 Unique `(business_id, year)`. Index `(year, status)`.
 
@@ -339,7 +353,7 @@ Rebuilt by `php artisan metrics:refresh` from the SQL in `database/sql/metrics/`
 
 ### stats_area_year
 
-The base grain. Every count and sales figure on screen rolls up from here.
+The base grain. Every count and sales figure on screen rolls up from here. Built by `database/sql/metrics/10_stats_area_year.sql`. Industry and Focus Tag totals (M28 to M31) are summed from it by the Query, joining `business_types` and `business_type_focus_tag`, rather than kept in a second table.
 
 - `barangay_id`, `business_type_id`, `size_category`, `year`
 - `active_count`, `new_count`, `renewed_count`, `not_renewed_count`, `closed_count`

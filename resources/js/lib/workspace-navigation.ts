@@ -1,4 +1,5 @@
 import { dashboard } from '@/routes/capitol';
+import { index as categories } from '@/routes/capitol/categories';
 import { index as finances } from '@/routes/capitol/finances';
 import { index as wishes } from '@/routes/capitol/wishes';
 import { index as logs } from '@/routes/capitol/logs';
@@ -35,6 +36,13 @@ export function workspaceNavigation(workspace: Workspace) {
             href: wishes(),
             icon: icons.wishes,
             visible: workspace.canViewWishes,
+        },
+        {
+            label: 'Business Categories',
+            group: 'Management',
+            href: categories(),
+            icon: icons.categories,
+            visible: workspace.canManageCategories,
         },
         {
             label: 'Activity Logs',
