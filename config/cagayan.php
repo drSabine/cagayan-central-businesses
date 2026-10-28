@@ -249,6 +249,9 @@ return [
         'review_batch_max' => 200,
         'note_max' => 500,
         'per_page' => 20,
+        // Towns whose workbook breakdowns finances:import loads (26-10-28: Tuguegarao first). Other towns'
+        // parsed workbooks stay in data/towns/finances/extracted; every Executive Summary always loads.
+        'workbook_towns' => ['0201529000'],
         'groups' => [
             'totals' => ['label' => 'Government Totals', 'bases' => ['actual']],
             'budget' => ['label' => 'Budget Execution', 'bases' => ['actual']],

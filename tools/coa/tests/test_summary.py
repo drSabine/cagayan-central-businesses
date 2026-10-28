@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from coa.checks import document_checks, restatement_checks
+from coa.checks import document_checks, mislabelled_years, restatement_checks, swap_years
 from coa.lines import load
 from coa.summary import parse_summary
 
@@ -125,3 +125,22 @@ def test_flags_swapped_columns_against_the_previous_report():
     swapped = {issue.code for year, issue in restatement_checks(reports) if issue.kind == "repeats_previous_year"}
 
     assert {"position.assets", "performance.revenue", "performance.expenses"} <= swapped
+
+
+def test_reads_mislabelled_column_headers_in_printed_order():
+    # Gattaran 2024 heads its columns "2024 2023" but prints 2023 first; values read from page 2 by hand.
+    earlier, result = parse(2023, "Gattaran").figures, parse(2024, "Gattaran")
+    assert mislabelled_years(result.figures, result.changes, earlier, 2024)
+
+    found = {(figure.code, figure.fiscal_year): figure.value for figure in swap_years(result.figures, 2024)}
+
+    assert found[("performance.revenue", 2024)] == Decimal("401727932.51")
+    assert found[("performance.expenses", 2024)] == Decimal("408270884.16")
+    assert found[("performance.revenue", 2023)] == Decimal("382786319.24")
+
+
+@pytest.mark.parametrize(("year", "town"), [(2021, "Abulug"), (2024, "Tuguegarao-City"), (2025, "Gattaran")])
+def test_correctly_labelled_columns_are_never_swapped(year, town):
+    result = parse(year, town)
+
+    assert not mislabelled_years(result.figures, result.changes, parse(year - 1, town).figures, year)

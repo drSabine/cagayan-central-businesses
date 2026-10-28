@@ -60,6 +60,12 @@ final class ImportFinancesCommand extends Command
         foreach (glob("{$folder}/extracted/*.csv") ?: [] as $file) {
             $extracted = [...$extracted, ...$this->read($file, self::EXTRACTED_COLUMNS)];
         }
+        // Available workbooks load only for the configured towns; a not-published record still says why a year is missing.
+        $workbookTowns = (array) config('cagayan.finances.workbook_towns');
+        $loads = fn (string $town, string $kind, string $availability = 'available') => $kind === FinanceDocumentKind::ExecutiveSummary->value
+            || $availability !== 'available' || in_array($town, $workbookTowns, true);
+        $documents = array_values(array_filter($documents, fn (array $item) => $loads($item['row']['psgc_code'], $item['row']['kind'], $item['row']['availability'])));
+        $extracted = array_values(array_filter($extracted, fn (array $item) => $loads($item['row']['psgc_code'], $item['row']['document_kind'])));
         $reviews = $this->read("{$folder}/reviews.csv", self::REVIEW_COLUMNS, required: false);
         $manual = $this->read("{$folder}/manual-figures.csv", self::MANUAL_COLUMNS, required: false);
 
