@@ -28,12 +28,8 @@ psgc_code,town,reported_in_year,severity,kind,line_code,message,location
 0201512000,Enrile,2025,warning,national_share_not_separate,revenue.tax,"Enrile-FS-2025.xlsx!8. Consolidated Fin Per: no national share line, so Local Taxes may include it",
 0201513000,Gattaran,2025,info,heading_not_in_catalog,,Gattaran-FS-2025.xlsx!SCBAA row 82: 'General Fund PPA's',
 0201513000,Gattaran,2025,info,heading_not_in_catalog,,Gattaran-FS-2025.xlsx!SCBAA row 87: 'Personnel Services',
-0201513000,Gattaran,2025,info,restated,performance.expenses,2024 was 313471798.50 in the 2024 report,page 2
-0201513000,Gattaran,2025,info,restated,performance.net_income,2024 was 69314520.74 in the 2024 report,page 2
-0201513000,Gattaran,2025,info,restated,performance.revenue,2024 was 382786319.24 in the 2024 report,page 2
-0201513000,Gattaran,2025,info,restated,position.assets,2024 was 917937671.14 in the 2024 report,page 2
-0201513000,Gattaran,2025,info,restated,position.equity,2024 was 800034817.89 in the 2024 report,page 2
-0201513000,Gattaran,2025,info,restated,position.liabilities,2024 was 117902853.25 in the 2024 report,page 2
+0201513000,Gattaran,2025,info,restated,position.assets,2024 was 975296161.17 in the 2024 report,page 2
+0201513000,Gattaran,2025,info,restated,position.liabilities,2024 was 177552821.05 in the 2024 report,page 2
 0201513000,Gattaran,2025,warning,sheet_year_mismatch,,"Gattaran-FS-2025.xlsx!SCBAA: title says 2024, workbook is for 2025",
 0201515000,Iguig,2025,info,heading_not_in_catalog,,Iguig-FS-2025.xlsx!SCBAA row 71: 'PESO',
 0201515000,Iguig,2025,info,spending_outside_catalog,,Iguig-FS-2025.xlsx!SCBAA row 72: 'PERSONAL SERVICES' 1656334.50 is not under a catalog sector,

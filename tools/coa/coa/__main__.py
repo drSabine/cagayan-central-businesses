@@ -9,7 +9,7 @@ from pathlib import Path
 
 from . import EXTRACTOR_VERSION
 from .archives import add_workbooks
-from .checks import document_checks, restatement_checks
+from .checks import document_checks, mislabelled_years, restatement_checks, swap_years
 from .lines import load
 from .summary import Issue, parse_summary
 from .workbook import read_annex, read_fs
@@ -55,6 +55,9 @@ def extract() -> None:
         if hashlib.sha256(path.read_bytes()).hexdigest() != source["sha256"]:
             document_issues.append(Issue("error", "checksum_mismatch", "", "File differs from sources.csv"))
         result = parse_summary(path, year, lines, aliases)
+        if mislabelled_years(result.figures, result.changes, by_town[source["psgc_code"]].get(year - 1, []), year):
+            result.figures = swap_years(result.figures, year)
+            document_issues.append(Issue("warning", "header_years_swapped", "", f"Columns are headed {year} then {year - 1} but printed {year - 1} then {year}; read in printed order"))
         document_issues += result.issues + document_checks(result.figures, result.changes, year)
         by_town[source["psgc_code"]][year] = result.figures
         for figure in stored(result.figures, lines):

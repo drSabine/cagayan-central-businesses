@@ -1,3 +1,4 @@
+from dataclasses import replace
 from decimal import Decimal
 
 from .summary import Figure, Issue
@@ -24,6 +25,28 @@ def document_checks(figures: list[Figure], changes: dict[str, Decimal], report_y
         else:
             issues.append(Issue("warning", "change_mismatch", code, f"current minus prior is {current - prior}, stated {stated}"))
     return issues
+
+
+def mislabelled_years(figures: list[Figure], changes: dict[str, Decimal], earlier: list[Figure], report_year: int) -> bool:
+    """Columns headed current then prior but printed prior then current (Gattaran 2024).
+
+    Both proofs must hold for revenue and expenses: the column headed with the report year repeats the
+    previous report's own figure to the cent, and the stated change only adds up the other way round.
+    """
+    value = {(figure.code, figure.fiscal_year): figure.value for figure in figures}
+    own = {figure.code: figure.value for figure in earlier if figure.fiscal_year == report_year - 1}
+    for code in ("performance.revenue", "performance.expenses"):
+        headed_current, headed_prior, stated = value.get((code, report_year)), value.get((code, report_year - 1)), changes.get(code)
+        if headed_current is None or headed_prior is None or stated is None or own.get(code) != headed_current:
+            return False
+        if abs(headed_prior - headed_current - stated) > TOLERANCE:
+            return False
+    return True
+
+
+def swap_years(figures: list[Figure], report_year: int) -> list[Figure]:
+    other = {report_year: report_year - 1, report_year - 1: report_year}
+    return [replace(figure, fiscal_year=other.get(figure.fiscal_year, figure.fiscal_year)) for figure in figures]
 
 
 def identity(issues: list[Issue], value: dict, year: int, kind: str, total: str, parts: list[str]) -> None:

@@ -178,16 +178,20 @@ it('rebuilds the same sign-offs from an export after the ledger is wiped', funct
         ->and(FinanceFigure::query()->where('public_id', $manual->public_id)->value('entry_method'))->toBe(FinanceEntryMethod::Manual);
 });
 
-it('imports the committed COA data and publishes only the four checked 2024 pairs', function () {
+it('imports the committed COA data signed off, with workbooks only for the configured towns', function () {
     Municipality::query()->delete();
     $this->seed(MunicipalitySeeder::class);
 
     $this->artisan('finances:import')->assertSuccessful();
 
-    $verified = FinanceFigure::query()->where('status', FinanceFigureStatus::Verified)->get();
     $tuguegarao = collect(app(TownAtlasQuery::class)->get()->towns)->firstWhere('code', '0201529000');
-    expect($verified)->toHaveCount(8)
-        ->and($verified->pluck('fiscal_year')->unique()->all())->toBe([2024])
-        ->and($tuguegarao?->revenue?->value)->toBe('1465722146.22')
-        ->and($tuguegarao?->expenditure?->value)->toBe('1184642113.21');
+    $gattaran = Municipality::query()->where('psgc_code', '0201513000')->sole();
+    expect(FinanceFigure::query()->where('status', FinanceFigureStatus::Pending)->count())->toBe(0)
+        ->and(FinanceFigure::query()->where('status', FinanceFigureStatus::Verified)->distinct()->count('municipality_id'))->toBe(29)
+        ->and(FinanceFigure::query()->whereHas('document', fn ($document) => $document->whereNot('kind', 'executive_summary'))
+            ->whereHas('municipality', fn ($town) => $town->whereNotIn('psgc_code', config('cagayan.finances.workbook_towns')))->exists())->toBeFalse()
+        ->and($tuguegarao?->revenue?->value)->toBe('1679019473.60')
+        ->and($tuguegarao?->expenditure?->value)->toBe('1403269517.37')
+        // The 2024 report heads its columns 2024 then 2023 but prints 2023 first; the parser reads printed order.
+        ->and(FinanceFigure::query()->whereBelongsTo($gattaran)->where(['status' => FinanceFigureStatus::Verified, 'fiscal_year' => 2024, 'line_code' => 'performance.revenue'])->value('value'))->toBe('401727932.51');
 });
