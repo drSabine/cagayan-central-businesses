@@ -8,7 +8,9 @@ use App\Data\EconomicObservation;
 use App\Data\FinancialHistory;
 use App\Data\SelectOption;
 use App\Enums\FinanceAvailability;
+use App\Enums\FinanceFigureStatus;
 use App\Models\FinanceDocument;
+use App\Models\FinanceFigure;
 use App\Models\FinanceLine;
 use App\Models\Municipality;
 use Illuminate\Support\Collection;
@@ -24,12 +26,20 @@ final class AnalyticsCatalogQuery
     /** The Sum of Reporting Towns uses the province code, but it is never the provincial government's accounts (M27). */
     public const string ALL_TOWNS = '0201500000';
 
-    /** Which COA document a missing line would have come from, to tell "not published" from "not reported". */
+    /** Which COA document a missing line would have come from, to say why it is missing. */
     private const array SOURCE_KINDS = [
         'executive_summary' => 'executive_summary',
         'fs_workbook' => 'fs_workbook',
         'fs_scbaa' => 'fs_workbook',
         'annex_c1' => 'annex_workbook',
+    ];
+
+    /** The document behind each derived line's inputs. */
+    private const array DERIVED_KINDS = [
+        'revenue.remaining' => 'fs_workbook',
+        'revenue.local_share' => 'fs_workbook',
+        'sector.development_fund.utilization' => 'fs_workbook',
+        'sector.economic_services.utilization' => 'fs_workbook',
     ];
 
     public function __construct(private BusinessTrendsQuery $businesses) {}
@@ -43,16 +53,23 @@ final class AnalyticsCatalogQuery
         $towns = Municipality::query()->orderBy('name')->get(['id', 'psgc_code', 'name']);
         $stats = DB::table('stats_finance_year')->whereBetween('fiscal_year', [$years[0], end($years)])->get()
             ->groupBy(fn (stdClass $row): int => (int) ($row->municipality_id ?? 0));
-        $unpublished = FinanceDocument::query()->where('availability', FinanceAvailability::NotPublished)
-            ->get(['municipality_id', 'fiscal_year', 'kind'])
-            ->mapWithKeys(fn (FinanceDocument $document) => ["{$document->municipality_id} {$document->fiscal_year} {$document->kind->value}" => true])
-            ->all();
+        // Withheld until signed off (D35); only the fact that a figure awaits review is shown, never its value.
+        $pending = FinanceFigure::query()->where('status', FinanceFigureStatus::Pending)->get(['municipality_id', 'fiscal_year', 'line_code'])
+            ->mapWithKeys(fn (FinanceFigure $figure) => ["{$figure->municipality_id} {$figure->fiscal_year} {$figure->line_code}" => true])->all();
+        // Keyed "town year kind"; town 0 records that at least one town has the document (Sum of Reporting Towns).
+        $documents = [];
+        foreach (FinanceDocument::query()->get(['municipality_id', 'fiscal_year', 'kind', 'availability']) as $document) {
+            $documents["{$document->municipality_id} {$document->fiscal_year} {$document->kind->value}"] = $document->availability;
+            if ($document->availability === FinanceAvailability::Available) {
+                $documents["0 {$document->fiscal_year} {$document->kind->value}"] = FinanceAvailability::Available;
+            }
+        }
 
         $finances = [];
         // Union, not spread: spreading would renumber the municipality ids that key the stats.
         foreach ([0 => self::ALL_TOWNS] + $towns->pluck('psgc_code', 'id')->all() as $id => $code) {
             if ($stats->has($id)) {
-                $finances[$code] = $lines->map(fn (Collection $group) => $this->history($group, $stats[$id], $years, $id, $unpublished))->all();
+                $finances[$code] = $lines->map(fn (Collection $group) => $this->history($group, $stats[$id], $years, $id, $documents, $pending))->all();
             }
         }
 
@@ -71,16 +88,21 @@ final class AnalyticsCatalogQuery
      * @param  Collection<int, FinanceLine>  $lines
      * @param  Collection<int, stdClass>  $stats
      * @param  list<int>  $years
-     * @param  array<string, true>  $unpublished
+     * @param  array<string, FinanceAvailability>  $documents
+     * @param  array<string, true>  $pending
      */
-    private function history(Collection $lines, Collection $stats, array $years, int $townId, array $unpublished): FinancialHistory
+    private function history(Collection $lines, Collection $stats, array $years, int $townId, array $documents, array $pending): FinancialHistory
     {
         $byKey = $stats->keyBy(fn (stdClass $row) => "{$row->metric} {$row->fiscal_year}");
-        $rows = array_map(fn (int $year) => ['year' => $year, 'observations' => $lines->mapWithKeys(function (FinanceLine $line) use ($byKey, $year, $townId, $unpublished) {
+        $rows = array_map(fn (int $year) => ['year' => $year, 'observations' => $lines->mapWithKeys(function (FinanceLine $line) use ($byKey, $year, $townId, $documents, $pending) {
             $row = $byKey->get("{$line->code} {$year}");
             if ($row === null) {
-                $kind = self::SOURCE_KINDS[$line->source] ?? null;
-                $reason = $townId !== 0 && $kind !== null && isset($unpublished["{$townId} {$year} {$kind}"]) ? 'not_published' : 'not_reported';
+                $kind = self::SOURCE_KINDS[$line->source] ?? self::DERIVED_KINDS[$line->code] ?? 'executive_summary';
+                $reason = match ($documents["{$townId} {$year} {$kind}"] ?? null) {
+                    FinanceAvailability::Available => isset($pending["{$townId} {$year} {$line->code}"]) ? 'pending_review' : 'not_reported',
+                    FinanceAvailability::NotPublished => 'not_published',
+                    null => 'not_collected',
+                };
 
                 return [$line->code => new EconomicObservation('unavailable', null, false, null, null, null, $reason)];
             }
@@ -95,6 +117,7 @@ final class AnalyticsCatalogQuery
                 coverage: $row->reporting_towns === null ? null
                     : ['reporting' => (int) $row->reporting_towns, 'total' => (int) $row->total_towns, 'matched' => (int) $row->matched_towns],
                 censusYear: $row->census_year === null ? null : (int) $row->census_year,
+                restatedIn: $row->restated_in === null ? null : (int) $row->restated_in,
             )];
         })->all()], $years);
 

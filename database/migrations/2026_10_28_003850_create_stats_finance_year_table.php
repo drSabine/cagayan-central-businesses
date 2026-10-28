@@ -23,6 +23,8 @@ return new class extends Migration
             $table->decimal('percent_change', 10, 1)->nullable();
             $table->boolean('comparable');
             $table->smallInteger('census_year')->nullable();
+            // The report year of a figure that replaced a different earlier figure (M26, restated years).
+            $table->smallInteger('restated_in')->nullable();
             $table->smallInteger('reporting_towns')->nullable();
             $table->smallInteger('total_towns')->nullable();
             $table->smallInteger('matched_towns')->nullable();

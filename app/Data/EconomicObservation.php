@@ -21,5 +21,6 @@ final readonly class EconomicObservation
         public ?string $band = null,
         public ?array $coverage = null,
         public ?int $censusYear = null,
+        public ?int $restatedIn = null,
     ) {}
 }

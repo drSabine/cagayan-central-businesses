@@ -1,7 +1,9 @@
 <?php
 
+use App\Enums\FinanceFigureStatus;
 use App\Models\FinanceDocument;
 use App\Models\FinanceFigure;
+use App\Models\FinanceLine;
 use App\Models\Municipality;
 use App\Models\Wish;
 use App\Queries\AnalyticsCatalogQuery;
@@ -55,16 +57,38 @@ test('only signed-off figures reach the public series, with exact cents', functi
         ->assertDontSee('987654321.12');
 });
 
-test('a missing year says whether COA published the report', function () {
+test('a missing year says why it is missing and never shows a value', function () {
     $town = Municipality::factory()->create(['psgc_code' => '0201501000']);
     FinanceFigure::factory()->verified()->for($town)->line('performance.revenue', 2024, '100.00')->create();
+    FinanceFigure::factory()->for($town)->line('performance.revenue', 2022, '987654321.12')->create();
+    FinanceFigure::factory()->verified()->for($town)->line('performance.expenses', 2021, '50.00')->create();
     FinanceDocument::factory()->notPublished()->for($town)->create(['fiscal_year' => 2025]);
+    FinanceLine::factory()->create(['code' => 'revenue.tax', 'group' => 'revenue_sources', 'source' => 'fs_workbook']);
+    $this->artisan('metrics:refresh')->assertSuccessful();
+
+    $reason = fn (int $row, string $line, string $expected) => fn ($points) => $points[$line]['reason'] === $expected && $points[$line]['value'] === null;
+    $this->get(route('public.economic-performance', ['town' => '0201501000']))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('performance.catalog.finances.0201501000.totals.rows.6.observations', $reason(6, 'performance.revenue', 'not_published'))
+            ->where('performance.catalog.finances.0201501000.totals.rows.3.observations', $reason(3, 'performance.revenue', 'pending_review'))
+            ->where('performance.catalog.finances.0201501000.totals.rows.2.observations', $reason(2, 'performance.revenue', 'not_reported'))
+            ->where('performance.catalog.finances.0201501000.totals.rows.4.observations', $reason(4, 'performance.revenue', 'not_collected'))
+            ->where('performance.catalog.finances.0201501000.revenue_sources.rows.5.observations', $reason(5, 'revenue.tax', 'not_collected')))
+        ->assertDontSee('987654321.12');
+});
+
+test('a figure that replaced a different earlier one says which report restated it', function () {
+    $town = Municipality::factory()->create(['psgc_code' => '0201501000']);
+    FinanceFigure::factory()->for($town)->line('performance.revenue', 2023, '390.00')->create(['status' => FinanceFigureStatus::Superseded, 'reviewed_on' => '2026-10-27']);
+    $report = FinanceDocument::factory()->for($town)->create(['fiscal_year' => 2024]);
+    FinanceFigure::factory()->verified()->for($town)->line('performance.revenue', 2023, '400.00')->create(['finance_document_id' => $report->id]);
+    FinanceFigure::factory()->verified()->for($town)->line('performance.revenue', 2024, '500.00')->create();
     $this->artisan('metrics:refresh')->assertSuccessful();
 
     $this->get(route('public.economic-performance', ['town' => '0201501000']))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('performance.catalog.finances.0201501000.totals.rows.6.observations', fn ($points) => $points['performance.revenue']['reason'] === 'not_published')
-            ->where('performance.catalog.finances.0201501000.totals.rows.4.observations', fn ($points) => $points['performance.revenue']['reason'] === 'not_reported'));
+            ->where('performance.catalog.finances.0201501000.totals.rows.4.observations', fn ($points) => $points['performance.revenue']['restatedIn'] === 2024 && $points['performance.revenue']['value'] === '400.00')
+            ->where('performance.catalog.finances.0201501000.totals.rows.5.observations', fn ($points) => $points['performance.revenue']['restatedIn'] === null));
 });
 
 test('selections survive a direct link and retired filters are ignored', function () {
