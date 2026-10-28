@@ -8,6 +8,7 @@ Dates inside plans use the requested `yy-mm-dd` format in Asia/Manila. Filenames
 
 | Plan | Status | Scope |
 | :- | :- | :- |
+| [Client Facing Polishing](active/26-10-27-client-facing-polishing.md) | In progress | Local-only quick sign in with Super Admin, Admin, and Staff demo accounts |
 | [Finance Ledger and Analytics Program](active/26-10-27-finance-ledger-analytics-program.md) | In progress, Phase 0 | COA parser, finance ledger with manual entry and sign-off, workbook breakdowns, industries and Focus Tags, analytics engine |
 
 ## Archive

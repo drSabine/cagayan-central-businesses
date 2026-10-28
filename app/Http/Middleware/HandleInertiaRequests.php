@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Data\SessionUser;
 use App\Data\Workspace;
+use App\Queries\DemoLoginQuery;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Middleware;
@@ -49,7 +50,7 @@ class HandleInertiaRequests extends Middleware
             'simulated' => (bool) config('cagayan.simulated'),
             ...($request->routeIs('capitol.*') && $request->user()?->canEnterWorkspace()
                 ? ['workspace' => Workspace::from($request->user(), $request)] : []),
-            ...($request->routeIs('admin.login') ? ['notice' => $request->session()->get('notice')] : []),
+            ...($request->routeIs('admin.login') ? ['notice' => $request->session()->get('notice'), 'demoLogins' => app(DemoLoginQuery::class)->options()] : []),
         ];
     }
 }

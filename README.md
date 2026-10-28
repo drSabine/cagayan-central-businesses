@@ -17,7 +17,7 @@ composer setup
 composer dev
 ```
 
-Open http://localhost:8000 and log in with `DEMO_ADMIN_EMAIL` and `DEMO_ADMIN_PASSWORD` from your `.env`.
+Open http://localhost:8000/staff-sign-in and press a demo role button (Super Admin, Admin, or Staff). The buttons exist only while `APP_ENV=local`; accounts come from the `DEMO_*` lines in your `.env` (decisions.md, D33).
 
 ## Every day
 
