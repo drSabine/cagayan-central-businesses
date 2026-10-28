@@ -2,9 +2,9 @@
 
 The plan from today to the submission, and the status of every feature. Update the status lines in the same pull request that finishes the work.
 
-Local preview integration, 26-10-28: quick sign in, wish-cloud polishing, and the finance-review screens are available together on port 8000 using the existing finance preview database. Combined CI passes (201 tests). See [Client Facing Polishing](../plan/active/26-10-27-client-facing-polishing.md).
+Local preview integration, 26-10-28: quick sign in, wish-cloud polishing, and the finance-review screens are available together on port 8000 using the existing finance preview database. Combined CI passes (201 tests). See [Client Facing Polishing](../plan/archive/26-10-27-client-facing-polishing.md).
 
-Government Finances correction, 26-10-28: one aligned report table, right-hand fiscal-year selector, compact linked citations, on-demand review controls, centralized breadcrumbs/required markers, and quiet shared pagination. Web and manual CSV input checks are strict and share configured limits. CI passes 224 tests (1,343 assertions); desktop light/dark flows are checked. See [Finance Ledger and Analytics Program](../plan/active/26-10-27-finance-ledger-analytics-program.md).
+Government Finances correction, 26-10-28: one aligned report table, right-hand fiscal-year selector, compact linked citations, on-demand review controls, centralized breadcrumbs/required markers, and quiet shared pagination. Web and manual CSV input checks are strict and share configured limits. CI passes 224 tests (1,343 assertions); desktop light/dark flows are checked. See [Finance Ledger and Analytics Program](../plan/archive/26-10-27-finance-ledger-analytics-program.md).
 
 Status words: `Not started`, `In progress`, `Done`.
 
@@ -166,7 +166,7 @@ Implemented the map-first three-role workspace with economic context, explicit b
 
 ## Future Phase: Historical Local Government Finances
 
-Status: in progress as the [Finance Ledger and Analytics Program](../plan/active/26-10-27-finance-ledger-analytics-program.md), started 26-10-27. Phases 0 to 6 are built. Pull requests for Phases 5 and 6 are not yet opened. Collecting the remaining COA workbooks and signing off more figures remain.
+Status: completed as the [Finance Ledger and Analytics Program](../plan/archive/26-10-27-finance-ledger-analytics-program.md), started 26-10-27. Completed 26-10-28. Phases 0 to 4 merged through PRs #22 to #25; Phases 3, 5 and 6 travel in one combined pull request. Every loaded COA figure is signed off after a reliability review; workbook breakdowns load for Tuguegarao City only. Collecting the remaining COA workbooks and loading other towns' breakdowns are follow-ups (see the archived record).
 
 A Python parser reads the COA Executive Summaries and audit-report workbooks into a reviewed finance ledger. Admins can also enter and correct figures in the Capitol. A figure is published only after a person signs it off (D34, D35). The Analytics pages show these figures over fiscal years 2019 to 2025:
 

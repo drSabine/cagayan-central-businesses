@@ -8,13 +8,14 @@ Dates inside plans use the requested `yy-mm-dd` format in Asia/Manila. Filenames
 
 | Plan | Status | Scope |
 | :- | :- | :- |
-| [Client Facing Polishing](active/26-10-27-client-facing-polishing.md) | In progress | Local-only quick sign in with Super Admin, Admin, and Staff demo accounts; wish cloud sized by relative demand |
-| [Finance Ledger and Analytics Program](active/26-10-27-finance-ledger-analytics-program.md) | Phases 1 to 3 and workbook parser implemented in kickoff | Finance UI simplification plus follow-up entry, sidebar and shared-filter corrections implemented; browser testing waived for the latest follow-up; Phases 5 to 6 remain |
+| None | | Follow-ups from the finance program (remaining COA workbooks, other towns' breakdowns, PSIC verification) are listed in its archived record and need a new plan when started |
 
 ## Archive
 
 | Plan | Status | Reference |
 | :- | :- | :- |
+| [Finance Ledger and Analytics Program](archive/26-10-27-finance-ledger-analytics-program.md) | Completed 26-10-28 | COA parser, finance ledger with sign-off, Capitol review, workbook breakdowns, business records and privacy guard, analytics pages, reliability review, every figure signed off, single-folder consolidation; follow-ups listed |
+| [Client Facing Polishing](archive/26-10-27-client-facing-polishing.md) | Completed 26-10-28 | Local-only quick sign in for the three demo roles and wish cloud sized by relative demand; shipped in the combined finance pull request |
 | [Government Finances and Economic Context](archive/26-10-24-government-finances-economic-context.md) | Superseded 26-10-27 | Direction, Executive Summary collection and source rules; remainder continues in the Finance Ledger and Analytics Program |
 | [Census Atlas Follow-Up](archive/26-10-27-census-atlas-follow-up.md) | Completed 26-10-27 | Barangay atlas cache revisit and missing-population tooltip fixes, plus corrections to the cleanup plan's reuse claims |
 | [Single Source of Truth Cleanup](archive/26-10-27-single-source-of-truth-cleanup.md) | Completed 26-10-27 | Shared frontend/backend SSOT helpers, census loader/cache consolidation, three-copy line-count tightening, and obsolete branch cleanup |

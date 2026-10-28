@@ -79,4 +79,4 @@ Only the primary browser worker contacts COA, using a 3.5-second minimum interva
 
 ## Superseded
 
-26-10-27: The user requested the full extraction, ledger and analytics work, so the deferred remainder of this plan continues in the [Finance Ledger and Analytics Program](../active/26-10-27-finance-ledger-analytics-program.md). The user also excluded audit opinions and infrastructure project lists from extraction and display. The source rules recorded above (no business-sales reading, no provincial totals from town accounts, no partial-year 2026 figures) carry forward.
+26-10-27: The user requested the full extraction, ledger and analytics work, so the deferred remainder of this plan continues in the [Finance Ledger and Analytics Program](../archive/26-10-27-finance-ledger-analytics-program.md). The user also excluded audit opinions and infrastructure project lists from extraction and display. The source rules recorded above (no business-sales reading, no provincial totals from town accounts, no partial-year 2026 figures) carry forward.

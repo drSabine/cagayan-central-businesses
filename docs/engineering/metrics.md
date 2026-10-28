@@ -188,7 +188,7 @@ Province population/count totals require complete town coverage in the same refe
 
 ## Government Finances (Approved 26-10-28)
 
-**Status: approved by the user on 26-10-28.** A definition changes only with a human-approved doc change. See the [Finance Ledger and Analytics Program](../plan/active/26-10-27-finance-ledger-analytics-program.md) and D35.
+**Status: approved by the user on 26-10-28.** A definition changes only with a human-approved doc change. See the [Finance Ledger and Analytics Program](../plan/archive/26-10-27-finance-ledger-analytics-program.md) and D35.
 
 Revenue + Economic Status is the approved information direction. Government finances sit alongside economic output, household conditions, business activity, and community interests. It is not a composite rating.
 
@@ -218,7 +218,8 @@ Every finance and business observation has one state. When it is not shown, it a
 | `shown` | Signed off (D35) | The value |
 | `not_published` | COA published no report or workbook for that town and year | Not available; the reason is in the tooltip |
 | `not_reported` | The document exists but does not contain the line | Not available; the reason is in the tooltip |
-| `pending_review` | Extracted or entered, not yet signed off | Withheld everywhere except the Capitol review screen |
+| `not_collected` | No document for that town and year is loaded yet, such as a COA workbook not yet added (user approval, 26-10-28) | Not available; "The COA workbook for this year has not been added yet" in the tooltip |
+| `pending_review` | Extracted or entered, not yet signed off | The value is withheld everywhere except the Capitol review screen; elsewhere Not available with "Awaiting sign-off" in the tooltip |
 | `hidden` | Business privacy guard, P2 to P6 | Hidden, with the reason |
 
 ### M19. Government Revenue, Government Expenses, Surplus or Deficit

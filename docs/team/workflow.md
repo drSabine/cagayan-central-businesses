@@ -186,6 +186,7 @@ If a hook fails, fix the cause: `composer lint` for PHP formatting, `npm run che
 - **Read the plan before approving it.** Changing a plan is cheap. Changing merged code is not.
 - **When Claude gets something wrong twice,** add the correction to `CLAUDE.md` or the matching file in `.claude/rules/`, in the same pull request.
 - **Decisions go in `docs/engineering/decisions.md`,** not in chat.
+- **One folder per laptop (user rule, 26-10-28).** All work happens in the one clone, `cagayan-business-kickoff`, switching branches there. Never create a git worktree, a second clone, or a copy of the repository for a task: several folders split one database, `.env` and branch set, and made changes hard to find and combine. Claude Code must not use worktree isolation for this project.
 
 ## Daily rhythm
 
@@ -208,6 +209,7 @@ The database runs in Docker from `compose.yaml`, the same way on every laptop, a
 - Committing or pushing directly to `main` or `staging`, or force pushing a shared branch.
 - Opening a work pull request into `main`. Work goes into `staging`, and `main` changes only by release.
 - Skipping hooks with `--no-verify`.
+- Creating git worktrees, extra clones, or copies of the repository folder. Work in the one clone and switch branches.
 - Changing Docker (`compose.yaml`, `docker/`) inside a feature branch. See "The shared database" above.
 - Editing a migration that has been merged.
 - Committing `.env` files, database dumps, or real business records.

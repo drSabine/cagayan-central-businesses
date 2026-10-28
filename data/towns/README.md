@@ -56,7 +56,7 @@ The PSA source page and attached workbook were checked directly. All 29 town pop
 
 Only rows with `checked_on` and a source URL can reach the atlas responses. Older verified rows remain eligible when a newer row is unchecked. This applies to both public and workspace maps. A verification date means source transcription was checked, not that the government's accounts are free of audit qualifications.
 
-Government Revenue and Government Expenses moved to the finance ledger on 26-10-28 (D35). The four 2024 pairs checked against COA workbooks (Abulug, Alcala, Allacapan and Tuguegarao City, see [Verified Local Government Finances 2024](verified-finances-2024.md)) are the ledger's first sign-offs, in `finances/reviews.csv`. Every other parsed figure stays pending until a person signs it off.
+Government Revenue and Government Expenses moved to the finance ledger on 26-10-28 (D35). The four 2024 pairs checked against COA workbooks (Abulug, Alcala, Allacapan and Tuguegarao City, see [Verified Local Government Finances 2024](verified-finances-2024.md)) were the ledger's first sign-offs. Since 26-10-28 every loaded parsed figure is signed off, after the reliability review in [the finance data README](finances/README.md#reliability-review-26-10-28).
 
 ## COA Source Documents
 

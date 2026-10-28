@@ -2,8 +2,8 @@
 title: "Finance Ledger and Analytics Program"
 created: "26-10-27"
 updated: "26-10-28"
-status: in-progress
-branch: "bug/finance-review-ui (Phase 3 corrections in kickoff)"
+status: completed
+branch: "feat/business-analytics (Phases 3, 5 and 6 combined, 26-10-28)"
 base: staging
 predecessor: "archive/26-10-24-government-finances-economic-context.md"
 ---
@@ -29,13 +29,15 @@ Each phase gets its own branch from `staging` and its own pull request.
 
 | Phase | Branch | Status |
 | :- | :- | :- |
-| 0 Docs and decisions | `docs/finance-ledger-decisions` | [PR #22](https://github.com/m-njp/cagayan-central-businesses/pull/22) open |
-| 1 Python parser for Executive Summaries | `data/coa-parser` | [PR #23](https://github.com/m-njp/cagayan-central-businesses/pull/23) open |
-| 2 Finance ledger schema and import | `feat/finance-ledger` | [PR #24](https://github.com/m-njp/cagayan-central-businesses/pull/24) open |
-| 3 Manual entry and sign-off in the Capitol | `bug/finance-review-ui` in kickoff | Implemented foundation; UI and input corrections in progress |
-| 4 Workbook collection and workbook parser | `data/coa-workbooks` | Parser and the 17 existing workbooks done, pull request open; remaining collection deferred |
-| 5 Industries, Focus Tags, simulated businesses, privacy guard | `feat/business-analytics` | Done, committed; not pushed |
-| 6 Analytics engine and pages | `feat/business-analytics` | Done, committed; not pushed |
+| 0 Docs and decisions | `docs/finance-ledger-decisions` | Merged, [PR #22](https://github.com/m-njp/cagayan-central-businesses/pull/22) |
+| 1 Python parser for Executive Summaries | `data/coa-parser` | Merged, [PR #23](https://github.com/m-njp/cagayan-central-businesses/pull/23) |
+| 2 Finance ledger schema and import | `feat/finance-ledger` | Merged, [PR #24](https://github.com/m-njp/cagayan-central-businesses/pull/24) |
+| 3 Manual entry and sign-off in the Capitol | `feat/business-analytics` (was `bug/finance-review-ui`) | Done; combined pull request |
+| 4 Workbook collection and workbook parser | `data/coa-workbooks` | Merged, [PR #25](https://github.com/m-njp/cagayan-central-businesses/pull/25); remaining collection deferred |
+| 5 Industries, Focus Tags, simulated businesses, privacy guard | `feat/business-analytics` | Done; combined pull request |
+| 6 Analytics engine and pages | `feat/business-analytics` | Done; combined pull request |
+
+On 26-10-28 the user asked to combine the unmerged work into one branch and one pull request, worked from the single `cagayan-business-kickoff` folder. Phases 3, 5 and 6, the quick sign in and wish cloud work from [Client Facing Polishing](26-10-27-client-facing-polishing.md), and the reliability review below travel together.
 
 ## Scope and Acceptance
 
@@ -156,6 +158,16 @@ The following are out of scope:
 - **Python predictions and the outlook:** not part of this program.
 - **Other annex revenue lines:** hospital, cemetery and quarry lines are not extracted.
 
+### Follow-ups Left for Later Work (26-10-28)
+
+These are known and documented; each needs its own plan when started.
+
+- **Remaining COA workbooks:** only 17 workbook pairs are on disk (4 towns for 2024, 13 for 2025). Fiscal 2019 to 2023 breakdowns show "The COA workbook for this year has not been added yet".
+- **Other towns' breakdowns:** parsed but not loaded. Add a town's PSGC code to `cagayan.finances.workbook_towns` after reviewing its workbook issues (Santo Niño 2025 misses an unlabeled ₱22,392.82 revenue row; Enrile 2025 has no separate national share).
+- **PSIC sections:** a data member verifies each Business Type's industry against the PSA classification and records the date.
+- **Seeder requirements 7 and 8** (early warning, peer median) wait on C10 and C11.
+- **Privacy notes from the review, not rule breaches:** the public page forces the Simulated label on; public tooltips name the hidden reason; the Capitol sales change can approach one business's sales when a group gains or loses one business.
+
 ## Decisions and Sources
 
 - **26-10-27, publishing:** the parser checks figures automatically, then a person signs off. Nothing publishes without sign-off. This keeps the existing verification rule ([D35](../../engineering/decisions.md#d35-finance-ledger)).
@@ -187,6 +199,11 @@ The following are out of scope:
 | 26-10-28 | Phase 2 ledger built with three changes to the column plan. Review columns are `reviewed_by` and `reviewed_on`, because rejections need them too. The report year comes from `finance_document_id`, not a separate `reported_in_year` column. A nullable `source_url` lets a manual figure cite a report that is not in `documents.csv`. A check constraint requires a document or a URL | Found while building |
 | 26-10-28 | Phase 6 built without the `AnalyticsMetric` enum or `AnalyticsSeriesQuery`. The registry is the derived rows of `lines.csv`, so the ledger, the entry form and the screens share one list; derived rows are never enterable. One catalog query serves both pages, switched by audience. The finance part of `demo.php` was removed; only the curated wishes remain | User: "Do not duplicate codes, functions, and other pages" |
 | 26-10-28 | Focus Tag sales are bands for every audience, Capitol included. The privacy review found that an exact tag figure minus an overlapping industry could expose a group the guard never checked | User decision after the privacy review; privacy-rules.md P4 |
+| 26-10-28 | Every loaded parsed figure signed off at the user's direction ("sign everything"). Workbook breakdowns load for Tuguegarao City only; other towns' parsed workbooks stay in the CSVs | User, 26-10-28 |
+| 26-10-28 | Reliability review: Gattaran 2024 found printed in the opposite order to its column headers; the parser now reads printed order when two independent proofs hold (extractor version 2). Amulung and Rizal 2025 checked against the PDFs and signed off | User: "this is scary ... we have to check" |
+| 26-10-28 | New observation reason `not_collected` and visible `pending_review`; restated years marked (M26); business year gaps shown as Not available | User: "dont ever put 0. Put Not Available" |
+| 26-10-28 | Work consolidated into the single kickoff folder; the finance and follow-up worktrees removed; one-folder rule added to CLAUDE.md and workflow.md | User: "everything should be in kickoff" |
+| 26-10-28 | Plan completed and archived with the follow-ups above | User request |
 | 26-10-28 | Phase 1 parser built. Summaries that print Appropriations, Allotments or Obligations without current or continuing map to the current line with `definition_variant` `unspecified_period`, as the catalog requires. A new `repeats_previous_year` check flags swapped columns | Found while reading all 158 summaries |
 
 ## Verification and Handoff
@@ -309,3 +326,21 @@ Year-tab verification "26-10-28": frontend format/lint, TypeScript and productio
   - Measure, town (including Sum of Reporting Towns) and Back made zero application requests and no page reload.
   - The Capitol check used a local test Admin created in the separate database, because the demo accounts have no password in `.env`.
 - **Limits:** only the four signed-off 2024 pairs are published, so most finance views show Not available until more figures are signed off. The remaining COA workbooks are still to be collected.
+
+### Reliability Review and Sign-Off, 26-10-28
+
+- **Request:** the user asked to sign everything off, focus workbook breakdowns on Tuguegarao City, and check whether the revenue data can be trusted.
+- **Cross-check:** every report's current-year revenue and expenses compared with the next report's prior-year column, all 29 towns, 2020 to 2025 reports: 217 pairs equal to the cent, 2 swapped (Gattaran 2024), 39 restated by COA, 32 with no later report. The largest restatements (Enrile 2021, Rizal 2024, Calayan 2022, Santa Ana 2020) were opened in the PDFs and are printed that way by COA. Details in [the finance data README](../../../data/towns/finances/README.md#reliability-review-26-10-28).
+- **Gattaran 2024:** the summary heads its columns 2024 then 2023 but prints 2023 first. The parser now reads printed order only when the column headed with the report year repeats the previous report's own revenue and expenses to the cent and the stated change only adds up the other way round. Re-extraction changed exactly four values (Gattaran 2024 revenue and expenses for 2023 and 2024). Parser tests: 61 passed, including a regression for Gattaran and three correctly labelled reports that must never be swapped.
+- **Amulung and Rizal 2025:** revenue and expenses match the PDFs to the cent and their change columns agree; only COA's own net income line disagrees. Signed off with that note.
+- **Sign-off:** `reviews.csv` now holds 1,094 sign-offs. After import: 678 published figures across all 29 towns, 416 superseded earlier versions, no pending figures.
+- **Honest gaps:** a missing finance value now says why: not published by COA, not in the report, workbook not yet added, or awaiting sign-off. A figure that replaced a different earlier one says "Restated in the 2022 report". A business year with no records is Not available and never bridged. None of them is ever shown as 0.
+- **Tests:** new cases for each reason, the restated report year, the import's workbook filter and Gattaran's corrected value, and business year gaps.
+
+### Consolidation, 26-10-28
+
+- The user found three folders (`cagayan-business-kickoff`, `cagayan-business-finance`, `cagayan-business-followup`) and asked for everything in kickoff. The finance and follow-up folders were git worktrees. Both held only committed or already merged work, plus their own `.env` files.
+- The finance worktree was removed. The follow-up worktree was unregistered; Windows refused to delete part of its folder, which now holds only copies of merged code and dependencies, for the user to delete.
+- Kickoff now works on `feat/business-analytics`. Local branches already in `staging` or in this branch were deleted, leaving `main`, `staging` and this branch.
+- The local `cagayan_business_finance` database used by port 8000 was rebuilt with the final data, and the three demo accounts were restored with `DemoAccountSeeder`.
+- The one-folder rule is recorded in `CLAUDE.md`, `docs/team/workflow.md` and Claude's memory.
