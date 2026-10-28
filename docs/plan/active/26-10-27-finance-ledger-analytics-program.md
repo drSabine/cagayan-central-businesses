@@ -34,8 +34,8 @@ Each phase gets its own branch from `staging` and its own pull request.
 | 2 Finance ledger schema and import | `feat/finance-ledger` | [PR #24](https://github.com/m-njp/cagayan-central-businesses/pull/24) open |
 | 3 Manual entry and sign-off in the Capitol | `bug/finance-review-ui` in kickoff | Implemented foundation; UI and input corrections in progress |
 | 4 Workbook collection and workbook parser | `data/coa-workbooks` | Parser and the 17 existing workbooks done, pull request open; remaining collection deferred |
-| 5 Industries, Focus Tags, simulated businesses, privacy guard | `feat/business-industries` | Not started |
-| 6 Analytics engine and pages | `feat/analytics-engine` | Not started; needs Phases 2 to 5 |
+| 5 Industries, Focus Tags, simulated businesses, privacy guard | `feat/business-analytics` | Done, committed; not pushed |
+| 6 Analytics engine and pages | `feat/business-analytics` | Done, committed; not pushed |
 
 ## Scope and Acceptance
 
@@ -126,11 +126,11 @@ The user's screenshot review superseded the earlier tabs, source-card strip and 
 
 ### Phase 6: Analytics Engine
 
-- [ ] Add the `AnalyticsMetric` registry.
-- [ ] Add `stats_finance_year`, computed in SQL.
-- [ ] Add `AnalyticsSeriesQuery` and separate public and Capitol Data objects.
-- [ ] The public Economy page becomes the Analytics page; add a Capitol Analytics page.
-- [ ] Every state is handled, and selections of already loaded data are local.
+- [x] Add the metric registry. It is the derived rows of `lines.csv` (source `derived`) with their `cagayan.finances.groups`, not a separate enum (26-10-28).
+- [x] Add `stats_finance_year`, computed in SQL.
+- [x] Add `AnalyticsCatalogQuery` and `BusinessTrendsQuery`, with one `public` switch for bands and the sales share (26-10-28).
+- [x] The public Economy page reads the ledger and business trends; add a Capitol Analytics page sharing its pickers and panels.
+- [x] Every state is handled, and selections of already loaded data are local.
 
 ## Field Catalog
 
@@ -185,6 +185,8 @@ The following are out of scope:
 | 26-10-28 | Metric definitions M19 to M31 approved; Phases 1 and 2 authorized | User approval |
 | 26-10-28 | Scope trimmed to a business focus by the user. Expense types, health, education, social welfare and other sector spending, per-sector capital outlay, Community Tax, and stored assets, liabilities, net income and allotments are dropped. M21 to M23 were revised and M24 withdrawn. Remaining ZIP collection deferred; Phase 4 uses the 17 archives on disk | User review of the workbook results |
 | 26-10-28 | Phase 2 ledger built with three changes to the column plan. Review columns are `reviewed_by` and `reviewed_on`, because rejections need them too. The report year comes from `finance_document_id`, not a separate `reported_in_year` column. A nullable `source_url` lets a manual figure cite a report that is not in `documents.csv`. A check constraint requires a document or a URL | Found while building |
+| 26-10-28 | Phase 6 built without the `AnalyticsMetric` enum or `AnalyticsSeriesQuery`. The registry is the derived rows of `lines.csv`, so the ledger, the entry form and the screens share one list; derived rows are never enterable. One catalog query serves both pages, switched by audience. The finance part of `demo.php` was removed; only the curated wishes remain | User: "Do not duplicate codes, functions, and other pages" |
+| 26-10-28 | Focus Tag sales are bands for every audience, Capitol included. The privacy review found that an exact tag figure minus an overlapping industry could expose a group the guard never checked | User decision after the privacy review; privacy-rules.md P4 |
 | 26-10-28 | Phase 1 parser built. Summaries that print Appropriations, Allotments or Obligations without current or continuing map to the current line with `definition_variant` `unspecified_period`, as the catalog requires. A new `repeats_previous_year` check flags swapped columns | Found while reading all 158 summaries |
 
 ## Verification and Handoff
@@ -287,3 +289,23 @@ Year-tab verification "26-10-28": frontend format/lint, TypeScript and productio
   - seeder status-rule and requirement tests
   - Business Categories tests for roles, validation and audit events
 - **Data member action:** the PSIC sections still need verification against the PSA classification, with a recorded date.
+
+### Phase 6 Verification, 26-10-28
+
+- **Schema:** one migration adds `stats_finance_year`. `database/sql/metrics/20_stats_finance_year.sql` fills it from verified figures only:
+  - the derived lines: Surplus or Deficit, Other Revenue, Locally Generated Share, Budget Utilization, the two development utilizations, and revenue and expenses per resident
+  - M26 change and percent change, the M25 census year, and M27 Sum of Reporting Towns rows with coverage and the matched-town change
+- **Business trends:** M28 to M31 per industry and Focus Tag, summed from `stats_area_year` in SQL. Sales pass the privacy guard across each year's breakdown (P4). The public gets bands, no sales change and no sales share (P7). The Capitol gets guarded figures, the sales percent change, and the sales share, hidden when either sales figure is hidden (P6).
+- **Privacy review:** the `privacy-reviewer` agent found that overlapping Focus Tags allowed subtraction in the Capitol. Fixed by the user's decision above, with tests for tag bands, a small tag group (P5), a change from a hidden year and a complementary sales share (P6), and the Capitol label. Noted and left as is: the public page forces the Simulated label on (existing behavior), and public tooltips show the reason a figure is hidden.
+- **Shared front end:** `components/analytics/analytics-pickers.tsx` and `analytics-panels.tsx` serve both pages. `finance-history-chart.tsx` now draws any number of series in one unit. Series are keyed by position, because metric ids with dots made invalid CSS color variables and invisible lines.
+- **Tests:** `php artisan test --compact` passed. New tests:
+  - `tests/Feature/Metrics/FinanceSeriesTest.php`: gaps, a zero prior value, a variant break, matched-town sums, the per-resident census year
+  - `tests/Feature/Privacy/BusinessTrendsPrivacyTest.php`: the sales sentinel, small group, P4 complementary, no wishes in the Capitol, the share and sales percent by audience
+  - the rewritten `tests/Feature/Public/EconomicPerformanceTest.php`
+- **Static and front end:** PHPStan (0 errors), Pint, `npm run check`, `npm run types:check` and `npm run build` passed.
+- **Clean rebuild:** `migrate:fresh --seed` and `metrics:refresh` on the separate `cagayan_business_finance` database: 240 documents, 1,339 parsed figures, 8 verified, 23 finance series rows, 4,323 area rows.
+- **Browser, port 8010:**
+  - Public Economy and Capitol Analytics at desktop and 375px, in light and dark. No horizontal scroll.
+  - Measure, town (including Sum of Reporting Towns) and Back made zero application requests and no page reload.
+  - The Capitol check used a local test Admin created in the separate database, because the demo accounts have no password in `.env`.
+- **Limits:** only the four signed-off 2024 pairs are published, so most finance views show Not available until more figures are signed off. The remaining COA workbooks are still to be collected.

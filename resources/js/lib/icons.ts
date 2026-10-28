@@ -14,6 +14,7 @@ import {
     ChevronDown,
     CircleHelp,
     Tags,
+    ChartLine,
 } from 'lucide-react';
 
 export const icons = {
@@ -32,4 +33,5 @@ export const icons = {
     expand: ChevronDown,
     help: CircleHelp,
     categories: Tags,
+    analytics: ChartLine,
 } as const;

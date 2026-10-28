@@ -1,0 +1,106 @@
+<?php
+
+use App\Enums\TownMeasure;
+use App\Models\FinanceFigure;
+use App\Models\Municipality;
+use App\Models\TownFact;
+use Illuminate\Support\Facades\DB;
+
+function signed(Municipality $town, string $line, int $year, string $value, array $extra = []): void
+{
+    FinanceFigure::factory()->verified()->for($town)->line($line, $year, $value)->create($extra);
+}
+
+function series(?Municipality $town, string $metric): array
+{
+    return DB::table('stats_finance_year')
+        ->where('metric', $metric)
+        ->when($town, fn ($query) => $query->where('municipality_id', $town->id), fn ($query) => $query->whereNull('municipality_id'))
+        ->orderBy('fiscal_year')->get()->keyBy('fiscal_year')->all();
+}
+
+beforeEach(fn () => $this->town = Municipality::factory()->create());
+
+it('computes surplus and changes only between consecutive comparable years (M19, M26)', function () {
+    signed($this->town, 'performance.revenue', 2022, '80.00');
+    signed($this->town, 'performance.revenue', 2023, '100.00');
+    signed($this->town, 'performance.revenue', 2024, '150.00');
+    signed($this->town, 'performance.expenses', 2024, '120.00');
+    signed($this->town, 'performance.revenue', 2025, '160.00', ['definition_variant' => 'includes_subsidy_from_other_funds']);
+
+    $this->artisan('metrics:refresh')->assertSuccessful();
+    $revenue = series($this->town, 'performance.revenue');
+
+    // 2024: 150 - 100 = 50, and 50 / 100 x 100 = 50.0 percent. 2025 changes definition, so no change.
+    expect([$revenue[2024]->change, $revenue[2024]->percent_change])->toBe(['50.00', '50.0'])
+        ->and([$revenue[2025]->comparable, $revenue[2025]->change])->toBe([false, null])
+        ->and(series($this->town, 'performance.surplus')[2024]->value)->toBe('30.00');
+});
+
+it('leaves a gap year without change and a zero base without percent (M26)', function () {
+    signed($this->town, 'performance.expenses', 2021, '0.00');
+    signed($this->town, 'performance.expenses', 2022, '40.00');
+    signed($this->town, 'performance.expenses', 2024, '50.00');
+
+    $this->artisan('metrics:refresh')->assertSuccessful();
+    $expenses = series($this->town, 'performance.expenses');
+
+    expect([$expenses[2022]->change, $expenses[2022]->percent_change])->toBe(['40.00', null])
+        ->and([$expenses[2024]->comparable, $expenses[2024]->change])->toBe([false, null]);
+});
+
+it('derives the locally generated share unless local taxes may include the national share (M21)', function () {
+    signed($this->town, 'performance.revenue', 2024, '1000.00');
+    signed($this->town, 'revenue.tax', 2024, '150.00');
+    signed($this->town, 'revenue.service_business', 2024, '50.00');
+    signed($this->town, 'revenue.national_share', 2024, '700.00');
+    $other = Municipality::factory()->create();
+    signed($other, 'performance.revenue', 2024, '1000.00');
+    signed($other, 'revenue.tax', 2024, '900.00', ['definition_variant' => 'may_include_national_share']);
+    signed($other, 'revenue.service_business', 2024, '50.00');
+
+    $this->artisan('metrics:refresh')->assertSuccessful();
+
+    // (150 + 50) / 1000 x 100 = 20.00 percent; other revenue is 1000 - 150 - 700 - 50 = 100.
+    expect(series($this->town, 'revenue.local_share')[2024]->value)->toBe('20.00')
+        ->and(series($this->town, 'revenue.remaining')[2024]->value)->toBe('100.00')
+        ->and(series($other, 'revenue.local_share'))->toBe([]);
+});
+
+it('divides by the latest census at or before the fiscal year (M25)', function () {
+    TownFact::factory()->verified()->for($this->town)->measure(TownMeasure::Population, 2020, 1000)->create();
+    TownFact::factory()->verified()->for($this->town)->measure(TownMeasure::Population, 2024, 2000)->create();
+    signed($this->town, 'performance.revenue', 2019, '5000.00');
+    signed($this->town, 'performance.revenue', 2023, '6000.00');
+    signed($this->town, 'performance.revenue', 2024, '8000.00');
+
+    $this->artisan('metrics:refresh')->assertSuccessful();
+    $perResident = series($this->town, 'per_capita.revenue');
+
+    // 2019 and 2023 use the 2020 census (5.00, 6.00); 2024 uses the 2024 census (8000 / 2000 = 4.00).
+    expect(array_map(fn ($row) => [$row->value, $row->census_year], $perResident))
+        ->toBe([2019 => ['5.00', 2020], 2023 => ['6.00', 2020], 2024 => ['4.00', 2024]]);
+});
+
+it('sums reporting towns and computes change over towns present in both years (M27)', function () {
+    $other = Municipality::factory()->create();
+    signed($this->town, 'performance.revenue', 2023, '100.00');
+    signed($this->town, 'performance.revenue', 2024, '120.00');
+    signed($other, 'performance.revenue', 2024, '500.00');
+
+    $this->artisan('metrics:refresh')->assertSuccessful();
+    $sum = series(null, 'performance.revenue')[2024];
+
+    // 120 + 500 = 620 from 2 towns; only the first has 2023, so change is 20 over a base of 100 = 20.0 percent.
+    expect([$sum->value, $sum->reporting_towns, $sum->matched_towns, $sum->change, $sum->percent_change])
+        ->toBe(['620.00', 2, 1, '20.00', '20.0'])
+        ->and($sum->total_towns)->toBe(Municipality::query()->count());
+});
+
+it('ignores figures that are not signed off', function () {
+    FinanceFigure::factory()->for($this->town)->line('performance.revenue', 2024, '999.00')->create();
+
+    $this->artisan('metrics:refresh')->assertSuccessful();
+
+    expect(DB::table('stats_finance_year')->count())->toBe(0);
+});

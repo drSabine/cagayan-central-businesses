@@ -1,6 +1,8 @@
 # Economic Performance Demo
 
-`demo.php` is an isolated, curated fixture for the public Economic Performance page. Every amount, change and wish count is synthetic. Specific-business names are fictional. Nothing is imported into `town_facts` or drawn from live wishes.
+`demo.php` is an isolated, curated fixture of community wishes for the public Economic Performance page. Every wish count is synthetic. Specific-business names are fictional. Nothing is drawn from live wishes.
+
+26-10-28: the finance fixture was removed. Government finances come from signed-off ledger figures through `stats_finance_year`, and business trends from `stats_area_year`, both read by `AnalyticsCatalogQuery` (Finance Ledger and Analytics Program, Phase 6). The finance paragraphs below describe the retired fixture and are kept for history.
 
 ## Contract and Replacement
 

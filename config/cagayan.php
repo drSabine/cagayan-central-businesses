@@ -22,7 +22,8 @@ return [
 
     'performance' => [
         'demo_town' => '0201529000',
-        'first_year' => 2021,
+        // Fiscal years shown on the analytics pages; 2019 comes from the 2020 reports' prior-year column.
+        'first_year' => 2019,
         'last_year' => 2025,
         'recent_first_year' => 2023,
         'cloud_limit' => 20,
@@ -243,6 +244,7 @@ return [
         'first_year' => 2019,
         'last_year' => 2025,
         'value_max' => '999999999999.99',
+        'coa_url' => 'https://www.coa.gov.ph/reports/annual-audit-reports/aar-local-government-units/',
         'source_url_max' => 500,
         'review_batch_max' => 200,
         'note_max' => 500,
@@ -253,6 +255,11 @@ return [
             'revenue_sources' => ['label' => 'Revenue Sources', 'bases' => ['actual']],
             'business_taxes' => ['label' => 'Business Taxes and Fees', 'bases' => ['actual']],
             'development' => ['label' => 'Development Spending', 'bases' => ['actual', 'budget_final']],
+            // Derived in SQL (metrics.md M19 to M25); never entered, charted apart from peso totals.
+            'budget_share' => ['label' => 'Budget Utilization', 'bases' => []],
+            'revenue_share' => ['label' => 'Locally Generated Share', 'bases' => []],
+            'development_share' => ['label' => 'Development Utilization', 'bases' => []],
+            'per_capita' => ['label' => 'Per Resident', 'bases' => []],
         ],
     ],
 

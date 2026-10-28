@@ -115,10 +115,10 @@ The line catalog, one row per `data/towns/finances/lines.csv` row.
 | `code` | string(80) | unique, such as `performance.revenue` |
 | `parent_code` | string(80), nullable | The total a breakdown line belongs to |
 | `label` | string(120) | Display label, such as "Government Revenue" |
-| `group` | string(40) | Field Catalog section: `totals`, `budget`, `revenue_sources`, `business_taxes`, `development`, or `checks` (read for arithmetic only, never stored) |
-| `unit` | string(10) | `php` |
+| `group` | string(40) | Field Catalog section: `totals`, `budget`, `revenue_sources`, `business_taxes`, `development`, `checks` (read for arithmetic only, never stored), or a derived group: `budget_share`, `revenue_share`, `development_share`, `per_capita` |
+| `unit` | string(10) | `php` or `percent` |
 | `displayed` | boolean | False for lines kept only for the arithmetic checks |
-| `source` | string(40) | `executive_summary`, `fs_workbook`, `annex_c1`, `fs_scbaa` |
+| `source` | string(40) | `executive_summary`, `fs_workbook`, `annex_c1`, `fs_scbaa`, or `derived` (computed in `stats_finance_year`, never entered or imported) |
 | `sort` | smallint | File order |
 
 #### finance_documents
@@ -360,6 +360,16 @@ The base grain. Every count and sales figure on screen rolls up from here. Built
 - `declared_sales_total` decimal(18, 2)
 - `declared_sales_max_single` decimal(16, 2). The largest single business's sales in the cell, for the dominance rule. When rolling up cells, take the maximum.
 - unique `(barangay_id, business_type_id, size_category, year)`, index `(year, barangay_id)`
+
+### stats_finance_year
+
+Signed-off government finance series and their derived lines (metrics.md M19 to M27). Built by `database/sql/metrics/20_stats_finance_year.sql` from `verified` figures only. A missing figure has no row; the Query reports it as not published or not reported.
+
+- `municipality_id`, nullable. Null rows are the Sum of Reporting Towns (M27), for peso lines only.
+- `fiscal_year`, `metric` (a `finance_lines.code`), `value` decimal(20, 2), `definition_variant`
+- `change` decimal(20, 2), `percent_change` decimal(10, 1), `comparable` boolean (M26)
+- `census_year`, for per-resident lines (M25)
+- `reporting_towns`, `total_towns`, `matched_towns`, for Sum of Reporting Towns rows
 
 ### stats_type_cohort
 

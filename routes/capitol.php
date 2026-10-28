@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Capitol\ActivityLogController;
+use App\Http\Controllers\Capitol\AnalyticsController;
 use App\Http\Controllers\Capitol\BusinessCategoryController;
 use App\Http\Controllers\Capitol\CommunityWishController;
 use App\Http\Controllers\Capitol\DashboardController;
@@ -22,6 +23,7 @@ Route::middleware([PreventIndexing::class, 'auth', 'can:capitol'])
             Route::post('focus-tags', [BusinessCategoryController::class, 'storeTag'])->name('tags.store');
             Route::put('{type:code}/focus-tags', [BusinessCategoryController::class, 'updateTags'])->name('types.tags.update');
         });
+        Route::get('analytics', AnalyticsController::class)->name('analytics');
         Route::get('finances', [FinanceReviewController::class, 'index'])->name('finances.index');
         Route::get('finances/{town:psgc_code}/{year}', [FinanceReviewController::class, 'show'])->whereNumber('year')->name('finances.show');
         Route::post('finances/{town:psgc_code}/{year}/figures', [FinanceFigureController::class, 'store'])->whereNumber('year')->name('finances.figures.store');

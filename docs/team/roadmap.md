@@ -166,7 +166,7 @@ Implemented the map-first three-role workspace with economic context, explicit b
 
 ## Future Phase: Historical Local Government Finances
 
-Status: in progress as the [Finance Ledger and Analytics Program](../plan/active/26-10-27-finance-ledger-analytics-program.md), started 26-10-27. Phase 0 (docs and decisions) is under way; Phases 1 to 6 are not started.
+Status: in progress as the [Finance Ledger and Analytics Program](../plan/active/26-10-27-finance-ledger-analytics-program.md), started 26-10-27. Phases 0 to 6 are built. Pull requests for Phases 5 and 6 are not yet opened. Collecting the remaining COA workbooks and signing off more figures remain.
 
 A Python parser reads the COA Executive Summaries and audit-report workbooks into a reviewed finance ledger. Admins can also enter and correct figures in the Capitol. A figure is published only after a person signs it off (D34, D35). The Analytics pages show these figures over fiscal years 2019 to 2025:
 

@@ -55,7 +55,7 @@ final class FinanceReportQuery
                     $document->kind->value, self::KINDS[$document->kind->value],
                     $document->availability === FinanceAvailability::Available, $document->source_url,
                 ))->all()),
-            lines: array_values(FinanceLine::query()->where('displayed', true)->orderBy('sort')->get(['code', 'label', 'group'])
+            lines: array_values(FinanceLine::query()->enterable()->orderBy('sort')->get(['code', 'label', 'group'])
                 ->map(fn (FinanceLine $line) => new FinanceLineOption($line->code, $line->label,
                     config('cagayan.finances.groups.'.$line->getAttribute('group').'.bases', ['actual'])))->all()),
             limits: [

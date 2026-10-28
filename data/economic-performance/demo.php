@@ -1,37 +1,7 @@
 <?php
 
-// Finished synthetic observations, never imported into verified town facts.
+// Curated synthetic wishes for the Economy page. Government finances come from the signed-off ledger (D35).
 return [
-    'finances' => [
-        'source' => ['mode' => 'simulated', 'label' => 'Synthetic demonstration figures', 'sourceUrl' => null, 'verifiedOn' => null],
-        'axisMaximum' => '4000000000.00',
-        'metrics' => [
-            ['id' => 'government_revenue', 'label' => 'Government Revenue', 'unit' => 'PHP', 'basis' => 'Accrual revenue'],
-            ['id' => 'government_expenses', 'label' => 'Government Expenses', 'unit' => 'PHP', 'basis' => 'Accrual expenses including non-cash expenses and transfers'],
-        ],
-        'rows' => [
-            ['year' => 2021, 'observations' => [
-                'government_revenue' => ['state' => 'shown', 'value' => '2400000000.25', 'comparable' => false, 'change' => null, 'percentageChange' => null, 'comparisonYear' => null],
-                'government_expenses' => ['state' => 'shown', 'value' => '2100000000.50', 'comparable' => false, 'change' => null, 'percentageChange' => null, 'comparisonYear' => null],
-            ]],
-            ['year' => 2022, 'observations' => [
-                'government_revenue' => ['state' => 'shown', 'value' => '2640000000.25', 'comparable' => true, 'change' => '240000000.00', 'percentageChange' => 10.0, 'comparisonYear' => 2021],
-                'government_expenses' => ['state' => 'shown', 'value' => '2310000000.50', 'comparable' => true, 'change' => '210000000.00', 'percentageChange' => 10.0, 'comparisonYear' => 2021],
-            ]],
-            ['year' => 2023, 'observations' => [
-                'government_revenue' => ['state' => 'shown', 'value' => '2904000000.25', 'comparable' => true, 'change' => '264000000.00', 'percentageChange' => 10.0, 'comparisonYear' => 2022],
-                'government_expenses' => ['state' => 'shown', 'value' => '2194500000.50', 'comparable' => true, 'change' => '-115500000.00', 'percentageChange' => -5.0, 'comparisonYear' => 2022],
-            ]],
-            ['year' => 2024, 'observations' => [
-                'government_revenue' => ['state' => 'shown', 'value' => '3194400000.25', 'comparable' => true, 'change' => '290400000.00', 'percentageChange' => 10.0, 'comparisonYear' => 2023],
-                'government_expenses' => ['state' => 'shown', 'value' => '2523675000.50', 'comparable' => true, 'change' => '329175000.00', 'percentageChange' => 15.0, 'comparisonYear' => 2023],
-            ]],
-            ['year' => 2025, 'observations' => [
-                'government_revenue' => ['state' => 'shown', 'value' => '3513840000.25', 'comparable' => true, 'change' => '319440000.00', 'percentageChange' => 10.0, 'comparisonYear' => 2024],
-                'government_expenses' => ['state' => 'shown', 'value' => '2776042500.50', 'comparable' => true, 'change' => '252367500.00', 'percentageChange' => 10.0, 'comparisonYear' => 2024],
-            ]],
-        ],
-    ],
     'wishes' => [
         'asOf' => '2026-10-25',
         'period' => 'All Time',

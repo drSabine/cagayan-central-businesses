@@ -1,19 +1,12 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { ChartBar, Cloud, MessageSquarePlus } from 'lucide-react';
+import { AnalyticsPanels } from '@/components/analytics/analytics-panels';
+import { AnalyticsPickers } from '@/components/analytics/analytics-pickers';
 import { ChartViewSwitcher } from '@/components/charts/chart-view-switcher';
-import FinancePanel from '@/components/charts/finance-panel';
 import WishesPanel from '@/components/charts/wishes-panel';
 import { LazyProvinceMap } from '@/components/lazy-province-map';
 import { Button } from '@/components/ui/button';
-import { Field, FieldLabel } from '@/components/ui/field';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { NOT_AVAILABLE } from '@/lib/format';
+import { pushFilters } from '@/lib/analytics';
 import { economicPerformance } from '@/routes/public';
 import { index as suggestions } from '@/routes/public/wishes';
 import type {
@@ -21,86 +14,33 @@ import type {
     PerformanceFilters,
 } from '@/types/economic-performance';
 
-type Option = { value: string; label: string };
-
 const wishViews = [
     { value: 'cloud', label: 'Word Cloud', icon: Cloud },
     { value: 'bars', label: 'Ranked Bars', icon: ChartBar },
 ] as const;
-
-function Picker({
-    id,
-    label,
-    value,
-    options,
-    onChange,
-}: {
-    id: string;
-    label: string;
-    value: string;
-    options: Option[];
-    onChange: (value: string) => void;
-}) {
-    return (
-        <Field className="min-w-0 gap-1">
-            <FieldLabel htmlFor={id}>{label}</FieldLabel>
-            <Select value={value} onValueChange={onChange}>
-                <SelectTrigger id={id} className="min-h-10 w-full">
-                    <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                    {options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </Field>
-    );
-}
 
 export default function EconomicPerformancePage({
     performance,
 }: {
     performance: EconomicPerformance;
 }) {
-    const { filters } = performance;
-    const dataset = performance.datasets[filters.town];
-    const townName = performance.towns.find(
+    const { catalog, filters } = performance;
+    const townName = catalog.towns.find(
         (town) => town.value === filters.town,
     )?.label;
-    const finances = dataset
-        ? {
-              ...dataset.finances,
-              rows: dataset.finances.rows.filter(
-                  (row) => row.year >= performance.periods[filters.period],
-              ),
-          }
-        : null;
-    const wishes = dataset?.wishes;
-    const available = dataset !== undefined;
+    const wishes = performance.wishes[filters.town];
     const change = (patch: Partial<PerformanceFilters>) => {
-        const selection = { ...filters, ...patch };
-        if (!performance.towns.some((town) => town.value === selection.town))
+        if (patch.town && !catalog.towns.some((t) => t.value === patch.town))
             return;
-        if (
-            Object.keys(selection).every(
-                (key) =>
-                    selection[key as keyof PerformanceFilters] ===
-                    filters[key as keyof PerformanceFilters],
-            )
-        )
-            return;
-        router.push({
-            url: economicPerformance({ query: selection }).url,
-            preserveState: true,
-            preserveScroll: true,
-            props: (props) => ({
+        pushFilters(
+            filters,
+            patch,
+            (query) => economicPerformance({ query }).url,
+            (props, next) => ({
                 ...props,
-                performance: { ...performance, filters: selection },
+                performance: { ...performance, filters: next },
             }),
-        });
+        );
     };
 
     return (
@@ -109,63 +49,44 @@ export default function EconomicPerformancePage({
             <header className="flex flex-wrap items-end justify-between gap-3">
                 <h1 className="type-title">Cagayan Economy</h1>
                 <div className="w-full sm:w-72">
-                    <Picker
-                        id="performance-town"
-                        label="Town"
-                        value={filters.town}
-                        options={performance.towns}
-                        onChange={(town) => change({ town })}
+                    <AnalyticsPickers
+                        idPrefix="performance"
+                        catalog={catalog}
+                        filters={filters}
+                        fields={['town']}
+                        onChange={change}
                     />
                 </div>
             </header>
-            <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1fr)_18rem]">
-                <section
-                    aria-labelledby="finance-heading"
-                    className="flex min-w-0 flex-col gap-3 rounded-sm border bg-card p-3 sm:p-4"
-                >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                        <h2 id="finance-heading" className="type-heading">
-                            Government Finances
-                        </h2>
-                    </div>
-                    {available && (
-                        <div className="w-44">
-                            <Picker
-                                id="performance-period"
-                                label="Period"
-                                value={filters.period}
-                                options={[
-                                    { value: 'all', label: '2021 to 2025' },
-                                    { value: 'recent', label: '2023 to 2025' },
-                                ]}
-                                onChange={(period) =>
-                                    change({
-                                        period: period as PerformanceFilters['period'],
-                                    })
-                                }
-                            />
-                        </div>
-                    )}
-                    {!available ? (
-                        <div
-                            role="status"
-                            className="grid min-h-48 content-center gap-2"
-                        >
-                            <p className="type-heading">{NOT_AVAILABLE}</p>
-                            <p className="type-meta">
-                                Reliable financial data for this town is still
-                                being gathered.
-                            </p>
-                        </div>
-                    ) : (
-                        finances && (
-                            <FinancePanel
-                                key={`${filters.town}-${filters.period}`}
-                                history={finances}
-                            />
-                        )
-                    )}
-                </section>
+            <div className="grid min-w-0 items-start gap-3 lg:grid-cols-[minmax(0,1fr)_18rem]">
+                <div className="flex min-w-0 flex-col gap-3">
+                    <AnalyticsPanels
+                        catalog={catalog}
+                        filters={filters}
+                        financeControls={
+                            <div className="grid gap-3 sm:grid-cols-2 lg:w-2/3">
+                                <AnalyticsPickers
+                                    idPrefix="performance"
+                                    catalog={catalog}
+                                    filters={filters}
+                                    fields={['measure', 'period']}
+                                    onChange={change}
+                                />
+                            </div>
+                        }
+                        businessControls={
+                            <div className="grid gap-3 sm:grid-cols-2 lg:w-2/3">
+                                <AnalyticsPickers
+                                    idPrefix="performance"
+                                    catalog={catalog}
+                                    filters={filters}
+                                    fields={['dimension', 'group']}
+                                    onChange={change}
+                                />
+                            </div>
+                        }
+                    />
+                </div>
                 <aside
                     aria-label="Town Explorer"
                     className="dark flex min-w-0 flex-col gap-2 rounded-sm bg-brand p-3 text-brand-foreground sm:p-4"
@@ -218,18 +139,16 @@ export default function EconomicPerformancePage({
                         />
                     </div>
                 </div>
-                {!available ? (
+                {wishes ? (
+                    <WishesPanel
+                        key={`${filters.town}-${filters.wishView}`}
+                        snapshot={wishes}
+                        view={filters.wishView}
+                    />
+                ) : (
                     <p role="status" className="py-6 type-meta">
                         Community wishes are not available for this town yet.
                     </p>
-                ) : (
-                    wishes && (
-                        <WishesPanel
-                            key={`${filters.town}-${filters.wishView}`}
-                            snapshot={wishes}
-                            view={filters.wishView}
-                        />
-                    )
                 )}
             </section>
         </div>
