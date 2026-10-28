@@ -2,6 +2,10 @@
 
 Figures read from COA reports for Cagayan's 28 municipalities and Tuguegarao City. The parser in `tools/coa/` writes most of these files (D34). `composer data:finances` (`php artisan finances:import`) loads them into the finance ledger (D35) as **pending** figures, then replays the sign-offs in `reviews.csv` and `manual-figures.csv`. Nothing is published until a person signs it off. `composer db:reset` runs the import too.
 
+Every Executive Summary loads for all 29 towns. Workbook breakdowns load only for the towns in `cagayan.finances.workbook_towns`, Tuguegarao City since 26-10-28. The other towns' workbooks stay parsed in `extracted/` and `issues/` until their towns are added to that list. A town whose workbook is not loaded shows "The COA workbook for this year has not been added yet".
+
+Since 26-10-28 every loaded parsed figure is signed off (`reviews.csv`, 1,094 rows): 678 are published and 416 are earlier versions superseded by a later report's restatement. See "Reliability Review, 26-10-28" below.
+
 Definitions: `docs/engineering/metrics.md`, M19 to M27.
 
 ## Files
@@ -45,6 +49,7 @@ Each report is also compared with the previous year's report:
 
 - A prior-year figure that differs from that report is `restated`. This is informational, and the latest report wins (D35).
 - A current-year figure equal to the previous report's own figure is `repeats_previous_year`, an error. It usually means the column headers are swapped.
+- **Mislabelled column headers (`header_years_swapped`, a warning, extractor version 2):** when the column headed with the report year repeats the previous report's own revenue and expenses to the cent, and the stated change column only adds up with the columns the other way round, the parser reads the columns in printed order. Both proofs are required for revenue and expenses, so a report that only prints its change as prior minus current (Abulug 2021) is never swapped. Gattaran 2024 is the only report that meets them.
 
 Each statement workbook is checked too:
 
@@ -98,10 +103,25 @@ Before the trim, the independent `pdftotext` (Xpdf) text of each PDF contained e
 
 Notable errors:
 
-- **Gattaran 2024 (`repeats_previous_year`):** the columns look swapped. Its 2024 column repeats the 2023 report's own 2023 figures, and the 2025 report gives 2024 assets as ₱976.0 million against the ₱917.9 million printed as 2024.
-- **Amulung 2025 and Rizal 2025 (`net_income_mismatch`):** they state a net income that is not revenue minus expenses.
-- **Santo Niño 2025 (`revenue_sources_mismatch`):** its revenue lines miss an unlabeled ₱22,392.82 row, in both years.
+- **Gattaran 2024:** the summary heads its columns "2024 2023" but prints 2023 first. Its first column repeats the 2023 report's own figures, and its change column (₱18,941,613.27 revenue) equals 401,727,932.51 minus 382,786,319.24. Since extractor version 2 the parser reads printed order (`header_years_swapped`), giving 2024 revenue ₱401,727,932.51 and expenses ₱408,270,884.16, which the 2025 report confirms.
+- **Amulung 2025 and Rizal 2025 (`net_income_mismatch`):** they state a net income that is not revenue minus expenses. Their revenue and expenses match the PDFs to the cent, and their percent and change columns agree, so only COA's own net income line is inconsistent. Net income is not stored; Surplus or Deficit is computed from revenue and expenses (M19).
+- **Santo Niño 2025 (`revenue_sources_mismatch`):** its revenue lines miss an unlabeled ₱22,392.82 row, in both years. Its workbook is not loaded yet.
 
 Warnings cover change-column typos, repeated header years, workbook-to-summary differences, and Gattaran's 2025 budget sheet titled 2024. Counts are printed at the end of every run.
 
-The parser never corrects a source error. The reviewer decides.
+Apart from reading mislabelled columns in printed order when both proofs hold, the parser never corrects a source error. The reviewer decides.
+
+## Reliability Review, 26-10-28
+
+Before signing everything off, each report's current-year revenue and expenses were compared with the next year's report, which repeats them as its prior-year column (2020 to 2025 reports, all 29 towns):
+
+| Result | Pairs |
+| :- | -: |
+| Same to the cent | 217 |
+| Columns swapped in the later report (Gattaran 2024, now read correctly) | 2 |
+| Different: a later report restated the year | 39 |
+| No later report to compare | 32 |
+
+Most restatements are under 1 percent. The largest were opened in the PDFs and are printed that way by COA, not misread: Enrile 2021 revenue (₱181.0 million, restated as ₱232.2 million in 2022), Rizal 2024 expenses, Calayan 2022 expenses, and Santa Ana 2020 revenue. The latest report wins (D35), and the screens say "Restated in the 2022 report" (M26). Aparri 2020 revenue differs by ₱0.63 between reports, a digit swap in one of COA's documents.
+
+Reading a value correctly does not make COA's accounts correct: the figures are transcriptions of the reports, which are themselves audited with qualified opinions in many towns.

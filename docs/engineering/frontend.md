@@ -172,6 +172,8 @@ Recharts through shadcn's Chart component (`components/ui/chart.tsx`). It gives 
 
 - Use `ChartContainer` with a `ChartConfig` that names each series and its token color (`var(--chart-1)`). Never a hex value.
 - Shared chart wrappers go in `components/charts/`.
+- `ChartConfig` keys must be valid CSS names, because they become `--color-<key>` variables. Key series by position (`series0`) when ids contain dots, such as finance line codes; an invalid name draws nothing.
+- Yearly series use `FinancePanel` and `FinanceHistoryChart`: one unit per chart, gaps stay gaps, and a list replaces the chart when nothing can be plotted (bands or all hidden). The public Economy page and Capitol Analytics share `components/analytics/analytics-pickers.tsx` and `analytics-panels.tsx`; the server decides where sales are bands.
 - Every chart has a table version a click away (`design.md`).
 - Docs: https://ui.shadcn.com/docs/components/chart
 

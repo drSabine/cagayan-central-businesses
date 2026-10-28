@@ -103,7 +103,7 @@ Unique `(municipality_id, measure, year)`, which also serves the lookups. A new 
 
 ### Finance ledger
 
-Government finance figures from COA reports (D35, metrics.md M19 to M27). The tables are loaded by `php artisan finances:import` (`composer data:finances`) from `data/towns/finances/`, which the Python parser in `tools/coa/` writes (D34). `php artisan finances:export` saves sign-offs and manual figures back to those CSVs, so `composer db:reset` rebuilds the same verified ledger. The import never deletes manual figures. A parsed figure whose value changes goes back to pending. Public figures, so no visibility class applies, but only `verified` figures are published.
+Government finance figures from COA reports (D35, metrics.md M19 to M27). The tables are loaded by `php artisan finances:import` (`composer data:finances`) from `data/towns/finances/`, which the Python parser in `tools/coa/` writes (D34). `php artisan finances:export` saves sign-offs and manual figures back to those CSVs, so `composer db:reset` rebuilds the same verified ledger. The import never deletes manual figures. A parsed figure whose value changes goes back to pending. Workbook figures load only for the towns in `cagayan.finances.workbook_towns`; every Executive Summary loads. Public figures, so no visibility class applies, but only `verified` figures are published.
 
 #### finance_lines
 
@@ -369,6 +369,7 @@ Signed-off government finance series and their derived lines (metrics.md M19 to 
 - `fiscal_year`, `metric` (a `finance_lines.code`), `value` decimal(20, 2), `definition_variant`
 - `change` decimal(20, 2), `percent_change` decimal(10, 1), `comparable` boolean (M26)
 - `census_year`, for per-resident lines (M25)
+- `restated_in`, the report year of a figure that replaced a different earlier figure (M26)
 - `reporting_towns`, `total_towns`, `matched_towns`, for Sum of Reporting Towns rows
 
 ### stats_type_cohort

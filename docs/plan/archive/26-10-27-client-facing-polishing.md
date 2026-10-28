@@ -2,8 +2,8 @@
 title: "Client Facing Polishing"
 created: "26-10-27"
 updated: "26-10-28"
-status: in-progress
-branch: "feat/client-facing-polishing"
+status: completed
+branch: "feat/client-facing-polishing (merged into feat/business-analytics, 26-10-28)"
 base: staging
 predecessor: null
 ---
@@ -79,3 +79,4 @@ Requested by the user so the finance review and quick sign in are available toge
 - 26-10-28: The polishing `composer ci:check` and production build completed successfully before integration (164 tests, 1,013 assertions). Committed wish-cloud work as `2a08ba7` with hooks enabled.
 - 26-10-28: Combined preview build passed. Focused seeder, quick sign-in and finance-review tests passed (30 tests, 173 assertions), explicitly on `cagayan_business_test`. Browser verification on port 8000: all three quick sign-in buttons are visible, Super Admin signs in, and Government Finances opens the populated review list. Other roles are covered automatically; manual review/sign-off writes were not performed.
 - 26-10-28: Combined `composer ci:check` passed (201 tests, 1,211 assertions; frontend format/lint, TypeScript, Pint and PHPStan clean). Corrected the imported `FinanceReviewListQuery` callback to accept the query builder's `stdClass` rows. Saved browser evidence of the populated Government Finances list on port 8000. The saved standalone seeder stash remains available as a backup; its UUID fix is now adapted to the three-role seeder in this integration.
+- 26-10-28: Completed. Both slices and the local finance preview integration travel in the combined `feat/business-analytics` pull request with the [Finance Ledger and Analytics Program](26-10-27-finance-ledger-analytics-program.md). The `feat/client-facing-polishing` and `feat/local-finance-polishing` branches were deleted after their commits were confirmed in that branch.
