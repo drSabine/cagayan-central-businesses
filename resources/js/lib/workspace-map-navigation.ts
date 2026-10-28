@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import { pageSearchParams } from '@/lib/navigation';
 import { loadTownBoundaries } from '@/lib/map-data';
 import { dashboard } from '@/routes/capitol';
 import type { WorkspaceMap } from '@/types/workspace';
@@ -15,8 +16,14 @@ export async function navigateDashboard(
         town && level === 'barangays' ? await loadTownBoundaries(town) : null;
     if (selection !== latestSelection) return;
     router.push({
-        url: dashboard({ query: { town: town ?? undefined, level, barangay } })
-            .url,
+        url: dashboard({
+            query: {
+                ...Object.fromEntries(pageSearchParams(window.location.href)),
+                town: town ?? undefined,
+                level,
+                barangay,
+            },
+        }).url,
         preserveScroll: true,
         preserveState: true,
         props: (props) => ({

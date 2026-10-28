@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Data;
+
+/** One page of registered business names with the options their filters need (D39). */
+final readonly class BusinessDirectory
+{
+    /**
+     * @param  list<BusinessDirectoryRow>  $rows
+     * @param  list<array{code: string, name: string, color: int}>  $categories
+     * @param  list<SelectOption>  $types
+     * @param  list<SelectOption>  $industries
+     * @param  list<SelectOption>  $statuses
+     * @param  array<string, string|null>  $filters
+     * @param  bool  $enabled  False while business records are off (D37), so no table is read
+     */
+    public function __construct(
+        public array $rows,
+        public Pagination $pagination,
+        public array $categories,
+        public array $types,
+        public array $industries,
+        public array $statuses,
+        public array $filters,
+        public bool $enabled,
+    ) {}
+}

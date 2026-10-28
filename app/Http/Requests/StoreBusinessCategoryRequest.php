@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\CategoryName;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-final class BusinessCategoriesRequest extends FormRequest
+final class StoreBusinessCategoryRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,6 +15,8 @@ final class BusinessCategoriesRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        return ['tag' => ['nullable', 'string', Rule::exists('focus_tags', 'code')]];
+        return [
+            'name' => ['required', 'string', 'max:'.config('cagayan.inputs.category_name_max'), new CategoryName('business_categories', 'Category')],
+        ];
     }
 }

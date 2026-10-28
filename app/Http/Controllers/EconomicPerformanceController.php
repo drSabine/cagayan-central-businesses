@@ -13,7 +13,6 @@ final class EconomicPerformanceController extends Controller
     {
         return Inertia::render('public/economic-performance', [
             'performance' => $query->get($request->filters()),
-            'simulated' => true,
         ]);
     }
 }

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Capitol;
 
-use App\Actions\CreateFocusTag;
-use App\Actions\UpdateBusinessTypeTags;
+use App\Actions\CreateBusinessCategory;
+use App\Actions\CreateBusinessType;
+use App\Actions\UpdateBusinessCategory;
+use App\Actions\UpdateBusinessType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BusinessCategoriesRequest;
-use App\Http\Requests\StoreFocusTagRequest;
-use App\Http\Requests\UpdateBusinessTypeTagsRequest;
+use App\Http\Requests\SaveBusinessTypeRequest;
+use App\Http\Requests\StoreBusinessCategoryRequest;
+use App\Http\Requests\UpdateBusinessCategoryRequest;
+use App\Models\BusinessCategory;
 use App\Models\BusinessType;
 use App\Queries\BusinessCategoriesQuery;
 use Illuminate\Http\RedirectResponse;
@@ -16,24 +19,43 @@ use Inertia\Response;
 
 final class BusinessCategoryController extends Controller
 {
-    public function index(BusinessCategoriesRequest $request, BusinessCategoriesQuery $query): Response
+    public function index(BusinessCategoriesQuery $query): Response
     {
-        return Inertia::render('capitol/business-categories', ['categories' => $query->get($request->input('tag'))]);
+        return Inertia::render('capitol/business-categories', ['categories' => $query->get()]);
     }
 
-    public function storeTag(StoreFocusTagRequest $request, CreateFocusTag $create): RedirectResponse
+    public function storeCategory(StoreBusinessCategoryRequest $request, CreateBusinessCategory $create): RedirectResponse
     {
-        $tag = $create->handle($request->user(), $request->string('name')->toString());
-        Inertia::flash('toast', ['type' => 'success', 'message' => "{$tag->name} added."]);
+        $category = $create->handle($request->user(), $request->string('name')->toString());
 
-        return to_route('capitol.categories.index');
+        return $this->saved("{$category->name} added.");
     }
 
-    public function updateTags(UpdateBusinessTypeTagsRequest $request, BusinessType $type, UpdateBusinessTypeTags $update): RedirectResponse
+    public function updateCategory(UpdateBusinessCategoryRequest $request, BusinessCategory $category, UpdateBusinessCategory $update): RedirectResponse
     {
-        $update->handle($request->user(), $type, $request->tagCodes());
-        Inertia::flash('toast', ['type' => 'success', 'message' => "Focus Tags for {$type->name} saved."]);
+        $update->handle($request->user(), $category, $request->string('name')->toString(), $request->integer('color'));
 
-        return to_route('capitol.categories.index');
+        return $this->saved("{$request->string('name')} saved.");
+    }
+
+    public function storeType(SaveBusinessTypeRequest $request, CreateBusinessType $create): RedirectResponse
+    {
+        $type = $create->handle($request->user(), $request->string('name')->toString(), $request->string('industry')->toString(), $request->string('category')->toString());
+
+        return $this->saved("{$type->name} added.");
+    }
+
+    public function updateType(SaveBusinessTypeRequest $request, BusinessType $type, UpdateBusinessType $update): RedirectResponse
+    {
+        $update->handle($request->user(), $type, $request->string('name')->toString(), $request->string('industry')->toString(), $request->string('category')->toString());
+
+        return $this->saved("{$request->string('name')} saved.");
+    }
+
+    private function saved(string $message): RedirectResponse
+    {
+        Inertia::flash('toast', ['type' => 'success', 'message' => $message]);
+
+        return back();
     }
 }

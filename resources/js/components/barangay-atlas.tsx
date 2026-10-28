@@ -12,7 +12,11 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCount, NOT_AVAILABLE, sourceName } from '@/lib/format';
-import { loadedTownBoundaries, loadTownBoundaries } from '@/lib/map-data';
+import {
+    loadedTownBoundaries,
+    loadTownBoundaries,
+    type CensusCollection,
+} from '@/lib/map-data';
 import { pageSearchParams, replaceLocalQuery } from '@/lib/navigation';
 import { home } from '@/routes';
 import type { TownProfile } from '@/types/data';
@@ -30,7 +34,10 @@ export function BarangayAtlas({
         towns.find((item) => item.code === requested) ??
         towns.find((item) => item.code === '0201529000');
     const townCode = town?.code;
-    const [, setLoadedCode] = useState<string | null>(null);
+    const [fetched, setFetched] = useState<{
+        code: string;
+        census: CensusCollection;
+    } | null>(null);
     const [failedTown, setFailedTown] = useState<string | null>(null);
     const [attempt, setAttempt] = useState(0);
     const [selections, setSelections] = useState<Record<string, string>>({});
@@ -40,8 +47,8 @@ export function BarangayAtlas({
         let active = true;
         setFailedTown(null);
         loadTownBoundaries(townCode)
-            .then(() => {
-                if (active) setLoadedCode(townCode);
+            .then((census) => {
+                if (active) setFetched({ code: townCode, census });
             })
             .catch(() => {
                 if (active) setFailedTown(townCode);
@@ -50,7 +57,10 @@ export function BarangayAtlas({
             active = false;
         };
     }, [townCode, attempt]);
-    const current = townCode ? loadedTownBoundaries(townCode) : undefined;
+    // The census arrives through state: a module cache read alone is not a dependency, so the first render would never update.
+    const current =
+        (townCode ? loadedTownBoundaries(townCode) : undefined) ??
+        (fetched && fetched.code === townCode ? fetched.census : undefined);
     const findBarangay = (code: string) =>
         current?.features.find((f) => f.properties.psgc_code === code)
             ?.properties;

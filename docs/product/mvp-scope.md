@@ -101,7 +101,7 @@ For the MVP, cover three complete paths end to end, for example a solo-owned cof
 
 These are left out on purpose, and each has a reason the team can give if a judge asks.
 
-- **Permit application, issuance, renewal, and expiry warnings.** This is a city and municipal function, and LGUs were already directed to run electronic one-stop shops for it. Cagayan Business shows permit compliance only as a statistic, such as the renewal rate per barangay.
+- **Permit application, issuance, renewal, and expiry warnings.** This is a city and municipal function, and LGUs were already directed to run electronic one-stop shops for it. Cagayan Business shows permit compliance only as a statistic, such as the renewal rate per barangay. Clarified "26-10-28" (D39, user decision): a later business registry may store and publish permit validity, the renewal range, expiry and uploaded documents as records for the Capitol. It still does not take applications, compute or collect fees, or issue and renew permits, which stay with the city. Planned in [Business Registry Records](../plan/active/26-10-28-business-registry-records.md); nothing is built.
 - **Sales of any single business on screen.** Each business's declared sales are stored and used in the calculations, but the dashboard only ever displays area totals.
 - **Unregistered businesses.** The dashboard covers registered businesses only, and says so on screen.
 - **Black-box forecasts.** The outlook uses methods that can be explained in one sentence and tested against past years. A model that scores each business's chance of renewing comes after real data is available.
@@ -323,6 +323,8 @@ Gap: the Tuguegarao permit office announcement and the barangay orientation noti
 
 ## October 25 Economic Performance Demo
 
+Superseded 26-10-28 for finance: Economy now shows the signed-off COA ledger (2019 to 2025), not a simulated finance demo, and population and business counts are no longer deferred on this page. Only the Tuguegarao City sample wishes remain demonstration data. See "October 28 No Simulated Data and Ledger Table" below.
+
 The user approved a dedicated public Cagayan Economic Performance page with two topics: Government Finances and Community Wishes. The initial implementation uses synthetic Tuguegarao City figures only; the other 28 towns remain selectable with unavailable content. Finance covers completed fiscal-year positions 2021 through 2025, clearly simulated, with Government Revenue/Government Expenses and comparable annual changes. Community Wishes provides curated business-type and fictional specific-business counts in cloud, ranked bars and table views. These counts express wishes, not measured demand.
 
 Population and registered-business counts/history/leading types were explicitly removed from this iteration and remain planned future work. Reason themes, live public-label review/classification, source importing/history storage, spatial analytics and Python predictions are also deferred. The simulation must not alter verified Home figures or expose original live wish text. Keep the existing deferred COA source-collection work separate; implementing this demo does not complete it.
@@ -335,3 +337,9 @@ The user replaced the initial topic selector with stacked sections: Government F
 ### October 25 Home and Wishes Simplification
 
 Home now directs residents to share a wish or explore their town's economy, carrying a selected town. Remove the placeholder Business Map/guide task cards and Home protection section. Economy combines curated business types and specific businesses into one ranking with cloud/bars views and actual town/count tooltips; no tables or kind selector. Keep limitations in documentation and date/basis in source details rather than repeated captions/disclaimers. Synthetic data remains labeled, other towns unavailable, and comparative town rankings remain deferred. This does not change wish submission fields, privacy enforcement, or source-collection scope.
+
+## October 28 No Simulated Data and Ledger Table
+
+The user decided that simulated data cannot be the default. Business records are not seeded or shown unless `CAGAYAN_SIMULATED` is true, which stays available for presentations (decisions.md, D37). The public Economy page and Capitol Analytics show real government finances only, plus the Tuguegarao City sample wishes labeled "Sample Data". Executive Summary totals cover all 29 towns; breakdowns beyond totals and barangay population exist for Tuguegarao City only, and the screens say so.
+
+The Government Finances Yearly Summary is one table (item, selected year, year before, change) with one Source line whose links open our stored COA PDF at the cited page. Help is a short sheet in the card header. Layout and rules: `docs/engineering/design.md`, "Government Finances Ledger Table". Metric definitions M19 to M31 are unchanged.

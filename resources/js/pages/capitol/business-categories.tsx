@@ -1,8 +1,13 @@
-import { Head, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CategoryChip } from '@/components/capitol/category-chip';
+import {
+    BusinessCategoryForm,
+    BusinessTypeForm,
+} from '@/components/capitol/category-forms';
 import { WorkspaceFilters } from '@/components/capitol/workspace-filters';
 import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -16,9 +21,7 @@ import {
     SheetContent,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
 } from '@/components/ui/sheet';
-import { Spinner } from '@/components/ui/spinner';
 import {
     Table,
     TableBody,
@@ -27,257 +30,501 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    categoryQuery,
+    paginate,
+    parseCategoryView,
+    visibleCategories,
+    visibleTypes,
+} from '@/lib/category-table';
+import type { CategoryView } from '@/lib/category-table';
+import { NOT_AVAILABLE, formatCount } from '@/lib/format';
+import { pageSearchParams } from '@/lib/navigation';
+import { index as businesses } from '@/routes/capitol/businesses';
 import { index } from '@/routes/capitol/categories';
-import { store as storeTag } from '@/routes/capitol/categories/tags';
-import { update as updateTags } from '@/routes/capitol/categories/types/tags';
-import type {
-    BusinessCategories,
-    BusinessCategoryRow,
-} from '@/types/workspace';
+import type { BusinessCategories } from '@/types/workspace';
 
-function TagForm({
-    type,
-    categories,
-    onSaved,
-}: {
-    type: BusinessCategoryRow;
-    categories: BusinessCategories;
-    onSaved: () => void;
-}) {
-    const form = useForm({ tags: type.tags });
-    return (
-        <form
-            className="flex flex-col gap-4 px-4"
-            onSubmit={(event) => {
-                event.preventDefault();
-                form.put(updateTags(type.code).url, {
-                    preserveScroll: true,
-                    onSuccess: onSaved,
-                });
-            }}
-        >
-            <fieldset className="flex flex-col gap-3">
-                <legend className="type-label">Focus Tags</legend>
-                {categories.tags.map((tag) => (
-                    <label
-                        key={tag.value}
-                        className="flex items-center gap-2 type-body"
-                    >
-                        <input
-                            type="checkbox"
-                            className="size-4 accent-primary"
-                            checked={form.data.tags.includes(tag.value)}
-                            onChange={(event) =>
-                                form.setData(
-                                    'tags',
-                                    event.target.checked
-                                        ? [...form.data.tags, tag.value]
-                                        : form.data.tags.filter(
-                                              (code) => code !== tag.value,
-                                          ),
-                                )
-                            }
-                        />
-                        {tag.label}
-                    </label>
-                ))}
-            </fieldset>
-            <FieldError>{form.errors.tags}</FieldError>
-            <Button type="submit" disabled={form.processing} className="w-fit">
-                {form.processing && <Spinner />}Save Focus Tags
-            </Button>
-        </form>
-    );
-}
-
-function NewTagForm({
-    maxLength,
-    onSaved,
-}: {
-    maxLength: number;
-    onSaved: () => void;
-}) {
-    const form = useForm({ name: '' });
-    return (
-        <form
-            className="flex flex-col gap-4 px-4"
-            onSubmit={(event) => {
-                event.preventDefault();
-                form.post(storeTag().url, {
-                    preserveScroll: true,
-                    onSuccess: onSaved,
-                });
-            }}
-        >
-            <Field data-invalid={!!form.errors.name}>
-                <FieldLabel htmlFor="focus-tag-name" required>
-                    Name
-                </FieldLabel>
-                <Input
-                    id="focus-tag-name"
-                    required
-                    maxLength={maxLength}
-                    value={form.data.name}
-                    aria-invalid={!!form.errors.name}
-                    onChange={(event) =>
-                        form.setData('name', event.target.value)
-                    }
-                />
-                <FieldError>{form.errors.name}</FieldError>
-            </Field>
-            <Button type="submit" disabled={form.processing} className="w-fit">
-                {form.processing && <Spinner />}Add Focus Tag
-            </Button>
-        </form>
-    );
-}
+const count = (value: number | null) =>
+    value === null ? NOT_AVAILABLE : formatCount(value);
 
 export default function BusinessCategoriesPage({
     categories,
 }: {
     categories: BusinessCategories;
 }) {
-    const [editing, setEditing] = useState<string | null>(null);
-    const [adding, setAdding] = useState(false);
-    const names = Object.fromEntries(
-        categories.tags.map((tag) => [tag.value, tag.label]),
+    const { url } = usePage();
+    const state = parseCategoryView(
+        pageSearchParams(url),
+        categories.categories,
+        categories.industries,
     );
-    const rows = categories.tag
-        ? categories.types.filter((type) =>
-              type.tags.includes(categories.tag as string),
-          )
-        : categories.types;
-    const editingType = categories.types.find((type) => type.code === editing);
+    const [sheet, setSheet] = useState<{
+        kind: 'type' | 'category';
+        code: string | null;
+    } | null>(null);
+    const [search, setSearch] = useState(state.q);
+    const byCode = Object.fromEntries(
+        categories.categories.map((item) => [item.code, item]),
+    );
+    const names = Object.fromEntries(
+        categories.categories.map((item) => [item.code, item.name]),
+    );
+    const typePage = paginate(
+        visibleTypes(categories.types, state, names),
+        state.page,
+        categories.pageSize,
+    );
+    const categoryPage = paginate(
+        visibleCategories(categories.categories, state),
+        state.page,
+        categories.pageSize,
+    );
+    const page = state.view === 'types' ? typePage : categoryPage;
+    const filtered = !!(state.q || state.category || state.industry);
+    const noun = state.view === 'types' ? 'Business Types' : 'Categories';
+    const editingType =
+        categories.types.find((item) => item.code === sheet?.code) ?? null;
+    const editingCategory =
+        categories.categories.find((item) => item.code === sheet?.code) ?? null;
 
-    // Every Business Type is loaded, so the tag filter only updates local history.
-    const chooseTag = (value: string) => {
-        const tag = value === 'all' ? null : value;
-        if (tag === categories.tag) return;
-        router.push({
-            url: index({ query: tag ? { tag } : {} }).url,
+    // Every row is loaded, so sorting, filters and pages only change local history.
+    const go = (patch: Partial<CategoryView>, replace = false) => {
+        const query = categoryQuery({ ...state, page: 1, ...patch });
+        if (JSON.stringify(query) === JSON.stringify(categoryQuery(state)))
+            return;
+        const visit = {
+            url: index({ query }).url,
             preserveState: true,
             preserveScroll: true,
-            props: (props) => ({
-                ...props,
-                categories: { ...categories, tag },
-            }),
-        });
+        };
+        if (replace) router.replace(visit);
+        else router.push(visit);
     };
+    const sortBy = (key: string) =>
+        go({
+            sort: key,
+            dir:
+                state.sort === key
+                    ? state.dir === 'asc'
+                        ? 'desc'
+                        : 'asc'
+                    : key === 'registered'
+                      ? 'desc'
+                      : 'asc',
+        });
+
+    useEffect(() => setSearch(state.q), [state.q]);
+    useEffect(() => {
+        const timer = setTimeout(() => go({ q: search }, true), 250);
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [search]);
+
+    const SortHead = ({
+        label,
+        field,
+        align,
+    }: {
+        label: string;
+        field: string;
+        align?: 'right';
+    }) => {
+        const Icon =
+            state.sort !== field
+                ? ArrowUpDown
+                : state.dir === 'asc'
+                  ? ArrowUp
+                  : ArrowDown;
+        return (
+            <TableHead
+                aria-sort={
+                    state.sort === field
+                        ? state.dir === 'asc'
+                            ? 'ascending'
+                            : 'descending'
+                        : 'none'
+                }
+                className={align ? 'text-right' : ''}
+            >
+                <button
+                    type="button"
+                    onClick={() => sortBy(field)}
+                    className="inline-flex items-center gap-1 underline-offset-2 hover:underline"
+                >
+                    {label}
+                    <Icon className="size-3.5" aria-hidden="true" />
+                </button>
+            </TableHead>
+        );
+    };
+    const registered =
+        categories.year === null
+            ? 'Registered'
+            : `Registered (${categories.year})`;
+    const actions = (
+        <TableHead className="w-24">
+            <span className="sr-only">Actions</span>
+        </TableHead>
+    );
 
     return (
         <>
             <Head title="Business Categories" />
-            <header>
+            <header className="flex flex-wrap items-center justify-between gap-3">
                 <h1 className="type-heading">Business Categories</h1>
+                <div role="tablist" aria-label="View" className="flex gap-1">
+                    {(['categories', 'types'] as const).map((view) => (
+                        <Button
+                            key={view}
+                            role="tab"
+                            aria-selected={state.view === view}
+                            variant={
+                                state.view === view ? 'default' : 'outline'
+                            }
+                            size="sm"
+                            onClick={() =>
+                                go({ view, sort: 'name', dir: 'asc' })
+                            }
+                        >
+                            {view === 'categories'
+                                ? 'Categories'
+                                : 'Business Types'}
+                        </Button>
+                    ))}
+                </div>
             </header>
             <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
-                <div className="min-w-0 overflow-x-auto rounded-sm border bg-card">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Business Type</TableHead>
-                                <TableHead>Industry</TableHead>
-                                <TableHead>Focus Tags</TableHead>
-                                <TableHead className="w-28">
-                                    <span className="sr-only">Actions</span>
-                                </TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {rows.length ? (
-                                rows.map((type) => (
-                                    <TableRow key={type.code}>
-                                        <TableCell>{type.name}</TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                            {type.industry}
-                                        </TableCell>
-                                        <TableCell>
-                                            {type.tags
-                                                .map((code) => names[code])
-                                                .join(', ')}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                aria-label={`Edit Focus Tags for ${type.name}`}
-                                                onClick={() =>
-                                                    setEditing(type.code)
-                                                }
-                                            >
-                                                Edit Tags
-                                            </Button>
+                <div className="min-w-0 space-y-4">
+                    <div className="overflow-x-auto rounded-sm border bg-card">
+                        <Table>
+                            <TableHeader>
+                                {state.view === 'types' ? (
+                                    <TableRow>
+                                        <SortHead
+                                            label="Business Type"
+                                            field="name"
+                                        />
+                                        <SortHead
+                                            label="Category"
+                                            field="category"
+                                        />
+                                        <SortHead
+                                            label="Industry"
+                                            field="industry"
+                                        />
+                                        <SortHead
+                                            label={registered}
+                                            field="registered"
+                                            align="right"
+                                        />
+                                        {actions}
+                                    </TableRow>
+                                ) : (
+                                    <TableRow>
+                                        <SortHead
+                                            label="Category"
+                                            field="name"
+                                        />
+                                        <SortHead
+                                            label="Business Types"
+                                            field="types"
+                                            align="right"
+                                        />
+                                        <SortHead
+                                            label={registered}
+                                            field="registered"
+                                            align="right"
+                                        />
+                                        {actions}
+                                    </TableRow>
+                                )}
+                            </TableHeader>
+                            <TableBody>
+                                {page.total === 0 && (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={5}
+                                            className="py-8 text-center text-muted-foreground"
+                                        >
+                                            {filtered
+                                                ? `No ${noun} match.`
+                                                : `No ${noun} yet.`}
                                         </TableCell>
                                     </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={4}
-                                        className="py-8 text-center text-muted-foreground"
-                                    >
-                                        No Business Types have this Focus Tag.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                                )}
+                                {state.view === 'types' &&
+                                    typePage.rows.map((row) => (
+                                        <TableRow key={row.code}>
+                                            <TableCell className="whitespace-normal">
+                                                {row.name}
+                                            </TableCell>
+                                            <TableCell>
+                                                {byCode[row.category] && (
+                                                    <CategoryChip
+                                                        name={
+                                                            byCode[row.category]
+                                                                .name
+                                                        }
+                                                        color={
+                                                            byCode[row.category]
+                                                                .color
+                                                        }
+                                                    />
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="max-w-52 whitespace-normal text-muted-foreground">
+                                                {row.industry}
+                                            </TableCell>
+                                            <TableCell className="text-right font-mono tabular-nums">
+                                                {row.registered === null ? (
+                                                    count(row.registered)
+                                                ) : (
+                                                    <Link
+                                                        href={
+                                                            businesses({
+                                                                query: {
+                                                                    type: row.code,
+                                                                },
+                                                            }).url
+                                                        }
+                                                        className="underline underline-offset-2"
+                                                    >
+                                                        {count(row.registered)}
+                                                    </Link>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    aria-label={`Edit ${row.name}`}
+                                                    onClick={() =>
+                                                        setSheet({
+                                                            kind: 'type',
+                                                            code: row.code,
+                                                        })
+                                                    }
+                                                >
+                                                    Edit
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                {state.view === 'categories' &&
+                                    categoryPage.rows.map((row) => (
+                                        <TableRow key={row.code}>
+                                            <TableCell>
+                                                <CategoryChip
+                                                    name={row.name}
+                                                    color={row.color}
+                                                />
+                                            </TableCell>
+                                            <TableCell className="text-right font-mono tabular-nums">
+                                                {formatCount(row.types)}
+                                            </TableCell>
+                                            <TableCell className="text-right font-mono tabular-nums">
+                                                {row.registered === null ? (
+                                                    count(row.registered)
+                                                ) : (
+                                                    <Link
+                                                        href={
+                                                            businesses({
+                                                                query: {
+                                                                    category:
+                                                                        row.code,
+                                                                },
+                                                            }).url
+                                                        }
+                                                        className="underline underline-offset-2"
+                                                    >
+                                                        {count(row.registered)}
+                                                    </Link>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    aria-label={`Edit ${row.name}`}
+                                                    onClick={() =>
+                                                        setSheet({
+                                                            kind: 'category',
+                                                            code: row.code,
+                                                        })
+                                                    }
+                                                >
+                                                    Edit
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    {page.lastPage > 1 && (
+                        <nav
+                            aria-label="Pagination"
+                            className="flex items-center justify-end gap-2 border-t pt-2"
+                        >
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={page.page <= 1}
+                                onClick={() => go({ page: page.page - 1 })}
+                            >
+                                Previous
+                            </Button>
+                            <span className="type-meta">
+                                Page{' '}
+                                <span className="font-mono tabular-nums">
+                                    {page.page}
+                                </span>{' '}
+                                of{' '}
+                                <span className="font-mono tabular-nums">
+                                    {page.lastPage}
+                                </span>
+                            </span>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={page.page >= page.lastPage}
+                                onClick={() => go({ page: page.page + 1 })}
+                            >
+                                Next
+                            </Button>
+                        </nav>
+                    )}
                 </div>
                 <WorkspaceFilters>
-                    <label id="focus-tag-label" className="type-label">
-                        Focus Tag
+                    <label className="flex flex-col gap-2 type-label">
+                        Search
+                        <Input
+                            type="search"
+                            value={search}
+                            maxLength={60}
+                            onChange={(event) => setSearch(event.target.value)}
+                        />
                     </label>
-                    <Select
-                        value={categories.tag ?? 'all'}
-                        onValueChange={chooseTag}
-                    >
-                        <SelectTrigger
-                            aria-labelledby="focus-tag-label"
-                            className="w-full"
+                    {state.view === 'types' && (
+                        <>
+                            <label id="category-label" className="type-label">
+                                Category
+                            </label>
+                            <Select
+                                value={state.category ?? 'all'}
+                                onValueChange={(value) =>
+                                    go({
+                                        category:
+                                            value === 'all' ? null : value,
+                                    })
+                                }
+                            >
+                                <SelectTrigger
+                                    aria-labelledby="category-label"
+                                    className="w-full"
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All</SelectItem>
+                                    {categories.categories.map((item) => (
+                                        <SelectItem
+                                            key={item.code}
+                                            value={item.code}
+                                        >
+                                            {item.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <label id="industry-label" className="type-label">
+                                Industry
+                            </label>
+                            <Select
+                                value={state.industry ?? 'all'}
+                                onValueChange={(value) =>
+                                    go({
+                                        industry:
+                                            value === 'all' ? null : value,
+                                    })
+                                }
+                            >
+                                <SelectTrigger
+                                    aria-labelledby="industry-label"
+                                    className="w-full"
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All</SelectItem>
+                                    {categories.industries.map((industry) => (
+                                        <SelectItem
+                                            key={industry.value}
+                                            value={industry.value}
+                                        >
+                                            {industry.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </>
+                    )}
+                    {filtered && (
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                setSearch('');
+                                go({ q: '', category: null, industry: null });
+                            }}
                         >
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            {categories.tags.map((tag) => (
-                                <SelectItem key={tag.value} value={tag.value}>
-                                    {tag.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Sheet open={adding} onOpenChange={setAdding}>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" className="w-full">
-                                Add a Focus Tag
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent className="w-full overflow-y-auto sm:max-w-md">
-                            <SheetHeader>
-                                <SheetTitle>Add a Focus Tag</SheetTitle>
-                            </SheetHeader>
-                            <NewTagForm
-                                maxLength={categories.tagNameMax}
-                                onSaved={() => setAdding(false)}
-                            />
-                        </SheetContent>
-                    </Sheet>
+                            Clear Filters
+                        </Button>
+                    )}
+                    <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() =>
+                            setSheet({
+                                kind:
+                                    state.view === 'types'
+                                        ? 'type'
+                                        : 'category',
+                                code: null,
+                            })
+                        }
+                    >
+                        {state.view === 'types'
+                            ? 'Add a Business Type'
+                            : 'Add a Category'}
+                    </Button>
                 </WorkspaceFilters>
             </div>
             <Sheet
-                open={editingType !== undefined}
-                onOpenChange={(open) => !open && setEditing(null)}
+                open={sheet !== null}
+                onOpenChange={(open) => !open && setSheet(null)}
             >
                 <SheetContent className="w-full overflow-y-auto sm:max-w-md">
                     <SheetHeader>
-                        <SheetTitle>{editingType?.name}</SheetTitle>
+                        <SheetTitle>
+                            {sheet?.kind === 'category'
+                                ? (editingCategory?.name ?? 'Add a Category')
+                                : (editingType?.name ?? 'Add a Business Type')}
+                        </SheetTitle>
                     </SheetHeader>
-                    {editingType && (
-                        <TagForm
-                            key={editingType.code}
+                    {sheet?.kind === 'type' && (
+                        <BusinessTypeForm
+                            key={sheet.code ?? 'new'}
                             type={editingType}
                             categories={categories}
-                            onSaved={() => setEditing(null)}
+                            onSaved={() => setSheet(null)}
+                        />
+                    )}
+                    {sheet?.kind === 'category' && (
+                        <BusinessCategoryForm
+                            key={sheet.code ?? 'new'}
+                            category={editingCategory}
+                            categories={categories}
+                            onSaved={() => setSheet(null)}
                         />
                     )}
                 </SheetContent>

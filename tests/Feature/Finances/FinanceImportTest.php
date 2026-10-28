@@ -9,6 +9,8 @@ use App\Models\FinanceLine;
 use App\Models\Municipality;
 use App\Queries\TownAtlasQuery;
 use Database\Seeders\MunicipalitySeeder;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Testing\PendingCommand;
@@ -116,6 +118,23 @@ it('publishes a signed-off figure with its report link', function () {
     expect(abulugRevenue()?->value)->toBe('500.00')
         ->and(abulugRevenue()?->year)->toBe(2024)
         ->and(abulugRevenue()?->sourceUrl)->toBe('https://www.coa.gov.ph/2024.pdf');
+    $this->assertDatabaseHas('stats_finance_year', ['metric' => 'performance.revenue', 'fiscal_year' => 2024, 'value' => '500.00']);
+});
+
+it('retains the previous ledger and Analytics result if an import cannot publish', function () {
+    writeFinanceFolder(['reviews' => ['0201501000,2024,executive_summary,performance.revenue,2024,actual,500.00,verified,2026-10-28,Checked']]);
+    importFinances()->assertSuccessful();
+    DB::statement("alter table stats_finance_year add constraint test_refuse_import check (metric <> 'performance.revenue' or value <= 500)");
+    writeFinanceFolder([
+        'extracted' => ['0201501000,Abulug,2024,executive_summary,2024,performance.revenue,actual,600.00,,Income,page 1,'.SHA_2024.',2'],
+        'reviews' => ['0201501000,2024,executive_summary,performance.revenue,2024,actual,600.00,verified,2026-10-28,Checked'],
+    ]);
+
+    expect(fn () => Artisan::call('finances:import', ['--path' => TEST_FINANCE_FOLDER]))->toThrow(PDOException::class);
+
+    expect(abulugRevenue()?->value)->toBe('500.00');
+    $this->assertDatabaseHas('stats_finance_year', ['metric' => 'performance.revenue', 'fiscal_year' => 2024, 'value' => '500.00']);
+    $this->assertDatabaseMissing('finance_figures', ['value' => '600.00']);
 });
 
 it('keeps sign-offs on re-import but sends a changed value back to pending', function () {
@@ -139,6 +158,7 @@ it('keeps sign-offs on re-import but sends a changed value back to pending', fun
         ->and($revenue->status)->toBe(FinanceFigureStatus::Pending)
         ->and($expenses->status)->toBe(FinanceFigureStatus::Verified)
         ->and(abulugRevenue())->toBeNull();
+    $this->assertDatabaseMissing('stats_finance_year', ['metric' => 'performance.revenue', 'fiscal_year' => 2024]);
 });
 
 it('never deletes figures entered by hand', function () {

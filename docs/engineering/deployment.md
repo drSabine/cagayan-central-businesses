@@ -59,7 +59,7 @@ Do this once, by hand, as the deploy user:
    - `APP_ENV=production`, `APP_DEBUG=false` (privacy-rules.md, P14: debug mode is off for any demo others can reach), `APP_URL=https://...`
    - the real database host, name, user, and password
    - a strong password for each `DEMO_*_PASSWORD`, or none, and create administrators with an Artisan command instead. Quick sign in is local only and answers 404 in production (decisions.md, D33)
-   - `CAGAYAN_SIMULATED=true` while the data is simulated
+   - `CAGAYAN_SIMULATED=false` (the default). Set true only for a presentation that needs the simulated business records
    - `CAGAYAN_ADMIN_LOGIN_PATH` set to a long random value (`php -r "echo bin2hex(random_bytes(12));"`). Production refuses to boot with the example value (decisions.md, D20). Share it with administrators directly, never in the repository or a public channel.
    - `SESSION_SECURE_COOKIE=true` and `SESSION_ENCRYPT=true` once the site runs on HTTPS
 3. Run `composer install --no-dev`, `php artisan key:generate`, `php artisan migrate --force`, `php artisan db:seed --force`, and `php artisan metrics:refresh`.

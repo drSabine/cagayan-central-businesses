@@ -40,10 +40,10 @@ A sales figure is hidden when the largest single business accounts for more than
 
 When a breakdown is shown beside its total, a single hidden cell can be worked out by subtraction. So if exactly one cell in a breakdown is hidden, also hide the smallest remaining cell, with reason `complementary`.
 
-- Applies to: sales by business type within an area, sales by barangay within a town, and sales by industry or by Focus Tag within a town.
+- Applies to: sales by business type within an area, sales by barangay within a town, and sales by industry or by Business Category within a town.
 - Test: a breakdown with one small cell and three large ones shows two hidden cells, not one.
-- Overlapping groups (user decision, 26-10-28): Focus Tags overlap industries and each other, so a tag minus an industry can isolate a group the guard never checked. Focus Tag sales are therefore shown as bands to every audience, Capitol included, with no exact figure, change or sales share. Industry sales keep exact guarded figures in the Capitol.
-- Test: the Capitol receives a band and no value for a Focus Tag whose industry figure is shown.
+- Crossing groups (user decision, 26-10-28, restated for D39): a Business Category partitions businesses, but it crosses industries, so a category total minus an industry total can isolate a group the guard never checked. Category sales are therefore shown as bands to every audience, Capitol included, with no exact figure, change or sales share. Industry sales keep exact guarded figures in the Capitol.
+- Test: the Capitol receives a band and no value for a Business Category whose industry figure is shown.
 
 ### P5. The rules run after filters
 
@@ -106,10 +106,10 @@ The form collects no resident name, contact, or account. It may store the named 
 
 ### P13. The simulated label is always present
 
-Every screen and every export that shows business records carries a visible "Simulated data" label while the dataset is simulated.
+Every screen and every export that shows business records carries a visible "Simulated data" label while the dataset is simulated. Simulated records are off by default (`CAGAYAN_SIMULATED`, decisions.md, D37): with the flag off no business figure is produced at all, so no label is needed, and the label is never shown without records behind it.
 
 - Enforce: the label is part of the shared layout and the export templates, driven by one config value, not added page by page.
-- Test: every page that shows business data renders the label. Every export contains it.
+- Test: every page that shows business data renders the label. Every export contains it. With the flag off, no response carries business figures (`BusinessTrendsPrivacyTest`).
 
 ### P14. Logs and errors carry no protected data
 

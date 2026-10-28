@@ -1,12 +1,7 @@
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
+import { RESULT_METRIC, ResultFigure } from '@/components/charts/trend-mark';
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
-import {
-    changeLabel,
-    formatMetricTick,
-    observationLabel,
-    observationNote,
-    percentageLabel,
-} from '@/lib/performance-format';
+import { formatMetricTick, observationLabel } from '@/lib/performance-format';
 import type { FinancialHistory } from '@/types/economic-performance';
 
 const DASHES = [undefined, '6 4', '2 3', '10 3 2 3', '1 4'];
@@ -46,7 +41,7 @@ export default function FinanceHistoryChart({
                 config={config}
                 className="aspect-auto h-64 w-full font-mono tabular-nums sm:h-72"
                 role="group"
-                aria-label={`${metrics.map((metric) => metric.label).join(' and ')} by year. Exact values and annual changes are listed for each year.`}
+                aria-label={`${metrics.map((metric) => metric.label).join(' and ')} by year. Exact values are listed in the table.`}
             >
                 <LineChart
                     data={data}
@@ -88,43 +83,58 @@ export default function FinanceHistoryChart({
                                 (item) => item.year === Number(label),
                             );
                             return active && row ? (
-                                <div className="grid max-w-72 gap-3 rounded-sm border bg-popover p-3 text-popover-foreground shadow-md">
+                                <div className="grid max-w-96 gap-2 rounded-sm border bg-popover p-2 text-popover-foreground shadow-md">
                                     <p className="type-label">{row.year}</p>
-                                    {metrics.map((metric) => {
+                                    {metrics.map((metric, index) => {
                                         const point =
                                             row.observations[metric.id];
                                         return (
                                             <div
                                                 key={metric.id}
-                                                className="grid gap-1"
+                                                className="border-t pt-1"
                                             >
-                                                <p className="type-body">
-                                                    {metric.label}
-                                                </p>
-                                                <p className="font-mono type-body tabular-nums">
-                                                    {observationLabel(
-                                                        point,
-                                                        metric.unit,
-                                                    )}
-                                                </p>
-                                                {observationNote(point) && (
-                                                    <p className="type-meta">
-                                                        {observationNote(point)}
-                                                    </p>
-                                                )}
-                                                <p className="type-meta">
-                                                    Change
-                                                    {point?.comparisonYear
-                                                        ? ` from ${point.comparisonYear}`
-                                                        : ''}
-                                                </p>
-                                                <p className="font-mono type-body tabular-nums">
-                                                    {changeLabel(
-                                                        point,
-                                                        metric.unit,
-                                                    )}{' '}
-                                                    ({percentageLabel(point)})
-                                                </p>
+                                                <div className="flex items-baseline justify-between gap-3 type-data">
+                                                    <span className="flex items-center gap-1 font-sans">
+                                                        <svg
+                                                            width="12"
+                                                            height="8"
+                                                            aria-hidden="true"
+                                                        >
+                                                            <line
+                                                                x1="0"
+                                                                y1="4"
+                                                                x2="12"
+                                                                y2="4"
+                                                                stroke={`var(--chart-${index + 1})`}
+                                                                strokeWidth="2"
+                                                                strokeDasharray={
+                                                                    DASHES[
+                                                                        index
+                                                                    ]
+                                                                }
+                                                            />
+                                                        </svg>
+                                                        {metric.label}
+                                                    </span>
+                                                    <span className="font-mono tabular-nums">
+                                                        {metric.id ===
+                                                        RESULT_METRIC ? (
+                                                            <ResultFigure
+                                                                point={point}
+                                                            >
+                                                                {observationLabel(
+                                                                    point,
+                                                                    metric.unit,
+                                                                )}
+                                                            </ResultFigure>
+                                                        ) : (
+                                                            observationLabel(
+                                                                point,
+                                                                metric.unit,
+                                                            )
+                                                        )}
+                                                    </span>
+                                                </div>
                                             </div>
                                         );
                                     })}

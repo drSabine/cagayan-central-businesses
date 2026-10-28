@@ -1,4 +1,5 @@
 import type { SelectOption, TownAtlas, BarangayProfile } from '@/types/data';
+import type { FinanceMap } from '@/types/finance-map';
 
 export type Workspace = {
     displayName: string;
@@ -13,7 +14,11 @@ export type Workspace = {
     serverNow: number;
     activityIntervalSeconds: number;
 };
-export type WorkspaceMap = { atlas: TownAtlas; barangays: BarangayProfile[] };
+export type WorkspaceMap = {
+    atlas: TownAtlas;
+    barangays: BarangayProfile[];
+    finances: FinanceMap;
+};
 export type WorkspaceTable = {
     rows: Record<string, string | number | null>[];
     pagination: Pagination;
@@ -40,16 +45,59 @@ export type AccountProfile = {
     displayNameMax: number;
 };
 
+export type BusinessTypeRow = {
+    code: string;
+    name: string;
+    category: string;
+    industry: string;
+    industryCode: string;
+    registered: number | null;
+};
+
 export type BusinessCategoryRow = {
     code: string;
     name: string;
-    industry: string;
-    tags: string[];
+    color: number;
+    types: number;
+    registered: number | null;
 };
 
 export type BusinessCategories = {
-    types: BusinessCategoryRow[];
-    tags: SelectOption[];
-    tag: string | null;
-    tagNameMax: number;
+    types: BusinessTypeRow[];
+    categories: BusinessCategoryRow[];
+    industries: SelectOption[];
+    year: number | null;
+    typeNameMax: number;
+    categoryNameMax: number;
+    colors: number;
+    pageSize: number;
+};
+
+export type BusinessDirectoryRow = {
+    name: string;
+    type: string;
+    category: string;
+    industry: string;
+    barangay: string;
+    yearEstablished: number;
+    status: string | null;
+};
+
+export type BusinessDirectory = {
+    rows: BusinessDirectoryRow[];
+    pagination: Pagination;
+    categories: { code: string; name: string; color: number }[];
+    types: SelectOption[];
+    industries: SelectOption[];
+    statuses: SelectOption[];
+    filters: {
+        q: string | null;
+        category: string | null;
+        type: string | null;
+        industry: string | null;
+        status: string | null;
+        sort: string;
+        dir: string;
+    };
+    enabled: boolean;
 };

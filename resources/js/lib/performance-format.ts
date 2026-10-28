@@ -2,13 +2,14 @@ import {
     HIDDEN_FIGURE,
     LOCALE,
     NOT_AVAILABLE,
-    TIME_ZONE,
     formatCount,
 } from '@/lib/format';
 import type {
     EconomicObservation,
+    FinanceSource,
     MetricUnit,
 } from '@/types/economic-performance';
+import type { FinanceMap } from '@/types/finance-map';
 
 const pesos = new Intl.NumberFormat(LOCALE, {
     style: 'currency',
@@ -29,6 +30,10 @@ const percent = new Intl.NumberFormat(LOCALE, {
 const compact = new Intl.NumberFormat(LOCALE, {
     notation: 'compact',
     maximumFractionDigits: 1,
+});
+const shortPesos = new Intl.NumberFormat(LOCALE, {
+    notation: 'compact',
+    maximumFractionDigits: 2,
 });
 const share = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 2 });
 const signedNumber = new Intl.NumberFormat(LOCALE, {
@@ -64,16 +69,19 @@ export function reasonLabel(point?: EconomicObservation): string | null {
 
 /** Coverage for a Sum of Reporting Towns (M27), the census behind a per-resident value (M25), a restated year (M26), or why a value is missing. */
 export function observationNote(point?: EconomicObservation): string | null {
+    const notes: string[] = [];
     if (point?.coverage) {
         const { reporting, total, matched } = point.coverage;
-        const towns = `${reporting} of ${total} towns`;
-        return point.change === null
-            ? towns
-            : `${towns}, change over ${matched} reporting both years`;
+        notes.push(`${reporting} of ${total} towns`);
+        if (point.change !== null)
+            notes.push(`Change over ${matched} reporting both years`);
     }
-    if (point?.censusYear) return `Using the ${point.censusYear} census`;
-    if (point?.restatedIn) return `Restated in the ${point.restatedIn} report`;
-    return reasonLabel(point);
+    if (point?.censusYear) notes.push(`Using the ${point.censusYear} census`);
+    if (point?.restatedIn)
+        notes.push(`Restated in the ${point.restatedIn} report`);
+    const reason = reasonLabel(point);
+    if (reason) notes.push(reason);
+    return notes.length ? notes.join('. ') : null;
 }
 
 export function formatExactPesos(value: string): string {
@@ -94,19 +102,78 @@ export function formatFinanceSource(
     return `${source} ${location}`;
 }
 
+/** A COA PDF opens at its cited page; workbook cells have no page. */
+export function sourceHref(url: string, location: string | null): string {
+    const page = location?.match(/^pages?\s+(\d+)/i);
+    return page && !url.includes('#') ? `${url}#page=${page[1]}` : url;
+}
+
+/** One link per distinct citation behind a set of figures: a report page, or a workbook once per report. */
+export function citationLinks(
+    sources: Record<string, FinanceSource>,
+    refs: string[],
+) {
+    const links = new Map<string, { href: string; text: string }>();
+    for (const ref of refs) {
+        const source = sources[ref];
+        if (!source?.url) continue;
+        const name = `${source.label} ${source.reportYear ?? source.fiscalYear}`;
+        const text =
+            source.page === null
+                ? name
+                : formatFinanceSource(name, source.location);
+        // Figures of one report share a page but not a link address, so the text is the identity.
+        if (!links.has(text))
+            links.set(text, {
+                href: sourceHref(source.url, source.location),
+                text,
+            });
+    }
+    return [...links.values()];
+}
+
+/** One link per distinct report page behind the figures of an area and year. */
+export function financeMapSources(
+    finances: FinanceMap,
+    code: string,
+    year: number | null,
+) {
+    if (year === null) return [];
+    const links = new Map<string, { href: string; text: string }>();
+    for (const point of Object.values(
+        finances.observations[code]?.[year] ?? {},
+    ))
+        for (const ref of point.sourceRefs ?? []) {
+            const source = finances.sources[ref];
+            if (!source?.url) continue;
+            const href = sourceHref(source.url, source.location);
+            if (!links.has(href))
+                links.set(href, {
+                    href,
+                    text: formatFinanceSource('COA Report', source.location),
+                });
+        }
+    return [...links.values()];
+}
+
 export function formatPesoTick(value: number): string {
     return `₱${compact.format(value)}`;
 }
 
+/** The exact figure, or its short form (₱1.68B) where a phone has no room for cents. */
 export function observationLabel(
     point?: EconomicObservation,
     unit: MetricUnit = 'php',
+    short = false,
 ): string {
     if (point?.state === 'hidden') return HIDDEN_FIGURE;
     if (point?.band) return point.band;
-    return point?.state === 'shown' && point.value !== null
-        ? formatMetricValue(point.value, unit)
-        : NOT_AVAILABLE;
+    if (point?.state !== 'shown' || point.value === null) return NOT_AVAILABLE;
+    if (short && unit === 'php') {
+        const value = Number(point.value);
+        return `${value < 0 ? '-' : ''}₱${shortPesos.format(Math.abs(value))}`;
+    }
+    return formatMetricValue(point.value, unit);
 }
 
 export function changeLabel(
@@ -129,11 +196,4 @@ export function percentageLabel(point?: EconomicObservation): string {
         point.percentageChange !== null
         ? `${percent.format(point.percentageChange)}%`
         : NOT_AVAILABLE;
-}
-
-export function snapshotDate(value: string): string {
-    return new Intl.DateTimeFormat(LOCALE, {
-        dateStyle: 'long',
-        timeZone: TIME_ZONE,
-    }).format(new Date(`${value}T00:00:00+08:00`));
 }

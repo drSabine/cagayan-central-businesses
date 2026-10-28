@@ -193,7 +193,7 @@ Further document collection will take place in another session. That earlier tur
 Outstanding work, checked against the current routes, models, migrations, and existing workspace:
 
 - Foundation UI-copy and data-accuracy review is complete: redundant page descriptions removed, four 2024 COA fiscal pairs verified with exact source references and cents, unchecked figures withheld, and explicit Government Revenue/Government Expenses labels applied. Remaining economic indicators and COA 2021–2026 histories are deferred.
-- Build account-management screens, Super Admin role changes, Staff assignment management, and editable business categories/options. Current authorization and assignment policies are foundations, not management UIs.
+- Build account-management screens, Super Admin role changes, and Staff assignment management. Editable Business Categories and Business Types are built (D39), with a read-only Businesses directory. Current authorization and assignment policies are foundations, not management UIs.
 - Complete the business/business-year schema, records, entry/editing forms, strict field contracts, and assignment-scoped operations. No working business-record management exists yet.
 - Build record publication: Staff prepares/submits; Admin/Super Admin reviews and publishes, with 1 Prepare, 2 Review, 3 Publish. This is publication, not permit processing.
 - Finish PostGIS boundary loading and remaining geographic attributes; implement the business map, business directory, full-record view logging, and public business listings.
@@ -234,3 +234,18 @@ Completed 26-10-25: compact Cagayan Economy overview with stacked finance/wishes
 Published review batches: foundation PR #16 targets staging; Economy PR #17 depends on #16 and contains this session in focused commits. Required hooks passed; remote CI and human review are pending. No merge/deployment performed.
 
 26-10-28: The finance follow-up moves entry into the filter panel, reorders and explains required inputs, removes entry notes and shared greetings, and compacts grouped sidebar navigation with a bottom account menu. Activity Logs and Community Wishes reuse the right-hand filter panel; Profile uses the shared required marker. Session security and permissions remain active. Latest follow-up browser testing is explicitly waived by the user; automated results are recorded in the active finance plan.
+
+
+## October 28 Analytics Clarity
+
+Implemented on `feat/analytics-clarity`, with the layout, sources and Help redesigned the same day (see October 28 Ledger Table below): annual government summaries on public Economy and Capitol Analytics, optional trends/comparisons, relative periods that also filter Business Trends, General Fund labels, source lineage and shared Help/learning material. All 263 PHP tests and six frontend selection/formatting tests pass, along with format/lint, type checks and the production build. Browser layouts and navigation were checked; zero application requests for view, year and Back were measured after the redesign. Scope and verification: [Make Analytics Understandable](../plan/archive/26-10-28-analytics-clarity.md). This does not add new COA collection, alter metric definitions or remove private-business sales protections.
+
+## October 28 Dynamic Economic Map
+
+Completed on `feat/analytics-clarity`: public Home and Capitol maps share annual finance results, one absolute Latest fiscal year, revenue/expense/surplus shading, source evidence and reporting coverage. Imports and review batches rebuild finance results transactionally. Existing Analytics changes and census explorer are preserved. Verification: [Dynamic Economic Map](../plan/archive/26-10-28-dynamic-economic-map.md).
+
+Dynamic Economic Map verification: final CI passed 270 PHP tests (1,827 assertions), nine frontend tests, formatting/lint, TypeScript and PHPStan; production build passed. Browser checks covered public/Capitol at 375px and 1440px, light/dark, public styles, exact-year gaps, source evidence, local history and barangay drill-down. No horizontal overflow or final browser console errors.
+
+## October 28 No Simulated Data and Ledger Table
+
+On `feat/analytics-clarity`: simulated business records are off by default behind `CAGAYAN_SIMULATED` (D37), so Economy and Capitol Analytics show only real COA figures and labeled sample wishes. The Yearly Summary becomes one ledger table with one Source line linking the stored PDF at the cited page (new public route), a short Help sheet, and Tuguegarao City only measures marked in the Show list. Plan: [Finance Ledger Table Redesign](../plan/archive/26-10-28-finance-ledger-redesign.md). Completed the same day with polish: the Home About the Data map loads again, the Yearly Summary reads the year before then the selected year, Surplus or Deficit is one shared green up and red down display, abbreviated amounts and Change cells show the exact amount on hover, Trends shows the change under each year, and the M26 percent divides by the size of the prior value.

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\BusinessCategory;
 use App\Models\BusinessType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -24,6 +25,7 @@ class BusinessTypeFactory extends Factory
             'name' => ucfirst($name),
             'psic_section' => 'G',
             'psic_section_name' => 'Wholesale and retail trade',
+            'business_category_id' => BusinessCategory::factory(),
             'sort_order' => fake()->numberBetween(1, 100),
         ];
     }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Capitol\ActivityLogController;
 use App\Http\Controllers\Capitol\AnalyticsController;
 use App\Http\Controllers\Capitol\BusinessCategoryController;
+use App\Http\Controllers\Capitol\BusinessDirectoryController;
 use App\Http\Controllers\Capitol\CommunityWishController;
 use App\Http\Controllers\Capitol\DashboardController;
 use App\Http\Controllers\Capitol\FinanceFigureController;
@@ -20,9 +21,12 @@ Route::middleware([PreventIndexing::class, 'auth', 'can:capitol'])
         Route::get('activity-logs', ActivityLogController::class)->middleware('can:activity-logs')->name('logs.index');
         Route::middleware('can:manage-categories')->prefix('business-categories')->name('categories.')->group(function (): void {
             Route::get('/', [BusinessCategoryController::class, 'index'])->name('index');
-            Route::post('focus-tags', [BusinessCategoryController::class, 'storeTag'])->name('tags.store');
-            Route::put('{type:code}/focus-tags', [BusinessCategoryController::class, 'updateTags'])->name('types.tags.update');
+            Route::post('/', [BusinessCategoryController::class, 'storeCategory'])->name('store');
+            Route::post('types', [BusinessCategoryController::class, 'storeType'])->name('types.store');
+            Route::put('types/{type:code}', [BusinessCategoryController::class, 'updateType'])->name('types.update');
+            Route::put('{category:code}', [BusinessCategoryController::class, 'updateCategory'])->name('update');
         });
+        Route::get('businesses', BusinessDirectoryController::class)->name('businesses.index');
         Route::get('analytics', AnalyticsController::class)->name('analytics');
         Route::get('finances', [FinanceReviewController::class, 'index'])->name('finances.index');
         Route::get('finances/{town:psgc_code}/{year}', [FinanceReviewController::class, 'show'])->whereNumber('year')->name('finances.show');

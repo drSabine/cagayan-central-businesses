@@ -6,7 +6,7 @@ import { ChartViewSwitcher } from '@/components/charts/chart-view-switcher';
 import WishesPanel from '@/components/charts/wishes-panel';
 import { LazyProvinceMap } from '@/components/lazy-province-map';
 import { Button } from '@/components/ui/button';
-import { pushFilters } from '@/lib/analytics';
+import { pushFilters, withCoveredMeasure } from '@/lib/analytics';
 import { economicPerformance } from '@/routes/public';
 import { index as suggestions } from '@/routes/public/wishes';
 import type {
@@ -34,7 +34,7 @@ export default function EconomicPerformancePage({
             return;
         pushFilters(
             filters,
-            patch,
+            withCoveredMeasure(catalog, filters, patch),
             (query) => economicPerformance({ query }).url,
             (props, next) => ({
                 ...props,
@@ -63,13 +63,19 @@ export default function EconomicPerformancePage({
                     <AnalyticsPanels
                         catalog={catalog}
                         filters={filters}
+                        onChange={change}
                         financeControls={
-                            <div className="grid gap-3 sm:grid-cols-2 lg:w-2/3">
+                            <div className="grid gap-3 sm:grid-cols-3">
                                 <AnalyticsPickers
                                     idPrefix="performance"
                                     catalog={catalog}
                                     filters={filters}
-                                    fields={['measure', 'period']}
+                                    fields={[
+                                        'presentation',
+                                        'measure',
+                                        'year',
+                                        'period',
+                                    ]}
                                     onChange={change}
                                 />
                             </div>
@@ -114,9 +120,14 @@ export default function EconomicPerformancePage({
                 className="flex min-w-0 flex-col gap-3 rounded-sm border bg-card p-3 sm:p-4"
             >
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 id="wishes-heading" className="type-heading">
-                        Community Wishes
-                    </h2>
+                    <div className="flex items-baseline gap-3">
+                        <h2 id="wishes-heading" className="type-heading">
+                            Community Wishes
+                        </h2>
+                        {wishes && (
+                            <span className="type-label">{wishes.source}</span>
+                        )}
+                    </div>
                     <div className="flex items-center gap-2">
                         <Button asChild variant="outline">
                             <Link

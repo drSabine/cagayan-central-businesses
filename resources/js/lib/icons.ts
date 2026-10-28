@@ -15,6 +15,7 @@ import {
     CircleHelp,
     Tags,
     ChartLine,
+    Store,
 } from 'lucide-react';
 
 export const icons = {
@@ -33,5 +34,6 @@ export const icons = {
     expand: ChevronDown,
     help: CircleHelp,
     categories: Tags,
+    businesses: Store,
     analytics: ChartLine,
 } as const;

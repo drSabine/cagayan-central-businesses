@@ -118,12 +118,13 @@ sums as (
 )
 select municipality_id, fiscal_year, metric, value, variant,
     case when comparable then value - prior_value end,
-    case when comparable and prior_value <> 0 then round((value - prior_value) / prior_value * 100, 1) end,
+    -- M26: over the size of the prior value, so a deficit that deepens reads as a fall.
+    case when comparable and prior_value <> 0 then round((value - prior_value) / abs(prior_value) * 100, 1) end,
     comparable, census_year, restated_in, null, null, null
 from towns
 union all
 select null, fiscal_year, metric, value, null,
     change,
-    case when prior_total <> 0 then round(change / prior_total * 100, 1) end,
+    case when prior_total <> 0 then round(change / abs(prior_total) * 100, 1) end,
     matched_towns > 0, null, null, reporting_towns, (select count(*) from municipalities), matched_towns
 from sums;

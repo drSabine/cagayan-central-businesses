@@ -43,6 +43,7 @@ export type FinanceFigureRow = {
     manual: boolean;
     enteredByYou: boolean;
     reviewedOn: string | null;
+    reviewedBy: string | null;
     note: string | null;
     group: string;
     groupLabel: string;

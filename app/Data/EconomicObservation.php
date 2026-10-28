@@ -9,6 +9,7 @@ final readonly class EconomicObservation
 {
     /**
      * @param  array{reporting: int, total: int, matched: int}|null  $coverage  Sum of Reporting Towns only (M27)
+     * @param  list<string>  $sourceRefs
      */
     public function __construct(
         public string $state,
@@ -22,5 +23,6 @@ final readonly class EconomicObservation
         public ?array $coverage = null,
         public ?int $censusYear = null,
         public ?int $restatedIn = null,
+        public array $sourceRefs = [],
     ) {}
 }

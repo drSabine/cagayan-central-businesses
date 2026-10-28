@@ -72,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('wishes', fn (Request $request) => Limit::perHour((int) config('cagayan.wishes.per_hour_per_ip'))->by((string) $request->ip()));
+        RateLimiter::for('finance-sources', fn (Request $request) => Limit::perMinute((int) config('cagayan.finances.source_requests_per_minute'))->by((string) $request->ip()));
         RateLimiter::for('workspace-activity', fn (Request $request) => Limit::perMinute((int) config('cagayan.admin.activity_requests_per_minute'))->by((string) $request->user()?->getAuthIdentifier()));
     }
 

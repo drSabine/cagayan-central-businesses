@@ -1,4 +1,5 @@
 import { analytics, dashboard } from '@/routes/capitol';
+import { index as businesses } from '@/routes/capitol/businesses';
 import { index as categories } from '@/routes/capitol/categories';
 import { index as finances } from '@/routes/capitol/finances';
 import { index as wishes } from '@/routes/capitol/wishes';
@@ -28,6 +29,13 @@ export function workspaceNavigation(workspace: Workspace) {
             group: 'Workspace',
             href: analytics(),
             icon: icons.analytics,
+            visible: true,
+        },
+        {
+            label: 'Businesses',
+            group: 'Workspace',
+            href: businesses(),
+            icon: icons.businesses,
             visible: true,
         },
         {

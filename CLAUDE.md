@@ -2,7 +2,7 @@
 
 A map-based dashboard of registered businesses for the Provincial Government of Cagayan, built for the PGC Digital Innovation Challenge. Prototype video due October 30, 2026.
 Two audiences: a role-protected Capitol workspace (Super Admin, Admin, and Staff) and the public (no login, sales as bands only, a start-a-business guide, citizen wishes).
-MVP: Tuguegarao City's 49 barangays. Real boundaries and population, simulated business records labeled "Simulated data".
+MVP: Tuguegarao City's 49 barangays. Real boundaries, population and COA finances. No simulated business records by default (decisions.md, D37); a simulated set is opt-in for presentations and labeled "Simulated data".
 
 ## Stack
 
@@ -69,11 +69,12 @@ Details and examples: `docs/engineering/architecture.md` (back end) and `docs/en
 - Dark mode uses muted blue slate surfaces that complement the map's river ink blue, with a lighter base than the original near-black theme. Keep text and control borders readable.
 - Every data view handles loading, empty, not available, hidden, and error. "Not available" and "hidden" are never shown as `0`.
 - Filters and tabs live in the URL. URL changes do not require server visits: sorting, views, loaded-data filters and cached map selections MUST use local Inertia history. Fetch only missing/stale authorized datasets, deduplicate and cache them by data identity, never by presentation state. Verify zero application requests for loaded-data interactions, including repeated selections and Back/Forward. See frontend.md, "Local Selection Contract". After a write, redirect and show a toast. Links use Wayfinder imports, never hard-coded URLs.
-- The Home map right panel shows only population, revenue, and expenditure and their sources. Do not add other measures or sources without an explicit request.
+- Public Home and Capitol economic maps share Government Revenue, Government Expenses and Surplus or Deficit for one absolute fiscal year. Latest alone retains population context; explicit fiscal years omit it. Year uses shared finance statistics and local history; the maps have no Measure selector and shade by Government Revenue. Surplus or Deficit shows a green up triangle for a surplus and a red down triangle for a deficit, from one shared component (`ResultFigure`, `lib/trend.ts`). The separate public census explorer stays population-only. Do not add other measures or sources without an explicit request.
 - Home maps share one icon-only style control beside the main town selector. Do not repeat it in About the Data. Reuse cached census data and geometry when revisiting towns; style changes must not reload data or clear selection.
 - Wish form selections update locally. Fetch only the optional tally in the background, never the entire form payload. Business Type is visible by default; reveal Specific Business only through its control or when editing an existing company wish.
 - Preserve existing layouts when adding information. Do not add instructions, legends, containers, or explanatory copy unless requested or necessary for the requested interaction.
 - Finance review follows `design.md`, "Government Finances Simplification": one aligned table, right-hand fiscal filter, compact linked sources, on-demand selection and quiet pagination. Do not restore source-card strips, repeated year subtitles, 0 selected, permanent bulk controls or an inner width cap that leaves an empty side strip.
+- Government Finances on Economy and Analytics is one ledger table with one Source line of links to the stored COA PDF at the cited page, and a short Help sheet in the card header (`design.md`, "Government Finances Ledger Table"). The Yearly Summary reads the year before, then the selected year, then Change. Abbreviated amounts and Change cells show the exact peso amount on hover through `ExactAmount`. No Source Details drawer, Compare control, source text in tooltips, or repeated citations. State Tuguegarao City only coverage; do not hide it.
 - Do not add dangling metric/privacy disclaimers, automatic snapshot captions, chart-size explanations, or fallback instructions that reference removed views. Keep definitions in docs and secondary provenance/date in an accessible contextual tooltip. Home has working wish/Economy actions; do not restore placeholder cards or the removed protection section.
 - Keep interface copy concise. Do not add helper descriptions that repeat a heading, label, placeholder, or button, or examples that restate what a field already accepts. Add explanatory text only when it clarifies an action, requirement, or consequence the control itself does not communicate.
 - Before changing an existing screen, follow `docs/engineering/design.md`, "Working on Existing Screens". It records the user's layout, copy, map, form, source, and validation corrections. Do not reintroduce removed statistics, helper paragraphs, legends, modals, map CTAs, or duplicated controls under another label. Use underlined links without decorative arrows.
@@ -84,7 +85,7 @@ Full rules: `docs/engineering/design.md`.
 
 - Approved Revenue + Economic Status direction: retain verified city/municipal government revenue as explicitly labeled context alongside economic activity, household conditions, business records, and community interests. Government revenue is not private-business sales, GDP, or a prosperity/investment score; national transfers also affect it. GDP and survey figures retain their source geography and period, so province figures never become town/barangay figures. Keep the business-information purpose; no auditing pivot. See docs/product/mvp-scope.md, "October 24, 2026 clarification: Revenue and Economic Status". The foundation labels Government Revenue and Government Expenses explicitly and withholds unchecked figures. Every loaded COA figure is signed off after the 26-10-28 reliability review (data/towns/finances/README.md); workbook breakdowns load for Tuguegarao City only (`cagayan.finances.workbook_towns`).
 
-- Finance Ledger and Analytics Program, approved October 27, 2026 (docs/plan/archive/26-10-27-finance-ledger-analytics-program.md, completed 26-10-28). It covers six parts: a local Python COA parser (D34); one finance ledger for parsed and manually entered figures, with sign-off by someone other than the person who entered the figure (D35); revenue sources, business taxes and fees, and development spending from the audit-report workbooks (trimmed to a business focus 26-10-28); industries plus Focus Tags (D36); and a public and Capitol analytics engine. COA records describe the local government, not private business revenue or measured demand. Definitions (metrics.md M19 to M31, approved October 28, 2026), source verification and restatements accompany every series. Audit opinions, audit findings and infrastructure project lists are excluded. Full-year 2026 actuals wait for a released report.
+- Finance Ledger and Analytics Program, approved October 27, 2026 (docs/plan/archive/26-10-27-finance-ledger-analytics-program.md, completed 26-10-28). It covers six parts: a local Python COA parser (D34); one finance ledger for parsed and manually entered figures, with sign-off by someone other than the person who entered the figure (D35); revenue sources, business taxes and fees, and development spending from the audit-report workbooks (trimmed to a business focus 26-10-28); industries plus Business Categories (D36, D39); and a public and Capitol analytics engine. COA records describe the local government, not private business revenue or measured demand. Definitions (metrics.md M19 to M31, approved October 28, 2026), source verification and restatements accompany every series. Audit opinions, audit findings and infrastructure project lists are excluded. Full-year 2026 actuals wait for a released report.
 
 - Fixed labeled desktop sidebar with no collapse control or selected-tab accent bars; compact mobile menu and breadcrumb strip.
 - Map selections and geographic breadcrumbs use client-side Inertia history, not server visits. Cache each town dataset and keep the map mounted during selection.
@@ -92,7 +93,7 @@ Full rules: `docs/engineering/design.md`.
 - Map first with MapLibre and selected-area details. Omit the requests/approvals placeholder until workflows exist. No fabricated counts or approval controls.
 - Community Wishes is a separate Admin/Super Admin page. Never send wishes to Staff or any dashboard response, including the map.
 - Province-wide economic summaries are available to all three roles. Staff editing is restricted to assigned towns; business editing remains future work.
-- Only Super Admin sees Activity Logs and may change roles. Admin manages Staff accounts and business categories when their management screens are built.
+- Only Super Admin sees Activity Logs and may change roles. Admin manages Staff accounts when that screen is built. Admin and Super Admin manage Business Categories and Business Types on Business Categories (D39): each Type has exactly one Category, names are stored as typed with a Title Case suggestion, category colors come from the `--category-N` palette with no color package, and Category sales are bands. All three roles open the read-only Businesses directory (public fields only, server-paged); adding businesses and permit records belong to the registry plan.
 - Compact greeting with stored display name, date, and 24-hour Philippine clock. Keep the role in the sidebar account area only. Birthday month/day is optional and private; never collect birth year.
 - Token styles only. Shared Capitol pieces in components/capitol, maps in components/map, semantic icons in lib/icons.ts, hooks and formatters outside pages.
 - Session: 30 minutes idle, 8 hours absolute, 2 minute warning. Background requests never extend idle time. Verify expiry on the server before ending a shared session. Encrypt Inertia history and clear it on sign-in/logout/expiry.
@@ -107,7 +108,7 @@ Full rules: `docs/engineering/design.md`.
 - Every sales figure comes from the privacy guard.
 - Pages get Data objects, never models, including shared props.
 - Admin fields only behind login, and every full record view is logged.
-- Every screen and export with business records shows the "Simulated data" label.
+- Every screen and export with simulated business records shows the "Simulated data" label. Simulated records are off unless `CAGAYAN_SIMULATED` is true (D37).
 - Thresholds live in `config/cagayan.php`, never as literals.
 - Metrics are defined in `docs/engineering/metrics.md` and computed in SQL. A definition changes only with a human-approved doc change.
 - Checklist content needs an official source and a verification date from a team member. Never write a requirement from memory.
@@ -155,7 +156,7 @@ Start each task from one:
 
 ## Done means
 
-Acceptance checks met. Tests pass, including privacy cases. `composer ci:check` green. Loading, empty, not available, hidden, and error states handled. Simulated label shown. Wording follows `design.md` and `privacy-rules.md`. Roadmap status updated. When Claude gets something wrong twice, add the correction here or in `.claude/rules/` in the same pull request.
+Acceptance checks met. Tests pass, including privacy cases. `composer ci:check` green. Loading, empty, not available, hidden, and error states handled. Simulated label shown wherever simulated records are on. Wording follows `design.md` and `privacy-rules.md`. Roadmap status updated. When Claude gets something wrong twice, add the correction here or in `.claude/rules/` in the same pull request.
 
 Where the Laravel Boost guidelines below disagree with this file, this file wins.
 

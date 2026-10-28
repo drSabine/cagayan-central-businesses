@@ -1,6 +1,6 @@
 // Formatting only, no metric math (frontend.md, "Rules for numbers").
 
-import type { TownFigure, TownProfile } from '@/types/data';
+import type { TownFigure } from '@/types/data';
 
 export const LOCALE = 'en-PH';
 
@@ -61,40 +61,6 @@ export function formatFigure(
     format: (value: string) => string = formatNumber,
 ): string {
     return figure ? format(figure.value) : NOT_AVAILABLE;
-}
-
-export function townFigures(
-    population: TownFigure | null,
-    finances?: Pick<TownProfile, 'revenue' | 'expenditure'> | null,
-) {
-    const rows = [
-        {
-            label: 'Population',
-            value: formatFigure(population, formatNumber),
-            figure: population,
-        },
-        {
-            label: 'Government Revenue',
-            value: formatFigure(finances?.revenue, formatPesos),
-            figure: finances?.revenue ?? null,
-        },
-        {
-            label: 'Government Expenses',
-            value: formatFigure(finances?.expenditure, formatPesos),
-            figure: finances?.expenditure ?? null,
-        },
-    ];
-    const present = rows.flatMap(({ figure }) => (figure ? [figure] : []));
-
-    return {
-        rows,
-        years: [...new Set(present.map((f) => f.year))],
-        sources: [
-            ...new Set(
-                present.flatMap((f) => (f.sourceUrl ? [f.sourceUrl] : [])),
-            ),
-        ],
-    };
 }
 
 export function sourceName(sourceUrl: string): string {

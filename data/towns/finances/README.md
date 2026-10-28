@@ -2,7 +2,7 @@
 
 Figures read from COA reports for Cagayan's 28 municipalities and Tuguegarao City. The parser in `tools/coa/` writes most of these files (D34). `composer data:finances` (`php artisan finances:import`) loads them into the finance ledger (D35) as **pending** figures, then replays the sign-offs in `reviews.csv` and `manual-figures.csv`. Nothing is published until a person signs it off. `composer db:reset` runs the import too.
 
-Every Executive Summary loads for all 29 towns. Workbook breakdowns load only for the towns in `cagayan.finances.workbook_towns`, Tuguegarao City since 26-10-28. The other towns' workbooks stay parsed in `extracted/` and `issues/` until their towns are added to that list. A town whose workbook is not loaded shows "The COA workbook for this year has not been added yet".
+Every Executive Summary loads for all 29 towns. Public citations open the stored copy of the document (`file` in `documents.csv`) through `public.finance-sources.show`, at the page parsed from the figure's `location` ("page 2"); the COA address in `source_url` stays here as provenance only. Workbook breakdowns load only for the towns in `cagayan.finances.workbook_towns`, Tuguegarao City since 26-10-28. The other towns' workbooks stay parsed in `extracted/` and `issues/` until their towns are added to that list. A town whose workbook is not loaded shows "The COA workbook for this year has not been added yet".
 
 Since 26-10-28 every loaded parsed figure is signed off (`reviews.csv`, 1,094 rows): 678 are published and 416 are earlier versions superseded by a later report's restatement. See "Reliability Review, 26-10-28" below.
 
@@ -125,3 +125,7 @@ Before signing everything off, each report's current-year revenue and expenses w
 Most restatements are under 1 percent. The largest were opened in the PDFs and are printed that way by COA, not misread: Enrile 2021 revenue (₱181.0 million, restated as ₱232.2 million in 2022), Rizal 2024 expenses, Calayan 2022 expenses, and Santa Ana 2020 revenue. The latest report wins (D35), and the screens say "Restated in the 2022 report" (M26). Aparri 2020 revenue differs by ₱0.63 between reports, a digit swap in one of COA's documents.
 
 Reading a value correctly does not make COA's accounts correct: the figures are transcriptions of the reports, which are themselves audited with qualified opinions in many towns.
+
+## Economic Maps "26-10-28"
+
+Public Home and Capitol economic maps read the same `stats_finance_year` output as Analytics. Successful imports and completed review batches rebuild finance statistics automatically in their transaction; `metrics:refresh` remains available for explicit rebuilds. Latest is the newest verified fiscal year with a revenue/expense pair for any town, globally. Missing towns stay unavailable in that year. The year list comes from verified observations, not a fixed calendar range. Report collection and independent human sign-off remain required. Revenue, expenses, surplus/deficit, financial shades, source evidence and reporting-town coverage share the existing definitions.

@@ -1,6 +1,6 @@
 # Town Figures
 
-Real public figures for Cagayan's 29 towns. The Home and workspace maps show population from this file and Government Revenue and Government Expenses from the finance ledger ([`finances/`](finances/README.md), D35). The other measures stay in the file for later. One file, `town-facts.csv`, loaded into the `town_facts` table by `php artisan towns:import` (or `composer data:towns`). `composer db:reset` loads it too.
+Real public figures for Cagayan's 29 towns. The Home and workspace economic maps show population from this file only in Latest, alongside annual Government Revenue, Government Expenses and Surplus or Deficit from the finance ledger ([`finances/`](finances/README.md), D35). The other measures stay in the file for later. One file, `town-facts.csv`, loaded into the `town_facts` table by `php artisan towns:import` (or `composer data:towns`). `composer db:reset` loads it too.
 
 Prepared on October 23, 2026.
 
@@ -31,7 +31,7 @@ Measures:
 
 1. Add or edit rows in `town-facts.csv`. For a new census year, **add** rows with the new year. Keeping the old ones keeps the history.
 2. Run `composer data:towns`. It checks every row first and imports nothing if a row is wrong, listing each problem with its line number.
-3. Refresh the Home page. It uses the newest verified year of each measure. Unchecked rows stay in the source file but are withheld from responses.
+3. Refresh the Home page. Latest uses the newest verified census population. Finance controls select one absolute fiscal year across all towns; explicit years omit population. Unchecked rows stay in the source file but are withheld from responses.
 
 The CSV is the source of truth: every import replaces the whole table with the file.
 

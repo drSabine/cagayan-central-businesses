@@ -26,7 +26,7 @@ test('the home page shows the towns, types, and years behind the data', function
             ->where('overview.firstYear', config('cagayan.data.first_year'))
             ->where('overview.latestYear', config('cagayan.data.latest_year'))
             ->where('overview.yearCount', config('cagayan.data.latest_year') - config('cagayan.data.first_year') + 1)
-            ->where('simulated', true));
+            ->where('simulated', false));
 });
 
 test('the home page gives every town its public figures', function () {

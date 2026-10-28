@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Municipality;
+use App\Services\FinanceYears;
 use Illuminate\Foundation\Http\FormRequest;
 
 /** Admins open any town; Staff only their assigned towns (edit-town). */
@@ -24,7 +25,7 @@ class FinanceReportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'report_year' => ['required', 'integer', 'between:'.config('cagayan.finances.first_year').','.config('cagayan.finances.last_year')],
+            'report_year' => ['required', 'integer', 'between:'.config('cagayan.finances.first_year').','.app(FinanceYears::class)->reportLastYear()],
         ];
     }
 

@@ -1,5 +1,17 @@
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { Grip, Square } from 'lucide-react';
+import {
+    FinanceMapControls,
+    FinanceMapFigures,
+} from '@/components/map/finance-map-panel';
+import {
+    financeMapSelection,
+    financeMapShade,
+    financeMapObservation,
+    MAP_MEASURE,
+} from '@/lib/finance-map';
+import { observationLabel } from '@/lib/performance-format';
+import type { FinanceMap } from '@/types/finance-map';
 import { LazyProvinceMap } from '@/components/lazy-province-map';
 import type { MapStyle } from '@/components/province-map';
 import {
@@ -10,13 +22,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import {
-    formatFigure,
-    formatNumber,
-    sourceName,
-    townFigures,
-} from '@/lib/format';
-import { pageSearchParams, replaceLocalQuery } from '@/lib/navigation';
+import { pageSearchParams } from '@/lib/navigation';
 import { home } from '@/routes';
 import type { TownAtlas as Atlas } from '@/types/data';
 
@@ -24,20 +30,34 @@ const NONE = 'province';
 
 export function TownAtlas({
     atlas,
+    finances,
     mapStyle,
     onMapStyleChange,
 }: {
     atlas: Atlas;
+    finances: FinanceMap;
     mapStyle: MapStyle;
     onMapStyleChange: (style: MapStyle) => void;
 }) {
     const { url } = usePage();
-    const townCode = pageSearchParams(url).get('town');
+    const params = pageSearchParams(url);
+    const townCode = params.get('town');
+    const selection = financeMapSelection(finances, params);
     const town = atlas.towns.find((item) => item.code === townCode) ?? null;
     const shown = town ?? atlas.province;
-    const { rows, years, sources } = townFigures(shown.population, shown);
-    const choose = (code: string | null) =>
-        replaceLocalQuery(url, home, { town: code });
+    const change = (patch: Record<string, string | null>) => {
+        const query = Object.fromEntries(params);
+        for (const [key, value] of Object.entries(patch)) {
+            if (value) query[key] = value;
+            else delete query[key];
+        }
+        router.push({
+            url: home({ query }).url,
+            preserveScroll: true,
+            preserveState: true,
+        });
+    };
+    const choose = (code: string | null) => change({ town: code });
 
     return (
         <div className="dark grid gap-6 text-foreground lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-8">
@@ -46,22 +66,31 @@ export function TownAtlas({
                     mapStyle={mapStyle}
                     water
                     zoomable
-                    label="Population by municipality and city in Cagayan"
+                    label={`Government Revenue by municipality and city in Cagayan for ${selection.year ?? 'the latest available year'}`}
                     shades={Object.fromEntries(
-                        atlas.towns.map((item) => [item.code, item.shade]),
+                        atlas.towns.map((item) => [
+                            item.code,
+                            financeMapShade(
+                                finances,
+                                item.code,
+                                selection.year,
+                                MAP_MEASURE,
+                            ),
+                        ]),
                     )}
                     highlight={town ? [town.code] : []}
                     describe={(code, name) => {
-                        const population = atlas.towns.find(
-                            (item) => item.code === code,
-                        )?.population;
-
+                        const point = financeMapObservation(
+                            finances,
+                            code,
+                            selection.year,
+                            MAP_MEASURE,
+                        );
                         return (
                             <span className="flex flex-col gap-0.5">
                                 <span className="font-medium">{name}</span>
                                 <span className="tabular-nums opacity-80">
-                                    {formatFigure(population, formatNumber)}{' '}
-                                    people
+                                    {observationLabel(point, 'php')}
                                 </span>
                             </span>
                         );
@@ -127,6 +156,12 @@ export function TownAtlas({
                     </ToggleGroup>
                 </div>
 
+                <FinanceMapControls
+                    finances={finances}
+                    {...selection}
+                    onChange={change}
+                />
+
                 <section
                     aria-labelledby="town-figures-heading"
                     className="flex flex-col gap-4 rounded-lg border border-current/15 p-4"
@@ -141,52 +176,18 @@ export function TownAtlas({
                         </p>
                         <h2 id="town-figures-heading" className="type-title">
                             {shown.kind === 'province'
-                                ? `Cagayan Province${shown.population ? ` (as of ${shown.population.year})` : ''}`
+                                ? 'Cagayan Province'
                                 : shown.name}
                         </h2>
                     </div>
 
-                    <dl className="flex flex-col gap-3">
-                        {rows.map(({ label, value }) => (
-                            <div
-                                key={label}
-                                className="flex items-baseline justify-between gap-4"
-                            >
-                                <dt className="type-label text-foreground">
-                                    {label}
-                                </dt>
-                                <dd className="text-right font-mono text-sm tabular-nums">
-                                    {value}
-                                </dd>
-                            </div>
-                        ))}
-                    </dl>
-
-                    {shown.kind !== 'province' && years.length > 0 && (
-                        <p className="type-meta text-foreground">
-                            Figures as of {years.join(' and ')}.
-                        </p>
-                    )}
-
-                    {sources.length > 0 && (
-                        <p className="flex flex-col items-start gap-2 type-meta text-foreground">
-                            Source
-                            {sources.map((source) => (
-                                <a
-                                    key={source}
-                                    href={source}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="underline underline-offset-2 hover:text-foreground"
-                                >
-                                    {sourceName(source)}
-                                    <span className="sr-only">
-                                        (opens in a new tab)
-                                    </span>
-                                </a>
-                            ))}
-                        </p>
-                    )}
+                    <FinanceMapFigures
+                        finances={finances}
+                        code={shown.code}
+                        {...selection}
+                        population={shown.population}
+                        aggregate={shown.kind === 'province'}
+                    />
                 </section>
             </aside>
         </div>

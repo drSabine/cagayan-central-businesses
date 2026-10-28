@@ -3,6 +3,7 @@
 namespace App\Queries;
 
 use App\Data\AnalyticsCatalog;
+use App\Data\AnalyticsMeasure;
 use App\Data\EconomicMetric;
 use App\Data\EconomicObservation;
 use App\Data\FinancialHistory;
@@ -13,8 +14,10 @@ use App\Models\FinanceDocument;
 use App\Models\FinanceFigure;
 use App\Models\FinanceLine;
 use App\Models\Municipality;
+use App\Services\FinanceYears;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use stdClass;
 
 /**
@@ -42,17 +45,28 @@ final class AnalyticsCatalogQuery
         'sector.economic_services.utilization' => 'fs_workbook',
     ];
 
-    public function __construct(private BusinessTrendsQuery $businesses) {}
+    public function __construct(private BusinessTrendsQuery $businesses, private FinanceEvidenceQuery $evidence) {}
 
     public function get(bool $public): AnalyticsCatalog
     {
-        $years = range((int) config('cagayan.performance.first_year'), (int) config('cagayan.performance.last_year'));
+        $years = range((int) config('cagayan.performance.first_year'), app(FinanceYears::class)->publishedLastYear());
         $groups = config('cagayan.finances.groups');
         $lines = FinanceLine::query()->where('displayed', true)->whereIn('group', array_keys($groups))
             ->orderBy('sort')->get(['code', 'label', 'group', 'unit', 'source'])->groupBy('group');
         $towns = Municipality::query()->orderBy('name')->get(['id', 'psgc_code', 'name']);
         $stats = DB::table('stats_finance_year')->whereBetween('fiscal_year', [$years[0], end($years)])->get()
             ->groupBy(fn (stdClass $row): int => (int) ($row->municipality_id ?? 0));
+        /** @var array<string, mixed> $guide */
+        $guide = json_decode(File::get(resource_path('content/analytics-guide.json')), true, flags: JSON_THROW_ON_ERROR);
+        $dependencies = [];
+        foreach ($guide['topics'] as $topic) {
+            foreach ($topic['metrics'] as $metric) {
+                if ($metric['inputs'] !== []) {
+                    $dependencies[$metric['id']] = $metric['inputs'];
+                }
+            }
+        }
+        $evidence = $this->evidence->get($stats->flatten(1), $dependencies);
         // Withheld until signed off (D35); only the fact that a figure awaits review is shown, never its value.
         $pending = FinanceFigure::query()->where('status', FinanceFigureStatus::Pending)->get(['municipality_id', 'fiscal_year', 'line_code'])
             ->mapWithKeys(fn (FinanceFigure $figure) => ["{$figure->municipality_id} {$figure->fiscal_year} {$figure->line_code}" => true])->all();
@@ -69,19 +83,42 @@ final class AnalyticsCatalogQuery
         // Union, not spread: spreading would renumber the municipality ids that key the stats.
         foreach ([0 => self::ALL_TOWNS] + $towns->pluck('psgc_code', 'id')->all() as $id => $code) {
             if ($stats->has($id)) {
-                $finances[$code] = $lines->map(fn (Collection $group) => $this->history($group, $stats[$id], $years, $id, $documents, $pending))->all();
+                $finances[$code] = $lines->map(fn (Collection $group) => $this->history($group, $stats[$id], $years, $id, $documents, $pending, $evidence['references']))->all();
             }
         }
 
         return new AnalyticsCatalog(
             towns: [new SelectOption(self::ALL_TOWNS, 'Sum of Reporting Towns'),
                 ...$towns->map(fn (Municipality $town) => new SelectOption($town->psgc_code, $town->name))->all()],
-            measures: array_map(fn (string $key) => new SelectOption($key, $groups[$key]['label']), array_keys($lines->all())),
+            measures: array_map(fn (string $key) => new AnalyticsMeasure($key, $groups[$key]['label'], $this->coverage($finances, $key)), array_keys($lines->all())),
             periods: ['all' => $years[0], 'recent' => (int) config('cagayan.performance.recent_first_year')],
             lastYear: end($years),
             finances: $finances,
             businesses: $this->businesses->get($public),
+            guide: $guide,
+            sources: $evidence['sources'],
         );
+    }
+
+    /**
+     * The towns that have at least one signed-off figure for a measure, so a picker can say where it applies (null: every town).
+     *
+     * @param  array<string, array<string, FinancialHistory>>  $finances
+     * @return list<string>|null
+     */
+    private function coverage(array $finances, string $measure): ?array
+    {
+        $towns = [];
+        foreach ($finances as $code => $histories) {
+            foreach ($histories[$measure]->rows ?? [] as $row) {
+                if (collect($row['observations'])->contains(fn (EconomicObservation $point) => $point->state === 'shown')) {
+                    $towns[] = $code;
+                    break;
+                }
+            }
+        }
+
+        return count($towns) === count($finances) ? null : $towns;
     }
 
     /**
@@ -90,11 +127,12 @@ final class AnalyticsCatalogQuery
      * @param  list<int>  $years
      * @param  array<string, FinanceAvailability>  $documents
      * @param  array<string, true>  $pending
+     * @param  array<string, list<string>>  $references
      */
-    private function history(Collection $lines, Collection $stats, array $years, int $townId, array $documents, array $pending): FinancialHistory
+    private function history(Collection $lines, Collection $stats, array $years, int $townId, array $documents, array $pending, array $references): FinancialHistory
     {
         $byKey = $stats->keyBy(fn (stdClass $row) => "{$row->metric} {$row->fiscal_year}");
-        $rows = array_map(fn (int $year) => ['year' => $year, 'observations' => $lines->mapWithKeys(function (FinanceLine $line) use ($byKey, $year, $townId, $documents, $pending) {
+        $rows = array_map(fn (int $year) => ['year' => $year, 'observations' => $lines->mapWithKeys(function (FinanceLine $line) use ($byKey, $year, $townId, $documents, $pending, $references) {
             $row = $byKey->get("{$line->code} {$year}");
             if ($row === null) {
                 $kind = self::SOURCE_KINDS[$line->source] ?? self::DERIVED_KINDS[$line->code] ?? 'executive_summary';
@@ -118,6 +156,7 @@ final class AnalyticsCatalogQuery
                     : ['reporting' => (int) $row->reporting_towns, 'total' => (int) $row->total_towns, 'matched' => (int) $row->matched_towns],
                 censusYear: $row->census_year === null ? null : (int) $row->census_year,
                 restatedIn: $row->restated_in === null ? null : (int) $row->restated_in,
+                sourceRefs: $references["{$townId} {$year} {$line->code}"] ?? [],
             )];
         })->all()], $years);
 
@@ -127,7 +166,6 @@ final class AnalyticsCatalogQuery
             metrics: array_values($lines->map(fn (FinanceLine $line) => new EconomicMetric($line->code, $line->label, $line->unit, $line->source))->all()),
             rows: $rows,
             axisMaximum: (string) ($values->max() ?? '0'),
-            source: ['mode' => 'verified', 'label' => 'COA Annual Audit Reports', 'sourceUrl' => (string) config('cagayan.finances.coa_url'), 'verifiedOn' => null],
         );
     }
 }

@@ -118,6 +118,8 @@
     --color-input: var(--input);
     --color-ring: var(--ring);
 
+    --color-trend-up: var(--trend-up);
+    --color-trend-down: var(--trend-down);
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
     --color-chart-3: var(--chart-3);
@@ -138,6 +140,18 @@
     --color-status-renewed: var(--status-renewed);
     --color-status-not-renewed: var(--status-not-renewed);
     --color-status-closed: var(--status-closed);
+
+    /* Business Category colors (design.md, "Business Categories"). Always printed beside the tag name. */
+    --color-category-1: var(--category-1);
+    --color-category-2: var(--category-2);
+    --color-category-3: var(--category-3);
+    --color-category-4: var(--category-4);
+    --color-category-5: var(--category-5);
+    --color-category-6: var(--category-6);
+    --color-category-7: var(--category-7);
+    --color-category-8: var(--category-8);
+    --color-category-9: var(--category-9);
+    --color-category-10: var(--category-10);
 }
 
 /*
@@ -167,6 +181,8 @@
     --border: oklch(0.9 0.008 250);
     --input: oklch(0.87 0.01 250);
     --ring: oklch(0.36 0.07 245);
+    --trend-up: oklch(0.46 0.13 150);
+    --trend-down: oklch(0.48 0.17 25);
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
@@ -187,6 +203,16 @@
     --status-renewed: oklch(0.55 0.14 250);
     --status-not-renewed: oklch(0.72 0.15 70);
     --status-closed: oklch(0.55 0.02 260);
+    --category-1: oklch(0.56 0.17 255);
+    --category-2: oklch(0.56 0.17 55);
+    --category-3: oklch(0.56 0.15 150);
+    --category-4: oklch(0.56 0.18 355);
+    --category-5: oklch(0.56 0.17 300);
+    --category-6: oklch(0.56 0.12 195);
+    --category-7: oklch(0.62 0.15 88);
+    --category-8: oklch(0.62 0.19 25);
+    --category-9: oklch(0.56 0.16 128);
+    --category-10: oklch(0.56 0.03 250);
     --radius: 0.125rem;
 }
 
@@ -212,6 +238,8 @@
     --border: oklch(0.43 0.025 245);
     --input: oklch(0.6 0.025 245);
     --ring: oklch(0.8 0.07 235);
+    --trend-up: oklch(0.8 0.14 150);
+    --trend-down: oklch(0.8 0.12 25);
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
@@ -229,6 +257,16 @@
     --status-renewed: oklch(0.68 0.13 250);
     --status-not-renewed: oklch(0.78 0.14 70);
     --status-closed: oklch(0.65 0.02 260);
+    --category-1: oklch(0.74 0.14 255);
+    --category-2: oklch(0.74 0.14 55);
+    --category-3: oklch(0.74 0.12 150);
+    --category-4: oklch(0.74 0.15 355);
+    --category-5: oklch(0.74 0.14 300);
+    --category-6: oklch(0.74 0.09 195);
+    --category-7: oklch(0.74 0.12 88);
+    --category-8: oklch(0.74 0.16 25);
+    --category-9: oklch(0.74 0.13 128);
+    --category-10: oklch(0.74 0.03 250);
 }
 
 /*
@@ -300,4 +338,9 @@
     body {
         @apply bg-background text-foreground antialiased;
     }
+}
+
+@utility type-data {
+    font-size: 0.75rem;
+    line-height: 1.5;
 }

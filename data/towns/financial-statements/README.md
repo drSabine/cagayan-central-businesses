@@ -18,7 +18,7 @@ The parser in `tools/coa/` reads them into `../finances/` (D34). Definitions are
 | 2024 | Abulug, Alcala, Allacapan, Tuguegarao City |
 | 2025 | Alcala, Amulung, Baggao, Enrile, Gattaran, Iguig, Peñablanca, Piat, Rizal, Solana, Santo Niño, Tuao, Tuguegarao City |
 
-Every other town and year shows Not available for these breakdowns. Totals still come from the Executive Summaries.
+These are the workbook pairs on disk, not the loaded publication coverage. Since 26-10-28 only Tuguegarao City workbook breakdowns for 2024 and 2025 load into the ledger (`cagayan.finances.workbook_towns`). Other towns and years show Not available for these breakdowns. Totals still come from the Executive Summaries.
 
 `not-published.csv` lists the 16 towns with no 2025 Annual Audit Report on the COA site when it was checked on 2026-10-27. COA lists the 2020 to 2024 reports for every town; collecting the rest is separate work.
 

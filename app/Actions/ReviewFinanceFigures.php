@@ -8,19 +8,36 @@ use App\Models\FinanceFigure;
 use App\Models\Municipality;
 use App\Models\User;
 use App\Services\FinanceSignOff;
+use App\Services\RefreshFinanceMetrics;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /** Signs off or rejects pending figures of one town and report year. Figures the reviewer entered are skipped. */
 final class ReviewFinanceFigures
 {
-    public function __construct(private readonly FinanceSignOff $signOff) {}
+    public function __construct(private readonly FinanceSignOff $signOff, private readonly RefreshFinanceMetrics $metrics) {}
 
     /**
      * @param  list<string>  $ids
      * @return array{done: int, skipped: int}
      */
     public function handle(User $reviewer, Municipality $town, int $year, string $decision, array $ids, ?string $note): array
+    {
+        return DB::transaction(function () use ($reviewer, $town, $year, $decision, $ids, $note): array {
+            $result = $this->review($reviewer, $town, $year, $decision, $ids, $note);
+            if ($result['done'] > 0) {
+                $this->metrics->handle();
+            }
+
+            return $result;
+        });
+    }
+
+    /** @param list<string> $ids
+     * @return array{done: int, skipped: int}
+     */
+    private function review(User $reviewer, Municipality $town, int $year, string $decision, array $ids, ?string $note): array
     {
         $figures = FinanceFigure::query()
             ->where('municipality_id', $town->id)

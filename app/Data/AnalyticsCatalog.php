@@ -10,9 +10,11 @@ final readonly class AnalyticsCatalog
 {
     /**
      * @param  list<SelectOption>  $towns  the first option is the Sum of Reporting Towns
-     * @param  list<SelectOption>  $measures
+     * @param  list<AnalyticsMeasure>  $measures
      * @param  array{all: int, recent: int}  $periods
      * @param  array<string, array<string, FinancialHistory>>  $finances  town code, then measure; absent means not available
+     * @param  array<string, mixed>  $guide
+     * @param  array<string, array<string, mixed>>  $sources
      */
     public function __construct(
         public array $towns,
@@ -21,5 +23,7 @@ final readonly class AnalyticsCatalog
         public int $lastYear,
         public array $finances,
         public ?BusinessTrends $businesses,
+        public array $guide = [],
+        public array $sources = [],
     ) {}
 }

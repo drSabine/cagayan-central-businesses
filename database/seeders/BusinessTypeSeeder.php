@@ -2,11 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\BusinessCategory;
 use App\Models\BusinessType;
 use Illuminate\Database\Seeder;
 
 /**
- * Starter list of types a resident would recognize. The PSIC section of each
+ * Starter list of types a resident would recognize, each under one Business Category (D39). The PSIC section of each
  * still has to be checked against the PSA classification by the data member
  * (database.md, "business_types").
  */
@@ -29,50 +30,55 @@ class BusinessTypeSeeder extends Seeder
     ];
 
     /**
-     * @var list<array{0: string, 1: string, 2: string}>
+     * @var list<array{0: string, 1: string, 2: string, 3: string}>
      */
     private const array TYPES = [
-        ['sari-sari-store', 'Sari-sari store', 'G'],
-        ['grocery', 'Grocery', 'G'],
-        ['pharmacy', 'Pharmacy', 'G'],
-        ['hardware-store', 'Hardware store', 'G'],
-        ['clothing-store', 'Clothing store', 'G'],
-        ['school-supplies', 'School supplies and books', 'G'],
-        ['auto-repair', 'Auto and motorcycle repair', 'G'],
-        ['bakery', 'Bakery', 'C'],
-        ['water-refilling', 'Water refilling station', 'C'],
-        ['printing-shop', 'Printing shop', 'C'],
-        ['coffee-shop', 'Coffee shop', 'I'],
-        ['restaurant', 'Restaurant', 'I'],
-        ['eatery', 'Carinderia or eatery', 'I'],
-        ['boarding-house', 'Boarding house', 'I'],
-        ['hotel', 'Hotel or inn', 'I'],
-        ['bank', 'Bank', 'K'],
-        ['lending', 'Lending or pawnshop', 'K'],
-        ['veterinary-clinic', 'Veterinary clinic', 'M'],
-        ['tutorial-center', 'Tutorial center', 'P'],
-        ['clinic', 'Medical clinic', 'Q'],
-        ['dental-clinic', 'Dental clinic', 'Q'],
-        ['gym', 'Gym or fitness center', 'R'],
-        ['salon', 'Salon or barbershop', 'S'],
-        ['laundry', 'Laundry shop', 'S'],
-        ['repair-shop', 'Gadget and appliance repair', 'S'],
-        ['crop-farm', 'Rice and corn farm', 'A'],
-        ['livestock-farm', 'Poultry and livestock farm', 'A'],
-        ['fishpond', 'Fishpond or aquaculture', 'A'],
-        ['agri-supply', 'Agricultural supply store', 'G'],
-        ['rice-mill', 'Rice mill', 'C'],
+        ['sari-sari-store', 'Sari-Sari Store', 'G', 'retail'],
+        ['grocery', 'Grocery', 'G', 'retail'],
+        ['pharmacy', 'Pharmacy', 'G', 'retail'],
+        ['hardware-store', 'Hardware Store', 'G', 'retail'],
+        ['clothing-store', 'Clothing Store', 'G', 'retail'],
+        ['school-supplies', 'School Supplies and Books', 'G', 'retail'],
+        ['auto-repair', 'Auto and Motorcycle Repair', 'G', 'vehicle-motor-parts'],
+        ['bakery', 'Bakery', 'C', 'food-processing'],
+        ['water-refilling', 'Water Refilling Station', 'C', 'food-processing'],
+        ['printing-shop', 'Printing Shop', 'C', 'other'],
+        ['coffee-shop', 'Coffee Shop', 'I', 'food-and-beverage'],
+        ['restaurant', 'Restaurant', 'I', 'food-and-beverage'],
+        ['eatery', 'Carinderia or Eatery', 'I', 'food-and-beverage'],
+        ['boarding-house', 'Boarding House', 'I', 'lodging-and-rentals'],
+        ['hotel', 'Hotel or Inn', 'I', 'tourism'],
+        ['bank', 'Bank', 'K', 'finance'],
+        ['lending', 'Lending or Pawnshop', 'K', 'finance'],
+        ['veterinary-clinic', 'Veterinary Clinic', 'M', 'health-services'],
+        ['tutorial-center', 'Tutorial Center', 'P', 'education'],
+        ['clinic', 'Medical Clinic', 'Q', 'health-services'],
+        ['dental-clinic', 'Dental Clinic', 'Q', 'health-services'],
+        ['gym', 'Gym or Fitness Center', 'R', 'personal-and-repair-services'],
+        ['salon', 'Salon or Barbershop', 'S', 'personal-and-repair-services'],
+        ['laundry', 'Laundry Shop', 'S', 'personal-and-repair-services'],
+        ['repair-shop', 'Gadget and Appliance Repair', 'S', 'personal-and-repair-services'],
+        ['crop-farm', 'Rice and Corn Farm', 'A', 'agriculture'],
+        ['livestock-farm', 'Poultry and Livestock Farm', 'A', 'agriculture'],
+        ['fishpond', 'Fishpond or Aquaculture', 'A', 'fishery'],
+        ['agri-supply', 'Agricultural Supply Store', 'G', 'retail'],
+        ['rice-mill', 'Rice Mill', 'C', 'food-processing'],
     ];
 
     public function run(): void
     {
-        foreach (self::TYPES as $order => [$code, $name, $section]) {
+        // Every type needs its category, so the starter categories exist first.
+        $this->call(BusinessCategorySeeder::class);
+        $categories = BusinessCategory::query()->pluck('id', 'code');
+
+        foreach (self::TYPES as $order => [$code, $name, $section, $category]) {
             BusinessType::query()->updateOrCreate(
                 ['code' => $code],
                 [
                     'name' => $name,
                     'psic_section' => $section,
                     'psic_section_name' => self::SECTIONS[$section],
+                    'business_category_id' => $categories[$category],
                     'sort_order' => $order + 1,
                 ],
             );

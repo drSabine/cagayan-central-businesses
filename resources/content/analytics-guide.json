@@ -1,0 +1,304 @@
+{
+    "introduction": "Figures come from COA Annual Audit Reports and appear only after sign-off.",
+    "topics": [
+        {
+            "id": "totals",
+            "title": "Government Totals",
+            "summary": "Revenue is income the government recognized. Expenses are its recognized costs, including non-cash ones.",
+            "metrics": [
+                {
+                    "id": "performance.revenue",
+                    "label": "Government Revenue",
+                    "meaning": "Total government revenue for the fiscal year.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                },
+                {
+                    "id": "performance.expenses",
+                    "label": "Government Expenses",
+                    "meaning": "Total government expenses, including non-cash expenses and transfers.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                },
+                {
+                    "id": "performance.surplus",
+                    "label": "Surplus or Deficit",
+                    "meaning": "Revenue less expenses. A negative amount is a deficit.",
+                    "formula": "Revenue minus Expenses.",
+                    "inputs": ["performance.revenue", "performance.expenses"]
+                }
+            ]
+        },
+        {
+            "id": "budget",
+            "title": "Budget Execution",
+            "summary": "Appropriations authorize spending. Obligations are commitments made against that authority, not cash paid.",
+            "metrics": [
+                {
+                    "id": "budget.appropriations_current",
+                    "label": "Current Appropriations",
+                    "meaning": "Spending authority for the current appropriations period.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                },
+                {
+                    "id": "budget.obligations_current",
+                    "label": "Current Obligations",
+                    "meaning": "Commitments recorded against current appropriations.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                }
+            ]
+        },
+        {
+            "id": "revenue_sources",
+            "title": "Revenue Sources",
+            "summary": "Where revenue came from. National transfers can move revenue without a change in local business activity.",
+            "metrics": [
+                {
+                    "id": "revenue.tax",
+                    "label": "Local Taxes",
+                    "meaning": "Tax revenue as reported.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                },
+                {
+                    "id": "revenue.national_share",
+                    "label": "National Tax Allotment Share",
+                    "meaning": "The government share of national tax collections.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                },
+                {
+                    "id": "revenue.service_business",
+                    "label": "Fees and Business Income",
+                    "meaning": "Income from services, fees and government business. Not private-business sales.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                },
+                {
+                    "id": "revenue.remaining",
+                    "label": "Other Revenue",
+                    "meaning": "Grants, other national shares and miscellaneous income.",
+                    "formula": "Revenue minus Local Taxes, National Tax Allotment Share and Fees and Business Income.",
+                    "inputs": [
+                        "performance.revenue",
+                        "revenue.tax",
+                        "revenue.national_share",
+                        "revenue.service_business"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "business_taxes",
+            "title": "Business Taxes and Fees",
+            "summary": "General Fund collections tied to business, permits, markets and property. Never added to the consolidated totals.",
+            "metrics": [
+                {
+                    "id": "local.business_tax",
+                    "label": "Business Tax",
+                    "meaning": "The Business Tax line in the General Fund.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                },
+                {
+                    "id": "local.permit_fees",
+                    "label": "Permit Fees",
+                    "meaning": "Permit fee revenue in the General Fund.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                },
+                {
+                    "id": "local.market_operations",
+                    "label": "Market Operations",
+                    "meaning": "Receipts from government market operations.",
+                    "formula": "Reported amount.",
+                    "inputs": []
+                },
+                {
+                    "id": "local.real_property_tax",
+                    "label": "Real Property Tax",
+                    "meaning": "Basic real property tax, net of the reported discount.",
+                    "formula": "Basic Real Property Tax minus its discount.",
+                    "inputs": []
+                }
+            ]
+        },
+        {
+            "id": "development",
+            "title": "Development Spending",
+            "summary": "Actual amounts under the Development Fund and Economic Services headings.",
+            "metrics": [
+                {
+                    "id": "sector.development_fund",
+                    "label": "Development Fund",
+                    "meaning": "Actual amounts under the 20% Development Fund heading.",
+                    "formula": "Sum of reported actual amounts under the heading.",
+                    "inputs": []
+                },
+                {
+                    "id": "sector.economic_services",
+                    "label": "Economic Services",
+                    "meaning": "Actual amounts for offices such as agriculture, trade and tourism.",
+                    "formula": "Sum of reported actual amounts under the heading.",
+                    "inputs": []
+                }
+            ]
+        },
+        {
+            "id": "budget_share",
+            "title": "Budget Utilization",
+            "summary": "The share of current appropriations recorded as obligations.",
+            "metrics": [
+                {
+                    "id": "budget.utilization",
+                    "label": "Budget Utilization",
+                    "meaning": "Obligations as a percentage of appropriations.",
+                    "formula": "Obligations / Appropriations x 100.",
+                    "inputs": [
+                        "budget.obligations_current",
+                        "budget.appropriations_current"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "revenue_share",
+            "title": "Locally Generated Share",
+            "summary": "The share of revenue from local taxes plus fees and business income.",
+            "metrics": [
+                {
+                    "id": "revenue.local_share",
+                    "label": "Locally Generated Share",
+                    "meaning": "Local taxes plus fees and business income, as a percentage of revenue.",
+                    "formula": "(Local Taxes + Fees and Business Income) / Revenue x 100.",
+                    "inputs": [
+                        "revenue.tax",
+                        "revenue.service_business",
+                        "performance.revenue"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "development_share",
+            "title": "Development Utilization",
+            "summary": "Actual development amounts against the final budget for the same heading.",
+            "metrics": [
+                {
+                    "id": "sector.development_fund.utilization",
+                    "label": "Development Fund Utilization",
+                    "meaning": "Development Fund actual as a percentage of its final budget.",
+                    "formula": "Actual / final budget x 100.",
+                    "inputs": [
+                        "sector.development_fund",
+                        "sector.development_fund:budget_final"
+                    ]
+                },
+                {
+                    "id": "sector.economic_services.utilization",
+                    "label": "Economic Services Utilization",
+                    "meaning": "Economic Services actual as a percentage of its final budget.",
+                    "formula": "Actual / final budget x 100.",
+                    "inputs": [
+                        "sector.economic_services",
+                        "sector.economic_services:budget_final"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "per_capita",
+            "title": "Per Resident",
+            "summary": "Government amounts divided by the latest census population at or before the fiscal year.",
+            "metrics": [
+                {
+                    "id": "per_capita.revenue",
+                    "label": "Revenue per Resident",
+                    "meaning": "Government revenue divided by census population.",
+                    "formula": "Revenue / census population.",
+                    "inputs": ["performance.revenue"]
+                },
+                {
+                    "id": "per_capita.expenses",
+                    "label": "Expenses per Resident",
+                    "meaning": "Government expenses divided by census population.",
+                    "formula": "Expenses / census population.",
+                    "inputs": ["performance.expenses"]
+                }
+            ]
+        },
+        {
+            "id": "business",
+            "title": "Business Trends",
+            "summary": "Annual registered business activity for one industry or Business Category. Shown only with simulated records.",
+            "metrics": [
+                {
+                    "id": "active",
+                    "label": "Active Businesses",
+                    "meaning": "Businesses recorded as new or renewed for the year.",
+                    "formula": "Count of new and renewed business-year records.",
+                    "inputs": []
+                },
+                {
+                    "id": "new",
+                    "label": "New Registrations",
+                    "meaning": "Businesses newly registered in the year.",
+                    "formula": "Count of records marked new.",
+                    "inputs": []
+                },
+                {
+                    "id": "closed",
+                    "label": "Closed Businesses",
+                    "meaning": "Businesses formally closed in the year.",
+                    "formula": "Count of records marked closed.",
+                    "inputs": []
+                },
+                {
+                    "id": "sales",
+                    "label": "Declared Sales",
+                    "meaning": "Declared gross sales of the group, after the privacy guard.",
+                    "formula": "Sum of declared gross sales.",
+                    "inputs": []
+                },
+                {
+                    "id": "count_share",
+                    "label": "Share of Active Businesses",
+                    "meaning": "The group share of the town active businesses.",
+                    "formula": "Group active / town active x 100.",
+                    "inputs": []
+                },
+                {
+                    "id": "sales_share",
+                    "label": "Share of Declared Sales",
+                    "meaning": "The industry share of town declared sales, where disclosure is permitted.",
+                    "formula": "Industry sales / town sales x 100.",
+                    "inputs": []
+                }
+            ]
+        }
+    ],
+    "notes": [
+        {
+            "id": "reading",
+            "title": "Reading the Table",
+            "text": "Each row shows the selected fiscal year, the year before and the change between them. The Source line opens the COA report at the cited page. Change compares consecutive comparable years and does not rate performance. A missing figure says why."
+        },
+        {
+            "id": "coverage",
+            "title": "Coverage",
+            "text": "Fiscal years 2019 to 2025. Executive Summary totals cover all 29 towns for 2020 to 2024 and 13 towns for 2025. Breakdowns beyond totals are loaded for Tuguegarao City only. Full-year 2026 waits for a released report."
+        },
+        {
+            "id": "sum",
+            "title": "Sum of Reporting Towns",
+            "text": "The sum of the city and municipal governments that reported, not the provincial government. Coverage states how many of the 29 towns reported, and change uses only towns reporting both years."
+        },
+        {
+            "id": "limits",
+            "title": "What These Figures Are",
+            "text": "Government accounts. They are not private-business sales, GDP or a measure of economic growth. Sign-off checks the transcription, not the audit."
+        }
+    ]
+}

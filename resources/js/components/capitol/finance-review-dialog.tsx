@@ -31,8 +31,13 @@ export function FinanceReviewDialog({
     onReturnFocus: () => void;
     onComplete: () => void;
 }) {
-    const form = useForm({ decision, figures: ids, note: '' });
     const reject = decision === 'rejected';
+    // A sign-off records the signed-in Admin on the server, so only a rejection sends a reason.
+    const form = useForm(
+        reject
+            ? { decision, figures: ids, note: '' }
+            : { decision, figures: ids },
+    );
     return (
         <Dialog
             open
@@ -68,25 +73,29 @@ export function FinanceReviewDialog({
                         );
                     }}
                 >
-                    <Field data-invalid={!!form.errors.note}>
-                        <FieldLabel htmlFor="review-note" required={reject}>
-                            {reject ? 'Reason for Rejection' : 'Review Note'}
-                        </FieldLabel>
-                        <Textarea
-                            id="review-note"
-                            required={reject}
-                            value={form.data.note}
-                            maxLength={report.limits.noteMax}
-                            aria-invalid={!!form.errors.note}
-                            aria-describedby="review-note-error"
-                            onChange={(event) =>
-                                form.setData('note', event.target.value)
-                            }
-                        />
-                        <FieldError id="review-note-error">
-                            {form.errors.note ?? form.errors.figures}
-                        </FieldError>
-                    </Field>
+                    {reject ? (
+                        <Field data-invalid={!!form.errors.note}>
+                            <FieldLabel htmlFor="review-note" required>
+                                Reason for Rejection
+                            </FieldLabel>
+                            <Textarea
+                                id="review-note"
+                                required
+                                value={form.data.note}
+                                maxLength={report.limits.noteMax}
+                                aria-invalid={!!form.errors.note}
+                                aria-describedby="review-note-error"
+                                onChange={(event) =>
+                                    form.setData('note', event.target.value)
+                                }
+                            />
+                            <FieldError id="review-note-error">
+                                {form.errors.note ?? form.errors.figures}
+                            </FieldError>
+                        </Field>
+                    ) : (
+                        <FieldError>{form.errors.figures}</FieldError>
+                    )}
                     <DialogFooter>
                         <Button
                             type="button"
