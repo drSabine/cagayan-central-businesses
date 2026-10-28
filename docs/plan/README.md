@@ -8,12 +8,18 @@ Dates inside plans use the requested `yy-mm-dd` format in Asia/Manila. Filenames
 
 | Plan | Status | Scope |
 | :- | :- | :- |
-| None | | Follow-ups from the finance program (remaining COA workbooks, other towns' breakdowns, PSIC verification) are listed in its archived record and need a new plan when started |
+| [Business Registry Records](active/26-10-28-business-registry-records.md) | Deferred | Permits and renewal range, BIR, documents, address, owner, record view; stores records, does not process permits; not started |
 
 ## Archive
 
 | Plan | Status | Reference |
 | :- | :- | :- |
+| [Business Categories Revamp](archive/26-10-28-business-categories.md) | Completed 26-10-28, Focus Tag model superseded in part by D39 | Editable Business Types and Focus Tags, registered counts, local sort, search and paging, ten-color tag palette without a package (D38); full suite not run, light mode and edit forms not browser-checked |
+| [Finance Ledger Table Redesign and No Simulated Data](archive/26-10-28-finance-ledger-redesign.md) | Completed 26-10-28 | Simulated data off by default, one evidence store, stored PDF links, ledger table, short Help, and the polish: About the Data fix, year order, shared surplus and deficit display, exact amounts on hover, M26 percent over the prior magnitude; Capitol Analytics checked; 306 PHP tests passed |
+| [Make Analytics Understandable](archive/26-10-28-analytics-clarity.md) | Superseded 26-10-28 | Periods, local history and metrics stayed; layout, sources, Help and Compare replaced by the ledger redesign |
+| [Category Hierarchy and Business Directory](archive/26-10-28-category-hierarchy.md) | Completed 26-10-28 | One Category per Business Type replacing Focus Tags (D39), starter taxonomy, categories page, read-only server-paged Businesses directory, registry groundwork; 304 PHP tests passed; directory rows and light mode not browser-checked |
+| [Economic Map Cleanup](archive/26-10-28-economic-map-cleanup.md) | Completed 26-10-28 | Removed the map Measure selector, one page-anchored Source list, no repeated rows, Surplus or Deficit triangle; Capitol map, 375px and dark mode not browser-checked |
+| [Dynamic Economic Map](archive/26-10-28-dynamic-economic-map.md) | Completed 26-10-28 | Public/Capitol annual finance maps, global Latest, coverage and shades, transactional refresh, dynamic review/Analytics year bounds; 270 PHP and nine frontend tests passed |
 | [Finance Ledger and Analytics Program](archive/26-10-27-finance-ledger-analytics-program.md) | Completed 26-10-28 | COA parser, finance ledger with sign-off, Capitol review, workbook breakdowns, business records and privacy guard, analytics pages, reliability review, every figure signed off, single-folder consolidation; follow-ups listed |
 | [Client Facing Polishing](archive/26-10-27-client-facing-polishing.md) | Completed 26-10-28 | Local-only quick sign in for the three demo roles and wish cloud sized by relative demand; shipped in the combined finance pull request |
 | [Government Finances and Economic Context](archive/26-10-24-government-finances-economic-context.md) | Superseded 26-10-27 | Direction, Executive Summary collection and source rules; remainder continues in the Finance Ledger and Analytics Program |

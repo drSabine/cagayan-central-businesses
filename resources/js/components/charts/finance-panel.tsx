@@ -1,96 +1,262 @@
 import { lazy } from 'react';
+import { SourceLine } from '@/components/analytics/source-line';
+import { ExactAmount } from '@/components/charts/exact-amount';
+import { ObservationChange } from '@/components/charts/observation-change';
 import PerformanceVisual from '@/components/charts/performance-visual';
+import { RESULT_METRIC, ResultFigure } from '@/components/charts/trend-mark';
 import {
-    changeLabel,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { latestYear } from '@/lib/analytics';
+import {
+    citationLinks,
     observationLabel,
     observationNote,
-    percentageLabel,
 } from '@/lib/performance-format';
-import type { FinancialHistory } from '@/types/economic-performance';
+import type {
+    AnalyticsCatalog,
+    EconomicMetric,
+    EconomicObservation,
+    FinancialHistory,
+} from '@/types/economic-performance';
 
 const FinanceHistoryChart = lazy(
     () => import('@/components/charts/finance-history-chart'),
 );
 
+const numberCell = 'px-1.5 text-right font-mono tabular-nums sm:px-2';
+const phone = 'type-data sm:type-body';
+
 /**
- * A yearly series as a chart with an equivalent screen-reader list, or as a visible list when nothing can be
- * plotted: declared sales shown as bands (P7) or a series that is entirely hidden.
+ * The exact figure from tablet width up and the short form on a phone, which shows the exact figure on hover, focus or
+ * tap. Trends always uses the short form so several years fit. A Surplus or Deficit carries its green or red triangle.
+ */
+function Figure({
+    point,
+    metric,
+    alwaysShort = false,
+}: {
+    point?: EconomicObservation;
+    metric: EconomicMetric;
+    alwaysShort?: boolean;
+}) {
+    const exact = observationLabel(point, metric.unit);
+    const short = observationLabel(point, metric.unit, true);
+    const shown =
+        exact === short ? (
+            exact
+        ) : alwaysShort ? (
+            <ExactAmount exact={exact}>{short}</ExactAmount>
+        ) : (
+            <>
+                <span className="hidden sm:inline">{exact}</span>
+                <span className="sm:hidden">
+                    <ExactAmount exact={exact}>{short}</ExactAmount>
+                </span>
+            </>
+        );
+    return metric.id === RESULT_METRIC ? (
+        <ResultFigure point={point}>{shown}</ResultFigure>
+    ) : (
+        <>{shown}</>
+    );
+}
+
+/**
+ * One ledger table for a series: the selected fiscal year beside the year before with the change, or every year of
+ * a period in Trends. The citations are one Source line under the table, not a column (design.md, "Government
+ * Finances Ledger Table").
  */
 export default function FinancePanel({
     history,
+    catalog,
+    presentation,
+    year,
+    town,
+    onYear,
 }: {
     history: FinancialHistory;
+    catalog: AnalyticsCatalog;
+    presentation: 'summary' | 'trends';
+    year: number | null;
+    town: string;
+    onYear: (year: number) => void;
 }) {
-    if (history.rows.length === 0 || history.metrics.length === 0) {
-        return (
-            <p className="p-6 type-body">
-                No observations are available for this period.
-            </p>
-        );
-    }
-    const listed = !history.rows.some((row) =>
+    const annualYear = year ?? latestYear(history);
+    const annual = history.rows.find((row) => row.year === annualYear);
+    const previous = history.rows.find(
+        (row) => row.year === (annualYear ?? 0) - 1,
+    );
+    const plotted = history.rows.some((row) =>
         Object.values(row.observations).some(
             (point) => point.state === 'shown' && point.value !== null,
         ),
     );
+
+    if (history.rows.length === 0 || history.metrics.length === 0)
+        return (
+            <p role="status" className="py-6 type-body">
+                No observations are available for this period.
+            </p>
+        );
+
+    if (presentation === 'trends')
+        return (
+            <div className="flex min-w-0 flex-col gap-3">
+                {plotted && (
+                    <PerformanceVisual>
+                        <FinanceHistoryChart history={history} />
+                    </PerformanceVisual>
+                )}
+                <Table className={phone}>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Item</TableHead>
+                            {history.rows.map((row) => (
+                                <TableHead
+                                    key={row.year}
+                                    className={numberCell}
+                                    scope="col"
+                                >
+                                    <button
+                                        type="button"
+                                        className="min-h-10 underline underline-offset-2"
+                                        onClick={() => onYear(row.year)}
+                                    >
+                                        {row.year}
+                                        <span className="sr-only">
+                                            {' '}
+                                            Yearly Summary
+                                        </span>
+                                    </button>
+                                </TableHead>
+                            ))}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {history.metrics.map((metric) => (
+                            <TableRow key={metric.id}>
+                                <TableHead
+                                    scope="row"
+                                    className="h-auto py-3 font-normal whitespace-normal"
+                                >
+                                    {metric.label}
+                                </TableHead>
+                                {history.rows.map((row) => (
+                                    <TableCell
+                                        key={row.year}
+                                        className={numberCell}
+                                    >
+                                        <div className="flex flex-col items-end gap-0.5">
+                                            <Figure
+                                                point={
+                                                    row.observations[metric.id]
+                                                }
+                                                metric={metric}
+                                                alwaysShort
+                                            />
+                                            <ObservationChange
+                                                point={
+                                                    row.observations[metric.id]
+                                                }
+                                                unit={metric.unit}
+                                            />
+                                        </div>
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                {history.note && <p className="type-meta">{history.note}</p>}
+            </div>
+        );
+
+    if (annualYear === null || !annual)
+        return (
+            <p role="status" className="py-6 type-body">
+                Not available for this fiscal year.
+            </p>
+        );
+
+    const notes = history.metrics.map((metric) =>
+        observationNote(annual.observations[metric.id]),
+    );
+    const sharedNote =
+        notes[0] && notes.every((note) => note === notes[0]) ? notes[0] : null;
+    const links = citationLinks(
+        catalog.sources,
+        history.metrics.flatMap((metric) =>
+            [annual, previous].flatMap(
+                (row) => row?.observations[metric.id]?.sourceRefs ?? [],
+            ),
+        ),
+    );
+
     return (
         <div className="flex min-w-0 flex-col gap-3">
-            {!listed && (
-                <PerformanceVisual>
-                    <FinanceHistoryChart history={history} />
-                </PerformanceVisual>
-            )}
-            <ul
-                className={listed ? 'flex flex-col gap-2' : 'sr-only'}
-                aria-label="Annual Observations"
-            >
-                {history.rows.map((row) => (
-                    <li key={row.year} className="type-body">
-                        <span className="font-mono tabular-nums">
-                            {row.year}
-                        </span>
-                        <ul>
-                            {history.metrics.map((metric) => {
-                                const point = row.observations[metric.id];
-                                const note = observationNote(point);
-                                return (
-                                    <li key={metric.id}>
-                                        {listed ? '' : `${metric.label}: `}
-                                        <span className="font-mono tabular-nums">
-                                            {observationLabel(
-                                                point,
-                                                metric.unit,
-                                            )}
-                                        </span>
-                                        {note && ' '}
-                                        {note && (
-                                            <span className="ml-1 type-meta">
-                                                {note}
+            <Table className={phone}>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Item</TableHead>
+                        <TableHead className={numberCell}>
+                            {annualYear - 1}
+                        </TableHead>
+                        <TableHead className={numberCell}>
+                            {annualYear}
+                        </TableHead>
+                        <TableHead className="px-1.5 text-right sm:px-2">
+                            Change
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {history.metrics.map((metric, index) => {
+                        const point = annual.observations[metric.id];
+                        return (
+                            <TableRow key={metric.id}>
+                                <TableHead
+                                    scope="row"
+                                    className="h-auto py-3 font-normal whitespace-normal"
+                                >
+                                    {metric.label}
+                                    {notes[index] &&
+                                        notes[index] !== sharedNote && (
+                                            <span className="block type-data text-muted-foreground">
+                                                {notes[index]}
                                             </span>
                                         )}
-                                        {!listed &&
-                                            `. Change${point?.comparisonYear ? ` from ${point.comparisonYear}` : ''}: ${changeLabel(point, metric.unit)} (${percentageLabel(point)}).`}
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </li>
-                ))}
-            </ul>
-            <p className="border-t pt-2 type-meta">
-                Source:{' '}
-                {history.source.sourceUrl ? (
-                    <a
-                        href={history.source.sourceUrl}
-                        className="underline underline-offset-2"
-                    >
-                        {history.source.label}
-                    </a>
-                ) : (
-                    history.source.label
-                )}
-                .
-            </p>
+                                </TableHead>
+                                <TableCell className={numberCell}>
+                                    <Figure
+                                        point={
+                                            previous?.observations[metric.id]
+                                        }
+                                        metric={metric}
+                                    />
+                                </TableCell>
+                                <TableCell className={numberCell}>
+                                    <Figure point={point} metric={metric} />
+                                </TableCell>
+                                <TableCell className="px-1.5 text-right sm:px-2">
+                                    <ObservationChange
+                                        point={point}
+                                        unit={metric.unit}
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        );
+                    })}
+                </TableBody>
+            </Table>
+            {sharedNote && <p className="type-meta">{sharedNote}</p>}
+            {history.note && <p className="type-meta">{history.note}</p>}
+            <SourceLine links={links} town={town} />
         </div>
     );
 }

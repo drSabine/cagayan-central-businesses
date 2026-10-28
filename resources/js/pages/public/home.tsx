@@ -48,6 +48,7 @@ export default function Home({ overview }: Props) {
                     <div className="px-5 py-6 md:px-8">
                         <TownAtlas
                             atlas={overview.atlas}
+                            finances={overview.finances}
                             mapStyle={mapStyle}
                             onMapStyleChange={chooseMapStyle}
                         />
@@ -131,22 +132,17 @@ export default function Home({ overview }: Props) {
                         {
                             term: 'Records',
                             description:
-                                'Population and geographic boundaries come from published sources. Business records are not available in this foundation.',
+                                'Population and geographic boundaries come from published sources. Business records are not loaded yet.',
                         },
                         {
                             term: 'Area',
                             description:
-                                'Cagayan’s 28 municipalities and Tuguegarao City.',
+                                'Cagayan’s 28 municipalities and Tuguegarao City. Barangay population and finance breakdowns beyond totals are loaded for Tuguegarao City only.',
                         },
                         {
                             term: 'Period',
                             description:
                                 'Official figures retain their source reference years.',
-                        },
-                        {
-                            term: 'Businesses',
-                            description:
-                                'Business records are planned for a later phase.',
                         },
                         {
                             term: 'Sales',

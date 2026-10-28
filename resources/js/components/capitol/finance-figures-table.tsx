@@ -265,11 +265,25 @@ export function FinanceFiguresTable({
                                                             Entered by you
                                                         </span>
                                                     )}
-                                                {figure.note && (
-                                                    <p className="mt-1 type-meta break-words">
-                                                        {figure.note}
-                                                    </p>
-                                                )}
+                                                {figure.reviewedBy &&
+                                                    (figure.status ===
+                                                        'verified' ||
+                                                        figure.status ===
+                                                            'rejected') && (
+                                                        <span className="block type-meta">
+                                                            {figure.status ===
+                                                            'verified'
+                                                                ? 'Signed off by '
+                                                                : 'Rejected by '}
+                                                            {figure.reviewedBy}
+                                                        </span>
+                                                    )}
+                                                {figure.status === 'rejected' &&
+                                                    figure.note && (
+                                                        <p className="mt-1 type-meta break-words">
+                                                            {figure.note}
+                                                        </p>
+                                                    )}
                                             </TableCell>
                                         </TableRow>
                                     ))}

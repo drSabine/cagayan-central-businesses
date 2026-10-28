@@ -14,7 +14,10 @@ final class ActivityLog
         'profile_updated' => 'Profile Updated', 'role_assigned_from_console' => 'Role Assigned from Console',
         'finance_figure_entered' => 'Finance Figure Entered', 'finance_figures_signed_off' => 'Finance Figures Signed Off',
         'finance_figures_rejected' => 'Finance Figures Rejected',
-        'focus_tag_created' => 'Focus Tag Created', 'business_type_tags_updated' => 'Business Type Tags Updated',
+        'business_category_created' => 'Business Category Created', 'business_category_updated' => 'Business Category Updated',
+        'business_type_created' => 'Business Type Created', 'business_type_updated' => 'Business Type Updated',
+        // Recorded before the Category model replaced Focus Tags (D39).
+        'focus_tag_created' => 'Focus Tag Created', 'focus_tag_updated' => 'Focus Tag Updated',
     ];
 
     public static function record(string $event, ?int $actorId): void

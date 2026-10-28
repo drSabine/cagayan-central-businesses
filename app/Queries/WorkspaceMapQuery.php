@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\File;
 
 final class WorkspaceMapQuery
 {
-    public function __construct(private TownAtlasQuery $atlas) {}
+    public function __construct(private TownAtlasQuery $atlas, private FinanceMapQuery $finances) {}
 
     public function get(?string $town, bool $drill): WorkspaceMap
     {
@@ -22,7 +22,7 @@ final class WorkspaceMapQuery
             $f['properties']['shade'],
         ), $census['features'] ?? []);
 
-        return new WorkspaceMap($this->atlas->get(), $barangays);
+        return new WorkspaceMap($this->atlas->get(), $barangays, $this->finances->get());
     }
 
     /** @return array{year: int, source: string, features: list<array{properties: array{psgc_code: string, name: string, population: int|null, shade: int|null}}>} | null */

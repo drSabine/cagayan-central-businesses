@@ -6,7 +6,7 @@ use Database\Factories\BusinessTypeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -15,9 +15,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property string $psic_section
  * @property string $psic_section_name
+ * @property int $business_category_id
  * @property int $sort_order
  */
-#[Fillable(['code', 'name', 'psic_section', 'psic_section_name', 'sort_order'])]
+#[Fillable(['code', 'name', 'psic_section', 'psic_section_name', 'business_category_id', 'sort_order'])]
 class BusinessType extends Model
 {
     /** @use HasFactory<BusinessTypeFactory> */
@@ -32,10 +33,10 @@ class BusinessType extends Model
     }
 
     /**
-     * @return BelongsToMany<FocusTag, $this>
+     * @return BelongsTo<BusinessCategory, $this>
      */
-    public function focusTags(): BelongsToMany
+    public function category(): BelongsTo
     {
-        return $this->belongsToMany(FocusTag::class);
+        return $this->belongsTo(BusinessCategory::class, 'business_category_id');
     }
 }

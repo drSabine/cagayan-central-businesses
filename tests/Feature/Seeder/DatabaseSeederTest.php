@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\Business;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,8 @@ it('seeds demo accounts with UUIDs while model events are muted', function () {
     $this->seed(DatabaseSeeder::class);
 
     expect(DB::connection()->getDatabaseName())->toBe('cagayan_business_test');
+    // Simulated businesses are off by default (D37); they appear only when CAGAYAN_SIMULATED is true.
+    expect(Business::query()->count())->toBe(0);
     expect(DB::scalar('SELECT PostGIS_Version()'))->toBeString()->toStartWith('3.');
     foreach (UserRole::cases() as $role) {
         $user = User::query()->where('email', "{$role->value}@seeder.example.test")->firstOrFail();

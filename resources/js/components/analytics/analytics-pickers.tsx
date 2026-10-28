@@ -1,3 +1,4 @@
+import { FieldHelp } from '@/components/capitol/field-help';
 import { Field, FieldLabel } from '@/components/ui/field';
 import {
     Select,
@@ -6,18 +7,35 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { selectedBusiness } from '@/lib/analytics';
+import {
+    ALL_TOWNS,
+    measureCovers,
+    selectedBusiness,
+    selectedYear,
+} from '@/lib/analytics';
 import type {
     AnalyticsCatalog,
     AnalyticsFilters,
 } from '@/types/economic-performance';
 
-type Option = { value: string; label: string };
-type PickerField = 'town' | 'measure' | 'period' | 'dimension' | 'group';
+type Option = {
+    value: string;
+    label: string;
+    disabled?: boolean;
+    hint?: string;
+};
+type PickerField =
+    | 'town'
+    | 'measure'
+    | 'period'
+    | 'dimension'
+    | 'group'
+    | 'presentation'
+    | 'year';
 
 const DIMENSIONS: Option[] = [
     { value: 'industry', label: 'Industry' },
-    { value: 'tag', label: 'Focus Tag' },
+    { value: 'category', label: 'Business Category' },
 ];
 
 function Picker({
@@ -26,24 +44,42 @@ function Picker({
     value,
     options,
     onChange,
+    help,
 }: {
     id: string;
     label: string;
     value: string;
     options: Option[];
+    help?: string;
     onChange: (value: string) => void;
 }) {
     return (
         <Field className="min-w-0 gap-1">
-            <FieldLabel htmlFor={id}>{label}</FieldLabel>
-            <Select value={value} onValueChange={onChange}>
+            <div className="flex min-h-8 items-center gap-1">
+                <FieldLabel htmlFor={id}>{label}</FieldLabel>
+                {help && <FieldHelp label={label}>{help}</FieldHelp>}
+            </div>
+            <Select
+                value={value}
+                onValueChange={onChange}
+                disabled={options.length === 0}
+            >
                 <SelectTrigger id={id} className="min-h-10 w-full">
-                    <SelectValue />
+                    <SelectValue placeholder="Not available" />
                 </SelectTrigger>
                 <SelectContent>
                     {options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
+                        <SelectItem
+                            key={option.value}
+                            value={option.value}
+                            disabled={option.disabled}
+                        >
                             {option.label}
+                            {option.hint && (
+                                <span className="type-data text-muted-foreground">
+                                    {option.hint}
+                                </span>
+                            )}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -67,6 +103,11 @@ export function AnalyticsPickers({
     idPrefix: string;
 }) {
     const business = selectedBusiness(catalog, filters);
+    const finance = catalog.finances[filters.town]?.[filters.measure];
+    const year = selectedYear(catalog, filters);
+    const topic = catalog.guide.topics.find(
+        (item) => item.id === filters.measure,
+    );
     const pickers: Record<PickerField, () => React.ReactNode> = {
         town: () => (
             <Picker
@@ -80,32 +121,94 @@ export function AnalyticsPickers({
         measure: () => (
             <Picker
                 id={`${idPrefix}-measure`}
-                label="Measure"
+                label="Show"
+                help={topic?.summary}
                 value={filters.measure}
-                options={catalog.measures}
+                options={catalog.measures.map((measure) => {
+                    const covered = measureCovers(measure, filters.town);
+                    // The sum of reporting towns also has the measure, but it is not a town to name.
+                    const towns = (measure.towns ?? []).filter(
+                        (code) => code !== ALL_TOWNS,
+                    );
+                    const only =
+                        towns.length === 1
+                            ? catalog.towns.find(
+                                  (town) => town.value === towns[0],
+                              )?.label
+                            : null;
+                    return {
+                        value: measure.value,
+                        label: measure.label,
+                        disabled: !covered,
+                        hint: covered
+                            ? undefined
+                            : only
+                              ? ` ${only} Only`
+                              : ' Not Loaded for This Town',
+                    };
+                })}
                 onChange={(measure) => onChange({ measure })}
             />
         ),
-        period: () => (
+        presentation: () => (
             <Picker
-                id={`${idPrefix}-period`}
-                label="Period"
-                value={filters.period}
+                id={`${idPrefix}-presentation`}
+                label="View"
+                value={filters.presentation}
                 options={[
-                    {
-                        value: 'all',
-                        label: `${catalog.periods.all} to ${catalog.lastYear}`,
-                    },
-                    {
-                        value: 'recent',
-                        label: `${catalog.periods.recent} to ${catalog.lastYear}`,
-                    },
+                    { value: 'summary', label: 'Yearly Summary' },
+                    { value: 'trends', label: 'Trends' },
                 ]}
-                onChange={(period) =>
-                    onChange({ period: period as AnalyticsFilters['period'] })
+                onChange={(presentation) =>
+                    onChange({
+                        presentation:
+                            presentation as AnalyticsFilters['presentation'],
+                    })
                 }
             />
         ),
+        year: () =>
+            filters.presentation === 'summary' && (
+                <Picker
+                    id={`${idPrefix}-year`}
+                    label="Fiscal Year"
+                    value={year === null ? '' : String(year)}
+                    options={(finance?.rows ?? [])
+                        .map((row) => ({
+                            value: String(row.year),
+                            label: String(row.year),
+                        }))
+                        .reverse()}
+                    onChange={(value) => onChange({ year: Number(value) })}
+                />
+            ),
+        period: () =>
+            filters.presentation === 'trends' && (
+                <Picker
+                    id={`${idPrefix}-period`}
+                    label="Period"
+                    value={filters.period}
+                    options={[
+                        { value: 'all', label: 'All Years' },
+                        { value: '2y', label: 'Last 2 Years' },
+                        { value: '3y', label: 'Last 3 Years' },
+                        { value: '5y', label: 'Last 5 Years' },
+                        ...(filters.period === 'recent'
+                            ? [
+                                  {
+                                      value: 'recent',
+                                      label: `${catalog.periods.recent} to ${catalog.lastYear}`,
+                                  },
+                              ]
+                            : []),
+                    ]}
+                    onChange={(period) =>
+                        onChange({
+                            period: period as AnalyticsFilters['period'],
+                        })
+                    }
+                />
+            ),
         dimension: () =>
             business && (
                 <Picker
@@ -126,7 +229,9 @@ export function AnalyticsPickers({
                 <Picker
                     id={`${idPrefix}-group`}
                     label={
-                        filters.dimension === 'tag' ? 'Focus Tag' : 'Industry'
+                        filters.dimension === 'category'
+                            ? 'Business Category'
+                            : 'Industry'
                     }
                     value={business.key}
                     options={business.groups}

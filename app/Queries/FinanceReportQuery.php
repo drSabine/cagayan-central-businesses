@@ -16,6 +16,7 @@ use App\Models\FinanceFigure;
 use App\Models\FinanceLine;
 use App\Models\Municipality;
 use App\Models\User;
+use App\Services\FinanceYears;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -40,7 +41,7 @@ final class FinanceReportQuery
             ->where('finance_figures.municipality_id', $town->id)
             ->where(fn (Builder $query) => $query->where('d.fiscal_year', $year)
                 ->orWhere(fn (Builder $manual) => $manual->whereNull('finance_figures.finance_document_id')->where('finance_figures.fiscal_year', $year)))
-            ->with('document:id,kind,source_url')
+            ->with(['document:id,kind,source_url', 'reviewer:id,name'])
             ->orderBy('l.sort')->orderByDesc('finance_figures.fiscal_year')->orderBy('finance_figures.basis')->orderBy('finance_figures.entry_method')
             ->get();
 
@@ -60,7 +61,7 @@ final class FinanceReportQuery
                     config('cagayan.finances.groups.'.$line->getAttribute('group').'.bases', ['actual'])))->all()),
             limits: [
                 'firstYear' => (int) config('cagayan.finances.first_year'),
-                'lastYear' => min($year, (int) config('cagayan.finances.last_year')),
+                'lastYear' => min($year, app(FinanceYears::class)->reportLastYear()),
                 'noteMax' => (int) config('cagayan.finances.note_max'),
                 'valueMax' => (string) config('cagayan.finances.value_max'),
                 'sourceUrlMax' => (int) config('cagayan.finances.source_url_max'),
@@ -88,6 +89,7 @@ final class FinanceReportQuery
             manual: $manual,
             enteredByYou: $figure->entered_by === $user->id,
             reviewedOn: $figure->reviewed_on?->toDateString(),
+            reviewedBy: $figure->reviewer?->name,
             note: $figure->note,
             group: (string) $figure->getAttribute('line_group'),
             groupLabel: (string) config('cagayan.finances.groups.'.$figure->getAttribute('line_group').'.label'),

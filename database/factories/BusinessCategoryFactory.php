@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\FocusTag;
+use App\Models\BusinessCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<FocusTag>
+ * @extends Factory<BusinessCategory>
  */
-class FocusTagFactory extends Factory
+class BusinessCategoryFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -22,6 +22,7 @@ class FocusTagFactory extends Factory
         return [
             'code' => strtolower($name),
             'name' => $name,
+            'color' => 1,
             'sort_order' => fake()->numberBetween(1, 50),
         ];
     }

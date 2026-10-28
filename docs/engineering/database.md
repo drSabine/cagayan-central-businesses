@@ -214,20 +214,23 @@ The list a resident picks from and the level every breakdown uses. Friendly name
 
 Aim for 25 to 35 types a resident would recognize: sari-sari store, grocery, pharmacy, hardware store, coffee shop, restaurant, bakery, salon or barbershop, repair shop, boarding house, bank or lending, clinic, tutorial center. Check each PSIC section against the PSA classification before seeding.
 
-`BusinessTypeSeeder` holds 30 types, including the Section A farms and fishponds added for Focus Tags (26-10-28). Its PSIC sections are not yet verified by the data member.
+Business Type names are unique ignoring case (`business_types_name_unique` on `lower(name)`), at most `cagayan.inputs.business_type_name_max` characters when added on the Capitol page, and written in Title Case in the seeder (D38). Admins add and rename types there; `code` never changes. `cagayan.categories.max_types` caps the list because the page loads every type.
 
-### focus_tags
+`BusinessTypeSeeder` holds 30 types, each under one starter Business Category (D39), including the Section A farms and fishponds. It runs `BusinessCategorySeeder` first, and re-running it moves existing types to their starter category. Its PSIC sections are not yet verified by the data member.
 
-Admin-managed groupings of Business Types, such as Agriculture and Fishery (D36). Managed on the Capitol Business Categories page; `FocusTagSeeder` adds four starter tags.
+### business_categories
+
+Admin-managed sectors such as Tourism, Agriculture, Fishery and Retail (D39). Every Business Type belongs to exactly one. Managed on the Capitol Business Categories page. `BusinessCategorySeeder` adds 13 starter categories, which Admins rename and recolor, and the data member reviews them. This table replaced `focus_tags` and its pivot `business_type_focus_tag` (D36, D38).
 
 | Column | Type | Notes |
 | :- | :- | :- |
 | `id` | id | |
-| `code` | string(40) | unique slug of the name |
-| `name` | string(60) | Limit in `cagayan.inputs.focus_tag_name_max` |
+| `code` | string(40) | unique slug of the first name, never changes |
+| `name` | string(60) | Limit in `cagayan.inputs.category_name_max`. Unique ignoring case (`business_categories_name_unique` on `lower(name)`) |
+| `color` | smallint | Palette slot 1 to `cagayan.categories.colors` (the `--category-N` tokens), default 1. New categories take the least used slot |
 | `sort_order` | smallint | |
 
-`business_type_focus_tag` joins them: `business_type_id` and `focus_tag_id`, both cascade on delete, primary key on the pair. A type can carry several tags, so tag totals are never added together across tags (M28).
+`business_types.business_category_id` is a not null foreign key to it (restrict on delete, indexed), so a category total is the sum of its types and is never double counted. Industry (the PSIC section) stays on the type. A category crosses industries, so category sales are bands for everyone (P4).
 
 ### businesses
 
@@ -249,7 +252,7 @@ One row per registered business.
 | `size_category` | enum `micro`, `small`, `medium` | Admin | |
 | `employee_count` | integer | Admin | |
 | `is_simulated` | boolean, default true | System | |
-| `source` | string, nullable | System | Where the record came from once real data arrives |
+| `source` | string, nullable | System | Where the record came from once real data arrives. Permits and renewal range (`business_permits`), uploaded documents (`business_documents`, private disk) and an address line are planned, not built: [Business Registry Records](../plan/active/26-10-28-business-registry-records.md) |
 
 ### business_years
 
@@ -353,7 +356,7 @@ Rebuilt by `php artisan metrics:refresh` from the SQL in `database/sql/metrics/`
 
 ### stats_area_year
 
-The base grain. Every count and sales figure on screen rolls up from here. Built by `database/sql/metrics/10_stats_area_year.sql`. Industry and Focus Tag totals (M28 to M31) are summed from it by the Query, joining `business_types` and `business_type_focus_tag`, rather than kept in a second table.
+The base grain. Every count and sales figure on screen rolls up from here. Built by `database/sql/metrics/10_stats_area_year.sql`. Industry and Business Category totals (M28 to M31) are summed from it by the Query, joining `business_types` and `business_categories`, rather than kept in a second table.
 
 - `barangay_id`, `business_type_id`, `size_category`, `year`
 - `active_count`, `new_count`, `renewed_count`, `not_renewed_count`, `closed_count`
@@ -395,7 +398,7 @@ The start-a-business checklist is content, kept in versioned files under `resour
 
 ## Seeder requirements
 
-The simulated dataset must make the demo walkthrough work every time. With the fixed seed it contains:
+The simulated dataset must make the demo walkthrough work every time. It is seeded only when `CAGAYAN_SIMULATED` is true (decisions.md, D37); `db:seed` skips it otherwise. With the fixed seed it contains:
 
 1. All 49 barangays with real names, urban or rural class, and 2024 population.
 2. All Cagayan municipalities as shapes, with only Tuguegarao connected.
@@ -410,3 +413,7 @@ The simulated dataset must make the demo walkthrough work every time. With the f
 11. One administrator for the demo, with the password from `.env`, never in code.
 
 Items 5 through 9 each have a test, so a seeder change cannot silently break the demo.
+
+### Transactional Finance Publication "26-10-28"
+
+`RefreshFinanceMetrics` executes the existing finance SQL inside a transaction and serializes rebuilds using an exclusive lock on `stats_finance_year`. Successful finance imports and review batches invoke it once before their transaction commits. `metrics:refresh` uses the same operation. Refresh failure rolls back ledger publication and review activity logging. Raw entry remains pending; it does not publish. Public Home and Capitol economic maps read these same annual results through FinanceMapQuery.

@@ -12,6 +12,7 @@ final class HomeOverviewQuery
     public function __construct(
         private TownAtlasQuery $atlas,
         private BarangayAtlasQuery $barangays,
+        private FinanceMapQuery $finances,
     ) {}
 
     public function get(): HomeOverview
@@ -40,6 +41,7 @@ final class HomeOverviewQuery
             yearCount: (int) config('cagayan.data.latest_year') - (int) config('cagayan.data.first_year') + 1,
             atlas: $this->atlas->get(),
             barangays: $this->barangays->get(),
+            finances: $this->finances->get(),
         );
     }
 }

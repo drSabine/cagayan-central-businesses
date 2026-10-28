@@ -16,7 +16,7 @@ final class EconomicPerformanceRequest extends AnalyticsFiltersRequest
     }
 
     /**
-     * @return array{town: string, period: string, measure: string, dimension: string, group: string|null, wishView: string}
+     * @return array{town: string, period: string, measure: string, dimension: string, group: string|null, presentation: string, year: int|null, wishView: string}
      */
     public function filters(): array
     {

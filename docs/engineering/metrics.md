@@ -170,21 +170,26 @@ Each flag states which condition raised it.
 
 ## Town figures (home page map)
 
-Real published figures per town, not business records, so no privacy rule applies. The page shows three figures, each from the newest verified year for that town:
+Real published figures, separate from business records. Public Home and Capitol economic maps use `stats_finance_year` for Government Revenue, Government Expenses and Surplus or Deficit (M19). The finance ledger is authoritative; there is no separate map finance store.
 
-- **Population:** from `town_facts`, loaded from `data/towns/town-facts.csv` (`data/towns/README.md`).
-- **Government Revenue and Government Expenses (M19):** the newest signed-off `performance.revenue` and `performance.expenses` in the finance ledger (D35). The response keys stay `revenue` and `expenditure`. The expenses figure is accrual total expenses, not cash disbursements or obligations.
+- **Latest:** one absolute newest fiscal year with a verified revenue/expense pair for at least one town. Never mix fiscal years or substitute an older town observation. Calendar changes alone do not advance Latest.
+- **Year:** available verified fiscal years, descending. Explicit years with missing records read Not available, never zero.
+- **Population:** latest verified `town_facts` census context is visible only in Latest. Explicit fiscal-year views omit population values, source links and shading. The independent public barangay census explorer remains census-based.
+- **All towns:** financial totals are Sum of Reporting Towns (M27), with metric-specific coverage. They do not represent the provincial government's accounts. Latest census context is separately labeled Cagayan Province.
+- **Publication:** import and review batches rebuild finance statistics in their transaction; a refresh failure rolls back publication. Pending or rejected figures remain withheld; latest-report restatements retain their lineage.
 
-A figure needs a verification date, or a ledger sign-off, and a source URL before publication. Unchecked or pending newer figures do not displace verified older ones.
+Legacy `TownProfile.revenue`/`expenditure` fields remain available for compatibility; the economic maps render only the shared annual finance dataset.
 
 ### M18. Map shade
 
 - On the province map, towns. On the About the Data map, the selected Cagayan town's barangays. Each set is shaded on its own.
-- Places with a population are split into `towns.shades` equal-count groups by population, lowest first (`ntile`). Shade 1 is the fewest people.
+- On the independent census explorer, places with a population are split into `towns.shades` equal-count groups by population, lowest first (`ntile`). Shade 1 is the fewest people.
 - On the map every dot is the same size. The shade sets the dot color, from `--map-1` to `--map-5`.
 - A place without a population has no shade.
 
 Province population/count totals require complete town coverage in the same reference year. Missing source links are not attributed to another town’s source. City/municipal accounts are never summed and shown as the provincial government’s revenue or expenses.
+
+Economic maps shade towns by the selected M19 finance measure and fiscal year, with `ntile(towns.shades)` computed in SQL over available town values only. Null aggregate rows are excluded from town groups. Zero and negative surplus values are valid; missing observations receive no shade. Shade order breaks equal-value ties by PSGC code for stable results. Finance shades are a numeric scale, not a prosperity or performance rating. Barangay boundaries carry no financial shade.
 
 ## Government Finances (Approved 26-10-28)
 
@@ -297,7 +302,7 @@ Withdrawn 26-10-28 by the user. Health, education, social welfare and other sect
 
 - **When computed:** only for consecutive fiscal years where both values are shown and share the same `definition_variant`.
 - **Absolute change:** current value minus prior value.
-- **Percent change:** absolute change ÷ prior value × 100, shown to one decimal. There is none when the prior value is zero.
+- **Percent change:** absolute change ÷ the size of the prior value (its absolute value) × 100, shown to one decimal. There is none when the prior value is zero. Dividing by the size, not the signed value, keeps the sign of the percent equal to the sign of the change, so a deficit that deepens from -₱10 million to -₱20 million is -100.0 percent, a fall, and surplus of ₱25 million to deficit of ₱34.9 million is -247.1 percent. Changed 26-10-28 on the user's correction; for positive values the result is unchanged.
 - **Missing years:** never bridged, imputed, or carried forward.
 - **Restated years:** use the restated figure. The tooltip says it was restated, and the earlier figure stays in Capitol history.
 - **No rating:** an increase is not automatically an improvement, and no good or bad rating follows from a change.
@@ -309,13 +314,13 @@ Withdrawn 26-10-28 by the user. Health, education, social welfare and other sect
 - **Year-over-year change (M26):** computed only over the towns shown in both years, and that matched count is stated.
 - **Comparing towns:** use the median of the reporting towns. Missing towns are listed last and unranked, as in M5.
 
-### M28. Businesses by Industry or Focus Tag
+### M28. Businesses by Industry or Business Category
 
 - **Counts:** Active, New and Closed businesses per year, as defined by the `business_years` status rules.
-- **Grouping:** by the Business Type's PSIC industry, or by a Focus Tag (D36).
-- **Tags overlap:** one type can carry several tags, so tag counts are never added together across tags.
+- **Grouping:** by the Business Type's PSIC industry, or by its Business Category (D39).
+- **Categories cross industries:** a business has one type and a type has one category, so category counts add up to the town total. Industry and category counts are separate breakdowns and are never added together.
 
-### M29. Declared Sales by Industry or Focus Tag
+### M29. Declared Sales by Industry or Business Category
 
 - **Value:** M3 for the group's businesses in a year.
 - **Privacy guard:** always applies:
@@ -323,7 +328,7 @@ Withdrawn 26-10-28 by the user. Health, education, social welfare and other sect
   - P4 across the cells of a breakdown.
   - P6 for derived change and share.
   - P7: the public sees bands only.
-  - Focus Tag sales are bands for every audience, because tags overlap industries (P4, 26-10-28).
+  - Business Category sales are bands for every audience, because a category crosses industries (P4, D39).
 - **Label:** every view shows the "Simulated data" label.
 
 ### M30. Industry Share of Town

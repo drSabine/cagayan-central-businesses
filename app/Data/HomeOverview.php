@@ -19,5 +19,6 @@ final readonly class HomeOverview
         public int $yearCount,
         public TownAtlas $atlas,
         public array $barangays,
+        public FinanceMap $finances,
     ) {}
 }

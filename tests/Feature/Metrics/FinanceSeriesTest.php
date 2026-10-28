@@ -49,6 +49,23 @@ it('leaves a gap year without change and a zero base without percent (M26)', fun
         ->and([$expenses[2024]->comparable, $expenses[2024]->change])->toBe([false, null]);
 });
 
+it('reads a deeper deficit as a fall and a smaller one as a gain, over the size of the prior value (M26)', function () {
+    // Surplus 2022 = -10, 2023 = -20, 2024 = -5, 2025 = +10.
+    foreach ([2022 => [90, 100], 2023 => [80, 100], 2024 => [95, 100], 2025 => [110, 100]] as $year => [$revenue, $expenses]) {
+        signed($this->town, 'performance.revenue', $year, "{$revenue}.00");
+        signed($this->town, 'performance.expenses', $year, "{$expenses}.00");
+    }
+
+    $this->artisan('metrics:refresh')->assertSuccessful();
+    $surplus = series($this->town, 'performance.surplus');
+
+    // -10 to -20: change -10, and -10 / |-10| x 100 = -100.0, a fall. -20 to -5: +15 / 20 = +75.0, a gain.
+    // -5 to +10: +15 / 5 = +300.0.
+    expect([$surplus[2023]->change, $surplus[2023]->percent_change])->toBe(['-10.00', '-100.0'])
+        ->and([$surplus[2024]->change, $surplus[2024]->percent_change])->toBe(['15.00', '75.0'])
+        ->and([$surplus[2025]->change, $surplus[2025]->percent_change])->toBe(['15.00', '300.0']);
+});
+
 it('derives the locally generated share unless local taxes may include the national share (M21)', function () {
     signed($this->town, 'performance.revenue', 2024, '1000.00');
     signed($this->town, 'revenue.tax', 2024, '150.00');

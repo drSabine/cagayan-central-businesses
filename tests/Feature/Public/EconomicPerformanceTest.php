@@ -5,6 +5,8 @@ use App\Models\FinanceDocument;
 use App\Models\FinanceFigure;
 use App\Models\FinanceLine;
 use App\Models\Municipality;
+use App\Models\TownFact;
+use App\Models\User;
 use App\Models\Wish;
 use App\Queries\AnalyticsCatalogQuery;
 use App\Queries\EconomicPerformanceQuery;
@@ -29,14 +31,16 @@ test('the public catalog lists every town with the sum of reporting towns first'
 
     $this->get(route('public.economic-performance'))->assertInertia(fn (Assert $page) => $page
         ->component('public/economic-performance')
-        ->where('simulated', true)
+        ->where('simulated', false)
+        ->where('performance.catalog.businesses', null)
         ->has('performance.catalog.towns', 30)
         ->where('performance.catalog.towns.0', ['value' => AnalyticsCatalogQuery::ALL_TOWNS, 'label' => 'Sum of Reporting Towns'])
         ->where('performance.catalog.periods', ['all' => 2019, 'recent' => 2023])
         ->where('performance.filters.measure', 'totals')
         ->where('performance.filters.wishView', 'cloud')
         ->where('performance.wishes.0201529000.townName', 'Tuguegarao City')
-        ->has('performance.wishes.0201529000.items', 26));
+        ->where('performance.wishes.0201529000.source', 'Sample Data')
+        ->has('performance.wishes.0201529000.items', 21));
 });
 
 test('only signed-off figures reach the public series, with exact cents', function () {
@@ -51,7 +55,7 @@ test('only signed-off figures reach the public series, with exact cents', functi
             ->where('performance.catalog.finances.0201501000.totals.rows.5.year', 2024)
             ->where('performance.catalog.finances.0201501000.totals.rows.5.observations', fn ($points) => $points['performance.revenue']['value'] === '196960688.39')
             ->where('performance.catalog.finances.0201501000.totals.rows.6.observations', fn ($points) => $points['performance.revenue']['state'] === 'unavailable')
-            ->where('performance.catalog.finances.0201501000.totals.source.mode', 'verified')
+            ->missing('performance.catalog.finances.0201501000.totals.source')
             ->where('performance.catalog.finances.0201500000.totals.rows.5.observations', fn ($points) => $points['performance.revenue']['coverage'] === ['reporting' => 1, 'total' => 2, 'matched' => 0])
             ->missing('performance.catalog.finances.0201529000'))
         ->assertDontSee('987654321.12');
@@ -94,11 +98,12 @@ test('a figure that replaced a different earlier one says which report restated 
 test('selections survive a direct link and retired filters are ignored', function () {
     Municipality::factory()->create(['psgc_code' => '0201529000']);
 
-    $this->get(route('public.economic-performance', ['period' => 'recent', 'measure' => 'revenue_sources', 'dimension' => 'tag', 'financeView' => 'table', 'kind' => 'specific', 'wishView' => 'bars']))
+    $this->get(route('public.economic-performance', ['period' => 'recent', 'measure' => 'revenue_sources', 'dimension' => 'category', 'financeView' => 'table', 'kind' => 'specific', 'wishView' => 'bars']))
         ->assertInertia(fn (Assert $page) => $page
             ->where('performance.filters', [
                 'town' => '0201529000', 'period' => 'recent', 'measure' => 'revenue_sources',
-                'dimension' => 'tag', 'group' => null, 'wishView' => 'bars',
+                'dimension' => 'category', 'group' => null, 'wishView' => 'bars',
+                'presentation' => 'summary', 'year' => null,
             ]));
 });
 
@@ -109,10 +114,9 @@ test('wish presentations receive the same curated aggregates and no raw submissi
     $this->get(route('public.economic-performance', ['wishView' => $view]))
         ->assertInertia(fn (Assert $page) => $page
             ->where('performance.filters.wishView', $view)
-            ->has('performance.wishes.0201529000.items', 26)
-            ->where('performance.wishes.0201529000.items.0', ['id' => 'types:pharmacy', 'label' => 'Pharmacy', 'count' => 84])
-            ->where('performance.wishes.0201529000.items.10.label', 'Dental Clinic')
-            ->where('performance.wishes.0201529000.items.11.label', 'Veterinary Clinic')
+            ->has('performance.wishes.0201529000.items', 21)
+            ->where('performance.wishes.0201529000.items.0', ['id' => 'types:pharmacy', 'label' => 'Pharmacy', 'count' => 18])
+            ->where('performance.wishes.0201529000.items.6', ['id' => 'specific:mercury-drug', 'label' => 'Mercury Drug', 'count' => 8])
             ->missing('performance.wishes.0201529000.reason'))
         ->assertDontSee('PRIVATE COMPANY SENTINEL')->assertDontSee('PRIVATE REASON SENTINEL');
 })->with(['cloud', 'bars']);
@@ -121,6 +125,8 @@ test('invalid filters fail validation before producing a catalog', function (arr
     $this->getJson(route('public.economic-performance', $filters))->assertUnprocessable()->assertJsonValidationErrors($field);
 })->with([
     'unknown town' => [['town' => '0201599999'], 'town'],
+    'unknown presentation' => [['presentation' => 'table'], 'presentation'],
+    'future fiscal year' => [['year' => '2099'], 'year'],
     'unknown period' => [['period' => 'future'], 'period'],
     'unknown measure' => [['measure' => 'assets'], 'measure'],
     'unknown dimension' => [['dimension' => 'barangay'], 'dimension'],
@@ -177,4 +183,88 @@ test('large combined wish lists retain every complete label beyond the cloud lim
         ->has('performance.wishes.0201529000.items', 120)
         ->where('performance.wishes.0201529000.items.0.count', 120)
         ->where('performance.wishes.0201529000.items.119.count', 1));
+});
+
+test('new summary defaults and trend controls survive validated public and Capitol links', function () {
+    Municipality::factory()->create(['psgc_code' => '0201529000']);
+    $this->get(route('public.economic-performance'))->assertInertia(fn (Assert $page) => $page
+        ->where('performance.filters.presentation', 'summary')
+        ->where('performance.filters.period', '3y')
+        ->where('performance.filters.year', null)
+        ->where('performance.catalog.guide.topics.3.title', 'Business Taxes and Fees'));
+    $query = ['presentation' => 'trends', 'period' => '2y', 'year' => 2024];
+    $this->get(route('public.economic-performance', $query))->assertInertia(fn (Assert $page) => $page
+        ->where('performance.filters.presentation', 'trends')->where('performance.filters.period', '2y')
+        ->where('performance.filters.year', 2024));
+    $this->actingAs(User::factory()->create())->get(route('capitol.analytics', $query))
+        ->assertInertia(fn (Assert $page) => $page->where('filters.presentation', 'trends')
+            ->where('filters.period', '2y')->where('filters.year', 2024));
+});
+
+test('public sources trace signed-off and derived figures without exposing pending amounts or review notes', function () {
+    $town = Municipality::factory()->create(['psgc_code' => '0201529000', 'name' => 'Tuguegarao City']);
+    $report = FinanceDocument::factory()->for($town)->create(['fiscal_year' => 2025, 'source_url' => 'https://www.coa.gov.ph/tuguegarao-2025.pdf']);
+    $revenue = FinanceFigure::factory()->verified()->for($town)->line('performance.revenue', 2024, '500.25')->create([
+        'finance_document_id' => $report->id, 'location' => 'page 2', 'source_label' => 'Total Revenue', 'note' => 'PRIVATE REVIEW NOTE',
+    ]);
+    $expenses = FinanceFigure::factory()->verified()->for($town)->line('performance.expenses', 2024, '200.10')->create();
+    FinanceFigure::factory()->for($town)->line('performance.revenue', 2025, '987654321.12')->create(['note' => 'PENDING REVIEW NOTE']);
+    FinanceLine::factory()->create(['code' => 'performance.surplus', 'group' => 'totals', 'source' => 'derived']);
+    $this->artisan('metrics:refresh')->assertSuccessful();
+    $this->get(route('public.economic-performance'))->assertInertia(fn (Assert $page) => $page
+        ->where('performance.catalog.finances.0201529000.totals.rows.5.observations', fn ($points) => $points['performance.revenue']['sourceRefs'] === [$revenue->public_id]
+            && $points['performance.surplus']['value'] === '300.15'
+            && $points['performance.surplus']['sourceRefs'] === [$revenue->public_id, $expenses->public_id])
+        // One evidence entry per figure; the link is our stored copy of the report, never COA's address.
+        ->where('performance.catalog.sources.'.$revenue->public_id, [
+            'kind' => 'executive_summary', 'label' => 'Executive Summary', 'town' => 'Tuguegarao City',
+            'fiscalYear' => 2024, 'reportYear' => 2025, 'page' => 2, 'location' => 'page 2',
+            'url' => route('public.finance-sources.show', $revenue->public_id, absolute: false),
+        ])
+        ->where('performance.catalog.finances.0201500000.totals.rows.5.observations', fn ($points) => $points['performance.surplus']['sourceRefs'] === [$revenue->public_id, $expenses->public_id]))
+        ->assertDontSee('987654321.12')->assertDontSee('PRIVATE REVIEW NOTE')->assertDontSee('PENDING REVIEW NOTE')
+        ->assertDontSee('coa.gov.ph/tuguegarao-2025.pdf');
+});
+
+test('development utilization evidence includes actual and final budget and per-resident evidence includes census', function () {
+    $town = Municipality::factory()->create(['psgc_code' => '0201529000']);
+    $actual = FinanceFigure::factory()->verified()->for($town)->line('sector.development_fund', 2024, '60.00')->create();
+    $budget = FinanceFigure::factory()->verified()->for($town)->line('sector.development_fund', 2024, '100.00')->create(['basis' => 'budget_final']);
+    FinanceFigure::factory()->verified()->for($town)->line('performance.revenue', 2024, '500.00')->create();
+    TownFact::factory()->for($town)->create(['measure' => 'population', 'year' => 2024, 'value' => '100', 'checked_on' => '2026-10-23']);
+    FinanceLine::factory()->create(['code' => 'sector.development_fund.utilization', 'group' => 'development_share', 'source' => 'derived', 'unit' => 'percent']);
+    FinanceLine::factory()->create(['code' => 'per_capita.revenue', 'group' => 'per_capita', 'source' => 'derived']);
+    $this->artisan('metrics:refresh')->assertSuccessful();
+    $this->get(route('public.economic-performance'))->assertInertia(fn (Assert $page) => $page
+        ->where('performance.catalog.finances.0201529000.development_share.rows.5.observations', fn ($points) => $points['sector.development_fund.utilization']['sourceRefs'] === [$actual->public_id, $budget->public_id])
+        ->where('performance.catalog.finances.0201529000.per_capita.rows.5.observations', fn ($points) => count($points['per_capita.revenue']['sourceRefs']) === 2 && $points['per_capita.revenue']['censusYear'] === 2024));
+});
+
+test('the learning guide retains the shared help definitions', function () {
+    $guide = json_decode(file_get_contents(resource_path('content/analytics-guide.json')), true, flags: JSON_THROW_ON_ERROR);
+    $written = file_get_contents(base_path('docs/product/analytics-guide.md'));
+    foreach ($guide['topics'] as $topic) {
+        expect($written)->toContain($topic['summary']);
+        foreach ($topic['metrics'] as $metric) {
+            expect($written)->toContain($metric['meaning'], $metric['formula']);
+        }
+    }
+    foreach ($guide['notes'] as $note) {
+        expect($written)->toContain($note['text']);
+    }
+});
+
+test('a measure lists the towns that have it so the picker can say where it applies', function () {
+    $tuguegarao = Municipality::factory()->create(['psgc_code' => '0201529000']);
+    $abulug = Municipality::factory()->create(['psgc_code' => '0201501000']);
+    FinanceLine::factory()->create(['code' => 'performance.revenue', 'group' => 'totals', 'source' => 'executive_summary']);
+    FinanceLine::factory()->create(['code' => 'revenue.tax', 'group' => 'revenue_sources', 'source' => 'fs_workbook']);
+    FinanceFigure::factory()->verified()->for($tuguegarao)->line('performance.revenue', 2024, '100.00')->create();
+    FinanceFigure::factory()->verified()->for($abulug)->line('performance.revenue', 2024, '50.00')->create();
+    FinanceFigure::factory()->verified()->for($tuguegarao)->line('revenue.tax', 2024, '10.00')->create();
+    $this->artisan('metrics:refresh')->assertSuccessful();
+
+    $this->get(route('public.economic-performance'))->assertInertia(fn (Assert $page) => $page
+        ->where('performance.catalog.measures', fn ($measures) => collect($measures)->firstWhere('value', 'totals')['towns'] === null
+            && collect($measures)->firstWhere('value', 'revenue_sources')['towns'] === ['0201500000', '0201529000']));
 });

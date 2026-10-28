@@ -62,6 +62,26 @@ class FinanceFigure extends Model
     }
 
     /**
+     * The Admin who signed the figure off or rejected it. Null for figures loaded from the reviewed CSVs.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /** The stored COA report behind a signed-off figure, or null when it is pending, entered by hand, or not on disk. */
+    public function publicFile(): ?string
+    {
+        $root = realpath(base_path('data/towns'));
+        $file = $this->status === FinanceFigureStatus::Verified ? $this->document?->file : null;
+        $path = $root === false || $file === null ? false : realpath("$root/$file");
+
+        return $path !== false && str_starts_with($path, $root.DIRECTORY_SEPARATOR) ? $path : null;
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

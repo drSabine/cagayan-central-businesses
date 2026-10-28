@@ -13,6 +13,8 @@ use App\Models\FinanceLine;
 use App\Models\Municipality;
 use App\Rules\OfficialCoaUrl;
 use App\Services\FinanceSignOff;
+use App\Services\FinanceYears;
+use App\Services\RefreshFinanceMetrics;
 use Carbon\CarbonInterface;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -48,7 +50,7 @@ final class ImportFinancesCommand extends Command
     /** @var list<string> */
     private array $warnings = [];
 
-    public function handle(FinanceSignOff $signOff): int
+    public function handle(FinanceSignOff $signOff, RefreshFinanceMetrics $metrics): int
     {
         $folder = base_path((string) $this->option('path'));
         /** @var array<string, int> $towns */
@@ -85,7 +87,12 @@ final class ImportFinancesCommand extends Command
             return self::FAILURE;
         }
 
-        $counts = DB::transaction(fn () => $this->write($signOff, $lines, $documents, $extracted, $reviews, $manual, $towns));
+        $counts = DB::transaction(function () use ($signOff, $metrics, $lines, $documents, $extracted, $reviews, $manual, $towns): array {
+            $counts = $this->write($signOff, $lines, $documents, $extracted, $reviews, $manual, $towns);
+            $metrics->handle();
+
+            return $counts;
+        });
 
         foreach ($this->warnings as $warning) {
             $this->warn($warning);
@@ -366,7 +373,7 @@ final class ImportFinancesCommand extends Command
             $hasDocument = $row['reported_in_year'] !== '';
             $status = FinanceFigureStatus::tryFrom($row['status']);
             $group = $codes[$row['line_code']] ?? '';
-            $lastYear = $hasDocument ? min((int) $row['reported_in_year'], (int) config('cagayan.finances.last_year')) : (int) config('cagayan.finances.last_year');
+            $lastYear = $hasDocument ? (int) $row['reported_in_year'] : app(FinanceYears::class)->reportLastYear();
             $validation = Validator::make($row, [
                 'fiscal_year' => ['required', 'integer', 'between:'.config('cagayan.finances.first_year').','.$lastYear],
                 'basis' => [Rule::in(config("cagayan.finances.groups.{$group}.bases", []))],

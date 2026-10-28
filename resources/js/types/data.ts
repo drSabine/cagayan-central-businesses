@@ -1,4 +1,5 @@
 // Mirrors of the PHP Data objects in app/Data, field for field.
+import type { FinanceMap } from '@/types/finance-map';
 
 export type SelectOption = {
     value: string;
@@ -16,6 +17,7 @@ export type HomeOverview = {
     yearCount: number;
     atlas: TownAtlas;
     barangays: BarangayProfile[];
+    finances: FinanceMap;
 };
 
 export type WishTally = {

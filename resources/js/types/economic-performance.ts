@@ -2,9 +2,11 @@ import type { SelectOption } from '@/types/data';
 
 export type AnalyticsFilters = {
     town: string;
-    period: 'all' | 'recent';
+    period: 'all' | 'recent' | '2y' | '3y' | '5y';
+    presentation: 'summary' | 'trends';
+    year: number | null;
     measure: string;
-    dimension: 'industry' | 'tag';
+    dimension: 'industry' | 'category';
     group: string | null;
 };
 
@@ -32,6 +34,7 @@ export type EconomicObservation = {
     coverage?: { reporting: number; total: number; matched: number } | null;
     censusYear?: number | null;
     restatedIn?: number | null;
+    sourceRefs?: string[];
 };
 
 export type MetricUnit = 'php' | 'percent' | 'count';
@@ -47,12 +50,7 @@ export type FinancialHistory = {
     metrics: EconomicMetric[];
     rows: { year: number; observations: Record<string, EconomicObservation> }[];
     axisMaximum: string;
-    source: {
-        mode: 'simulated' | 'verified';
-        label: string;
-        sourceUrl: string | null;
-        verifiedOn: string | null;
-    };
+    note: string | null;
 };
 
 export type WishAggregate = { id: string; label: string; count: number };
@@ -83,15 +81,56 @@ export type BusinessTrends = {
 
 export type AnalyticsCatalog = {
     towns: SelectOption[];
-    measures: SelectOption[];
-    periods: Record<AnalyticsFilters['period'], number>;
+    measures: AnalyticsMeasure[];
+    periods: { all: number; recent: number };
     lastYear: number;
     finances: Record<string, Record<string, FinancialHistory>>;
     businesses: BusinessTrends | null;
+    guide: AnalyticsGuide;
+    sources: Record<string, FinanceSource>;
 };
 
 export type EconomicPerformance = {
     catalog: AnalyticsCatalog;
     filters: PerformanceFilters;
     wishes: Record<string, CommunityWishSnapshot>;
+};
+
+/** town codes with a figure for the measure; null when every town has one */
+export type AnalyticsMeasure = SelectOption & { towns: string[] | null };
+
+export type MeasureDefinition = {
+    id: string;
+    label: string;
+    meaning: string;
+    formula: string;
+    inputs: string[];
+};
+
+export type AnalyticsGuide = {
+    introduction: string;
+    topics: {
+        id: string;
+        title: string;
+        summary: string;
+        metrics: MeasureDefinition[];
+    }[];
+    notes: { id: string; title: string; text: string }[];
+};
+
+/** The one evidence entry behind a published figure; observations point to it by key. */
+export type FinanceSource = {
+    kind:
+        | 'executive_summary'
+        | 'fs_workbook'
+        | 'annex_workbook'
+        | 'census'
+        | null;
+    label: string;
+    town: string;
+    fiscalYear: number;
+    reportYear: number | null;
+    page: number | null;
+    location: string | null;
+    url: string | null;
 };

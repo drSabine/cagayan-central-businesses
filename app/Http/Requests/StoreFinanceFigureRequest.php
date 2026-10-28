@@ -6,6 +6,7 @@ use App\Enums\FinanceBasis;
 use App\Models\FinanceLine;
 use App\Queries\FinanceReportQuery;
 use App\Rules\OfficialCoaUrl;
+use App\Services\FinanceYears;
 use Illuminate\Validation\Rule;
 
 final class StoreFinanceFigureRequest extends FinanceReportRequest
@@ -13,7 +14,7 @@ final class StoreFinanceFigureRequest extends FinanceReportRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        $years = 'between:'.config('cagayan.finances.first_year').','.min($this->reportYear(), (int) config('cagayan.finances.last_year'));
+        $years = 'between:'.config('cagayan.finances.first_year').','.min($this->reportYear(), app(FinanceYears::class)->reportLastYear());
         $line = $this->input('line_code');
         $group = is_string($line) ? FinanceLine::query()->enterable()->where('code', $line)->value('group') : null;
         $bases = is_string($group) ? config("cagayan.finances.groups.{$group}.bases", ['actual']) : [];

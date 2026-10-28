@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\RefreshFinanceMetrics;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -26,15 +27,19 @@ class RefreshMetricsCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(RefreshFinanceMetrics $finances): int
     {
         $files = glob(database_path('sql/metrics/*.sql')) ?: [];
         sort($files);
 
-        DB::transaction(function () use ($files): void {
+        DB::transaction(function () use ($files, $finances): void {
             foreach ($files as $file) {
                 // Each file is a trusted multi-statement script from the repository, so it runs through PDO.
-                DB::connection()->getPdo()->exec((string) file_get_contents($file));
+                if (basename($file) === '20_stats_finance_year.sql') {
+                    $finances->handle();
+                } else {
+                    DB::connection()->getPdo()->exec((string) file_get_contents($file));
+                }
                 $this->components->twoColumnDetail(basename($file), '<fg=green;options=bold>DONE</>');
             }
         });

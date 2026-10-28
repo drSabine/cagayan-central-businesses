@@ -16,9 +16,10 @@
 return [
 
     /*
-    | Drives the "Simulated data" label on every screen and export (P13).
+    | Off by default (decisions.md, D37). When on, the simulated business records are seeded and shown,
+    | and the "Simulated data" label appears on every screen and export (P13). Presentation use only.
     */
-    'simulated' => (bool) env('CAGAYAN_SIMULATED', true),
+    'simulated' => (bool) env('CAGAYAN_SIMULATED', false),
 
     'performance' => [
         'demo_town' => '0201529000',
@@ -233,8 +234,15 @@ return [
     'inputs' => [
         'display_name_max' => 100,
         'business_name_max' => 55,
-        'focus_tag_name_max' => 60,
+        'category_name_max' => 60,
+        'business_type_name_max' => 60,
     ],
+
+    /*
+    | Business Categories (D39). Category colors are slots in the --category-N palette of
+    | app.css, and the page loads every type, so the list is capped.
+    */
+    'categories' => ['colors' => 10, 'max_types' => 300, 'page_size' => 10],
 
     /*
     | Finance ledger entry and review (D35, metrics.md M19 to M27). Fiscal years
@@ -249,6 +257,7 @@ return [
         'review_batch_max' => 200,
         'note_max' => 500,
         'per_page' => 20,
+        'source_requests_per_minute' => 60,
         // Towns whose workbook breakdowns finances:import loads (26-10-28: Tuguegarao first). Other towns'
         // parsed workbooks stay in data/towns/finances/extracted; every Executive Summary always loads.
         'workbook_towns' => ['0201529000'],

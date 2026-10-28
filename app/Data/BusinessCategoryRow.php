@@ -4,13 +4,12 @@ namespace App\Data;
 
 final readonly class BusinessCategoryRow
 {
-    /**
-     * @param  list<string>  $tags  Focus Tag codes
-     */
+    /** @param int $color Slot in the --category-N palette */
     public function __construct(
         public string $code,
         public string $name,
-        public string $industry,
-        public array $tags,
+        public int $color,
+        public int $types,
+        public ?int $registered,
     ) {}
 }

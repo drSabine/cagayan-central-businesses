@@ -109,6 +109,22 @@ it('lets an admin sign off pending figures and logs it', function () {
         ->and(DB::table('activity_logs')->where('event', 'finance_figures_signed_off')->count())->toBe(1);
 });
 
+it('shows the Admin who signed a figure off and takes no sign-off note', function () {
+    $admin = User::factory()->create(['name' => 'Rosa Admin']);
+    $route = route('capitol.finances.reviews.store', ['town' => '0201501000', 'year' => 2024]);
+
+    $this->actingAs($admin)->post($route, ['decision' => 'verified', 'figures' => [$this->figure->public_id], 'note' => 'Looks fine'])
+        ->assertSessionHasErrors('note');
+    expect($this->figure->refresh()->status)->toBe(FinanceFigureStatus::Pending);
+
+    $this->actingAs($admin)->post($route, ['decision' => 'verified', 'figures' => [$this->figure->public_id]])->assertRedirect();
+
+    $this->actingAs(staffFor($this->town))->get(route('capitol.finances.show', ['town' => '0201501000', 'year' => 2024]))
+        ->assertInertia(fn (Assert $page) => $page->where('report.figures.0.status', 'verified')
+            ->where('report.figures.0.reviewedBy', 'Rosa Admin')
+            ->missing('report.figures.0.enteredBy'));
+});
+
 it('never lets a reviewer sign off a figure they entered', function () {
     $admin = User::factory()->create();
     $this->actingAs($admin)->post(route('capitol.finances.figures.store', ['town' => '0201501000', 'year' => 2024]), manualEntry());

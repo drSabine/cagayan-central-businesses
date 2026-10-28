@@ -4,9 +4,9 @@ use App\Enums\BusinessStatus;
 use App\Enums\UserRole;
 use App\Models\Barangay;
 use App\Models\Business;
+use App\Models\BusinessCategory;
 use App\Models\BusinessType;
 use App\Models\BusinessYear;
-use App\Models\FocusTag;
 use App\Models\Municipality;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -15,12 +15,13 @@ use Inertia\Testing\AssertableInertia as Assert;
 const SALES_SENTINEL = '7654321.98';
 
 beforeEach(function () {
+    config(['cagayan.simulated' => true]);
     $town = Municipality::factory()->create(['psgc_code' => '0201529000', 'name' => 'Tuguegarao City']);
     $barangay = Barangay::factory()->for($town)->create();
-    $retail = BusinessType::factory()->create(['psic_section' => 'G', 'psic_section_name' => 'Wholesale and retail trade']);
-    $farm = BusinessType::factory()->create(['psic_section' => 'A', 'psic_section_name' => 'Agriculture, forestry and fishing']);
-    $salon = BusinessType::factory()->create(['psic_section' => 'S', 'psic_section_name' => 'Other service activities']);
-    FocusTag::factory()->create(['code' => 'agriculture', 'name' => 'Agriculture'])->businessTypes()->attach($farm);
+    // Categories cross industries (D39): each type here sits in its own category.
+    $retail = BusinessType::factory()->for(BusinessCategory::factory()->create(['code' => 'retail', 'name' => 'Retail']), 'category')->create(['psic_section' => 'G', 'psic_section_name' => 'Wholesale and retail trade']);
+    $farm = BusinessType::factory()->for(BusinessCategory::factory()->create(['code' => 'agriculture', 'name' => 'Agriculture']), 'category')->create(['psic_section' => 'A', 'psic_section_name' => 'Agriculture, forestry and fishing']);
+    $salon = BusinessType::factory()->for(BusinessCategory::factory()->create(['code' => 'services', 'name' => 'Services']), 'category')->create(['psic_section' => 'S', 'psic_section_name' => 'Other service activities']);
 
     $min = config('cagayan.privacy.small_group_min');
     // Retail: enough businesses, so its total is shown. Services: shown on its own but smaller. Farms: one below the threshold.
@@ -69,7 +70,7 @@ it('hides the smallest other cell when exactly one cell is hidden (P4)', functio
             ->where('catalog.businesses.datasets.industry:S.sales.rows.0.observations.sales.reason', 'complementary')
             ->where('catalog.businesses.datasets.industry:G.sales.rows.0.observations.sales.state', 'shown')
             ->where('catalog.businesses.datasets.industry:G.counts.rows.0.observations.active.value', (string) (config('cagayan.privacy.small_group_min') + 1))
-            ->where('catalog.businesses.groups.tag.0.label', 'Agriculture'))
+            ->where('catalog.businesses.groups.category.0.label', 'Agriculture'))
         ->assertDontSee(SALES_SENTINEL);
 });
 
@@ -111,11 +112,11 @@ it('gives the Capitol the sales change with its percent and the public neither (
             ->where('performance.catalog.businesses.datasets.industry:G.sales.rows.1.observations.sales.percentageChange', null));
 });
 
-it('hides a Focus Tag below the threshold, as it shrinks the group (P5)', function () {
+it('hides a Business Category below the threshold, as it shrinks the group (P5)', function () {
     $this->actingAs(User::factory()->create())->get(route('capitol.analytics'))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('catalog.businesses.datasets.tag:agriculture.sales.rows.0.observations.sales.reason', 'small_group')
-            ->where('catalog.businesses.datasets.tag:agriculture.sales.rows.0.observations.sales.value', null));
+            ->where('catalog.businesses.datasets.category:agriculture.sales.rows.0.observations.sales.reason', 'small_group')
+            ->where('catalog.businesses.datasets.category:agriculture.sales.rows.0.observations.sales.value', null));
 });
 
 it('withholds the change from a hidden year and the share of a complementary cell (P6)', function () {
@@ -135,20 +136,17 @@ it('withholds the change from a hidden year and the share of a complementary cel
             ->where('catalog.businesses.datasets.industry:S.share.rows.0.observations.sales_share.reason', 'complementary'));
 });
 
-it('gives the Capitol Focus Tag sales as bands, so a tag cannot be subtracted from an industry', function () {
-    $tag = FocusTag::factory()->create(['code' => 'retail', 'name' => 'Retail']);
-    $tag->businessTypes()->attach(BusinessType::query()->where('psic_section', 'G')->sole());
-    // A second shown tag, so P4 within the tags hides the smaller one rather than retail.
-    FocusTag::factory()->create(['code' => 'services', 'name' => 'Services'])->businessTypes()->attach(BusinessType::query()->where('psic_section', 'S')->sole());
+it('gives the Capitol Business Category sales as bands, so a category cannot be subtracted from an industry', function () {
+    // Agriculture is hidden as a small group, so P4 hides the smaller of services and retail; retail stays shown.
     $this->artisan('metrics:refresh')->assertSuccessful();
 
     $this->actingAs(User::factory()->create())->get(route('capitol.analytics'))
         ->assertInertia(fn (Assert $page) => $page
             ->where('catalog.businesses.datasets.industry:G.sales.rows.0.observations.sales.state', 'shown')
             ->whereNot('catalog.businesses.datasets.industry:G.sales.rows.0.observations.sales.value', null)
-            ->where('catalog.businesses.datasets.tag:retail.sales.rows.0.observations.sales.value', null)
-            ->where('catalog.businesses.datasets.tag:retail.sales.rows.0.observations.sales.band', '₱10 million to ₱50 million')
-            ->where('catalog.businesses.datasets.tag:retail.share.metrics', fn ($metrics) => count($metrics) === 1));
+            ->where('catalog.businesses.datasets.category:retail.sales.rows.0.observations.sales.value', null)
+            ->where('catalog.businesses.datasets.category:retail.sales.rows.0.observations.sales.band', '₱10 million to ₱50 million')
+            ->where('catalog.businesses.datasets.category:retail.share.metrics', fn ($metrics) => count($metrics) === 1));
 });
 
 it('shows a year with no records as not available, never zero and never bridged', function () {
@@ -167,4 +165,15 @@ it('shows a year with no records as not available, never zero and never bridged'
             ->where('catalog.businesses.datasets.industry:G.counts.rows.1.observations.active.state', 'unavailable')
             ->where('catalog.businesses.datasets.industry:G.counts.rows.1.observations.active.value', null)
             ->where('catalog.businesses.datasets.industry:G.counts.rows.2.observations.active.change', null));
+});
+
+it('shows no business figures to anyone while simulated records are off (P13)', function () {
+    config(['cagayan.simulated' => false]);
+    $this->artisan('metrics:refresh')->assertSuccessful();
+
+    $this->get(route('public.economic-performance'))
+        ->assertInertia(fn (Assert $page) => $page->where('performance.catalog.businesses', null))
+        ->assertDontSee(SALES_SENTINEL);
+    $this->actingAs(User::factory()->create())->get(route('capitol.analytics'))
+        ->assertInertia(fn (Assert $page) => $page->where('catalog.businesses', null)->where('simulated', false));
 });

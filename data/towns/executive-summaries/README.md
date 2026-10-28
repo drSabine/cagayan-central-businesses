@@ -37,7 +37,7 @@ One row per PDF:
 | `source_url` | Exact COA download link |
 | `retrieved_on` | Date the file was downloaded and checked |
 
-Every file was checked as a readable PDF with a valid page tree, and its checksum was recorded at download time. That is a file integrity check only. No figure in these summaries has been verified for use in the app; verified figures live in `town-facts.csv` with their own `checked_on` date.
+Every file was checked as a readable PDF with a valid page tree, and its checksum was recorded at download time. That is a file integrity check only. Since 26-10-28 the extracted government figures are published through the finance ledger after sign-off, replayed from `../finances/reviews.csv`. They no longer live in `town-facts.csv`. See [Government Finances](../finances/README.md#reliability-review-26-10-28) for the reliability review.
 
 ## Adding a Year
 

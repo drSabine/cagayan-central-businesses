@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import {
     lazy,
     Suspense,
@@ -21,7 +21,16 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { sourceName, townFigures } from '@/lib/format';
+import {
+    FinanceMapControls,
+    FinanceMapFigures,
+} from '@/components/map/finance-map-panel';
+import {
+    financeMapSelection,
+    financeMapShade,
+    MAP_MEASURE,
+} from '@/lib/finance-map';
+import { dashboard } from '@/routes/capitol';
 import { loadTownBoundaries } from '@/lib/map-data';
 import type { AreaCollection } from '@/lib/map-data';
 import { pageSearchParams } from '@/lib/navigation';
@@ -36,6 +45,19 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
     const inBrowser = useInBrowser();
     const params = pageSearchParams(url);
     const townCode = params.get('town');
+    const selection = financeMapSelection(data.finances, params);
+    const change = (patch: Record<string, string | null>) => {
+        const query = Object.fromEntries(params);
+        for (const [key, value] of Object.entries(patch)) {
+            if (value) query[key] = value;
+            else delete query[key];
+        }
+        router.push({
+            url: dashboard({ query }).url,
+            preserveScroll: true,
+            preserveState: true,
+        });
+    };
     const drilling = params.get('level') === 'barangays';
     const barangayCode = params.get('barangay');
     const town =
@@ -70,15 +92,16 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
                 ...feature,
                 properties: {
                     ...feature.properties,
-                    shade:
-                        data.atlas.towns.find(
-                            (item) =>
-                                item.code === feature.properties.psgc_code,
-                        )?.shade ?? null,
+                    shade: financeMapShade(
+                        data.finances,
+                        feature.properties.psgc_code,
+                        selection.year,
+                        MAP_MEASURE,
+                    ),
                 },
             })),
         }),
-        [data.atlas],
+        [data.finances, selection.year],
     );
     const [navigating, setNavigating] = useState(false);
     const navigate = useCallback(
@@ -106,10 +129,6 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
             else void navigate(code);
         },
         [drilling, townCode, navigate],
-    );
-    const { rows, years, sources } = townFigures(
-        shown.population,
-        barangay ? null : (town ?? data.atlas.province),
     );
     const pending = navigating || (drilling && loaded?.code !== townCode);
 
@@ -165,7 +184,19 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
                                 <EconomicMap
                                     source={
                                         drilling && loaded?.code === townCode
-                                            ? loaded.source
+                                            ? {
+                                                  ...loaded.source,
+                                                  features:
+                                                      loaded.source.features.map(
+                                                          (feature) => ({
+                                                              ...feature,
+                                                              properties: {
+                                                                  ...feature.properties,
+                                                                  shade: null,
+                                                              },
+                                                          }),
+                                                      ),
+                                              }
                                             : source
                                     }
                                     selected={
@@ -257,28 +288,24 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
                             </>
                         )}
                     </div>
+                    <FinanceMapControls
+                        finances={data.finances}
+                        {...selection}
+                        onChange={change}
+                    />
                     <div className="border-t pt-3">
                         <h2 className="type-item">{shown.name}</h2>
-                        <dl className="mt-3 flex flex-col gap-3">
-                            {rows.map(({ label, value }) => (
-                                <div key={label}>
-                                    <dt className="type-label text-muted-foreground">
-                                        {label}
-                                    </dt>
-                                    <dd className="mt-1 font-mono type-body tabular-nums">
-                                        {value}
-                                    </dd>
-                                </div>
-                            ))}
-                        </dl>
-                        {years.length > 0 && (
-                            <p className="mt-3 type-meta">
-                                Figures as of {years.join(' and ')}.
-                            </p>
-                        )}
+                        <FinanceMapFigures
+                            finances={data.finances}
+                            code={shown.code}
+                            {...selection}
+                            population={shown.population}
+                            aggregate={!town && !barangay}
+                            barangay={drilling}
+                        />
                     </div>
-                    <div className="flex items-center gap-2 border-t pt-3 type-meta">
-                        <span>Population</span>
+                    <div className="flex flex-wrap items-center gap-2 border-t pt-3 type-meta">
+                        <span>Government Revenue</span>
                         <span>Low</span>
                         <div className="flex gap-0.5" aria-hidden="true">
                             {[
@@ -296,26 +323,6 @@ export function DashboardAtlas({ data }: { data: WorkspaceMap }) {
                         </div>
                         <span>High</span>
                     </div>
-                    {sources.length > 0 && (
-                        <div className="flex flex-col gap-1 type-meta">
-                            <span>Source</span>
-                            {sources.map((sourceUrl) => (
-                                <a
-                                    key={sourceUrl}
-                                    href={sourceUrl}
-                                    rel="noreferrer"
-                                    target="_blank"
-                                    className="break-words underline underline-offset-2"
-                                >
-                                    {sourceName(sourceUrl)}
-                                    <span className="sr-only">
-                                        {' '}
-                                        (opens in a new tab)
-                                    </span>
-                                </a>
-                            ))}
-                        </div>
-                    )}
                 </aside>
             </div>
         </section>

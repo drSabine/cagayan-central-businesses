@@ -362,3 +362,7 @@ Recorded at the user's request so later sessions do not repeat them. Each has it
 | Missing values said "Not in the signed-off figures" even when no workbook had been collected | The reason on screen was not true | Separate reasons for not published, not reported, not collected and awaiting sign-off; `metrics.md`, Observation States |
 | Claude ran `npm ci` while the user's `composer dev` was running | The install stopped halfway and broke the running Vite server | The user stopped Vite and reinstalled. Stop `composer dev` before installing: `docs/team/workflow.md`, "The shared database" |
 | Claude asked the user to run `/open-pr` when the user had already asked for the pull request | An extra round trip for the user | When the user asks for a push or pull request in plain words, do it directly |
+
+## Later Change
+
+"26-10-28": the optional sign-off note was removed on the user's request. A sign-off now records the signed-in Admin automatically and the Status column shows "Signed off by Name". Rejection keeps its required reason. See design.md, "Government Finances Simplification".

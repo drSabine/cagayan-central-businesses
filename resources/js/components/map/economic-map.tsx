@@ -33,11 +33,13 @@ export default memo(function EconomicMap({
     const [fatal, setFatal] = useState(false);
     const colors = useMemo(
         () => ({
-            background: mapColor('--muted'),
-            border: mapColor('--foreground'),
-            selection: mapColor('--highlight'),
-            none: mapColor('--map-none'),
-            shades: [1, 2, 3, 4, 5].map((n) => mapColor('--map-' + n)),
+            background: mapColor('--muted', resolvedAppearance),
+            border: mapColor('--foreground', resolvedAppearance),
+            selection: mapColor('--highlight', resolvedAppearance),
+            none: mapColor('--map-none', resolvedAppearance),
+            shades: [1, 2, 3, 4, 5].map((n) =>
+                mapColor('--map-' + n, resolvedAppearance),
+            ),
         }),
         [resolvedAppearance],
     );
@@ -55,7 +57,17 @@ export default memo(function EconomicMap({
         }),
         [colors],
     );
-    const bounds = useMemo(() => collectionBounds(source), [source]);
+    const [[west, south], [east, north]] = useMemo(
+        () => collectionBounds(source),
+        [source],
+    );
+    const bounds = useMemo<[[number, number], [number, number]]>(
+        () => [
+            [west, south],
+            [east, north],
+        ],
+        [west, south, east, north],
+    );
     const selectFeature = useCallback(() => {
         const map = ref.current?.getMap();
         if (!map?.getSource('areas')) return;

@@ -60,7 +60,7 @@ The original single-role decision below is superseded by D28.
 
 ## D10. Simulated data
 
-**Decided.** Seeders with a fixed seed, so every laptop shows the same numbers. Data years 2020 through 2026, outlook year 2027. Every simulated record has `is_simulated = true`, and every screen and export that shows business records carries a visible "Simulated data" label. Requirements are in `database.md`, "Seeder requirements".
+**Decided.** Seeders with a fixed seed, so every laptop shows the same numbers. Data years 2020 through 2026, outlook year 2027. Since 26-10-28 the simulated business seeder is optional and off by default (D37). Every simulated record has `is_simulated = true`, and every screen and export that shows business records carries a visible "Simulated data" label. Requirements are in `database.md`, "Seeder requirements".
 
 ## D11. Quality gates
 
@@ -274,8 +274,46 @@ Approved 26-10-27. Government finance figures leave `town_facts` and move into o
 
 ## D36. Industries and Focus Tags
 
+> Superseded in part by D39 (26-10-28): Focus Tags are replaced by one Category per Business Type. The industry (PSIC section) part stands.
+
 Approved 26-10-27. Each Business Type keeps one official industry, its PSIC section. A team member verifies that section against the PSA classification and records the check date. Admins manage Focus Tags (for example Agriculture and Fishery) and attach them to Business Types. A type can carry several tags.
 
 Analytics groups businesses by industry or by tag. An agricultural supply store therefore counts under Wholesale and Retail Trade by industry, and under Agriculture by focus. Tags attach to types, not to individual businesses.
 
 **Why:** the user wants to see which parts of a town's economy perform well. The official industry alone hides agriculture-related trade. Tagging every record separately would make each record harder to maintain, and simulated records would need invented tags.
+
+## D37. No simulated data by default, one source per figure, our copy of the report
+
+Approved 26-10-28 after the user said simulated data cannot be what the app shows.
+
+- **Simulated records are opt-in.** `CAGAYAN_SIMULATED` defaults to false. While false, `db:seed` does not run `SimulatedBusinessSeeder`, the business trends query returns nothing even if old simulated rows remain, and the "Simulated data" label is not shown. Set it true for a presentation: `composer db:reset` seeds the records and the label returns on every screen and export (P13). The seeder, schema, privacy guard and Business Trends code stay, so a real registry or a presentation set can use them. Business Types and Focus Tags are starter taxonomy, not records, and stay.
+- **Wishes are sample data, not records.** The Tuguegarao City demo wishes stay (`data/economic-performance/demo.php`, also the source of `WishSeeder`, so Economy and Suggestions agree). They carry a visible "Sample Data" label on Economy.
+- **One source of truth for a figure's source.** `catalog.sources` holds one entry per figure; observations only point to it. No source text is repeated in rows, tooltips, charts or footers (design.md, "Government Finances Ledger Table").
+- **Our copy of the report.** A citation opens the stored COA PDF at its page through `public.finance-sources.show`, not a COA address: COA's site sits behind a bot challenge and cannot be relied on to open a PDF inline at a page. The files already live in `data/towns/`. Only signed-off figures resolve. The COA address stays in the ledger as provenance.
+- **Tuguegarao City is stated, not hidden.** Breakdowns beyond totals and barangay population exist for Tuguegarao City only; pickers say so instead of showing empty panels.
+
+**Why:** the user's correction. A switch keeps the presentation option without making simulated numbers the default, and one evidence entry per figure ends the repeated source text.
+
+## D38. Editable Business Categories and tag colors
+
+> Superseded in part by D39 (26-10-28): the Focus Tag model is replaced by Categories. Editable names, the Title Case suggestion, the ten-slot color palette without a package, local table behavior and the simulated gate stand, now on Categories.
+
+Approved 26-10-28. Admins and Super Admins add and rename Business Types (name, industry, Focus Tags) and Focus Tags (name, color) on the Capitol Business Categories page. A code is the slug of the first name and never changes, so wishes, records and links keep pointing at the same row. Names are stored as typed. The form only suggests Title Case, so nothing is forced (the "never force capitalization" rule stands). Names are unique ignoring case, plain text, and a Business Type name is at most 60 characters. Industries are the PSIC sections already seeded, so no section is written from memory. Removal and a citizen suggestion queue are not built.
+
+Focus Tags carry a color slot from a fixed palette of ten (`--tag-1` to `--tag-10` in `app.css`, light and dark). New tags take the least used slot, and an Admin can pick another. **No color package:** a library produces arbitrary colors at run time, which breaks the tokens-only rule and cannot promise AA contrast in both modes. This is the one approved exception to "hue is reserved for data", because the tag name is always printed beside its color.
+
+The page shows Registered, the active businesses of the latest data year from `stats_area_year` (M1, M28), per type and per tag. It reads counts only, never sales. A tag sums its types, and a business has one type, so nothing is double counted. Counts follow the D37 gate: with `CAGAYAN_SIMULATED` off they read "Not available". Every type is loaded (capped by `cagayan.categories.max_types`), so sorting, search, filters and pages are local history with zero requests.
+
+**Why:** the user wants the list organized, counted and extendable by the Capitol without code changes, with proper labeling and colors that make tags scannable.
+
+## D39. Category, Business Type, Business
+
+Approved 26-10-28 after the user said categories are sectors and a Boarding House is not Tourism.
+
+- **Tree.** Business Category (Tourism, Agriculture, Fishery, Retail, Vehicle and Motor Parts and so on), then Business Type (Hotel or Inn, Boarding House, Bakery), then the registered Business by name. Each Type belongs to exactly one Category. Categories replace Focus Tags and the `business_type_focus_tag` pivot. Admins and Super Admins add, rename and recolor Categories and Types on Business Categories. The starter seed is editable and reviewed by the data member.
+- **Industry is a label, not a level.** The official PSIC section stays on the Type for official statistics. It is not a tree level because categories cross industries, and the Type already fixes its industry.
+- **Privacy is unchanged.** A Category partitions businesses, so counts add up. It still crosses industries, so a category total minus an industry total could isolate a group the guard never checked. Category sales therefore stay bands for every audience (P4). Only the wording of P4 and M28 to M31 changes.
+- **Businesses directory.** A read-only Capitol page lists registered business names with public-class fields only, server-paged and filterable by category, type, industry and status. It shows nothing while simulated records are off (D37). Adding, editing and importing businesses belong to the registry plan.
+- **Registry boundary.** The later registry stores permit validity, renewal range, expiry and documents as published records. It does not process applications, fees or issuing, which stay with the city (mvp-scope.md).
+
+**Why:** the user's correction. One Category per Type gives one clear tree, one color and an exact count, and it avoids two overlapping grouping systems. The directory and the schema keep the later registry from reworking the taxonomy.
