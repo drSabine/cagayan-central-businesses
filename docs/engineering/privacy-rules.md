@@ -40,8 +40,10 @@ A sales figure is hidden when the largest single business accounts for more than
 
 When a breakdown is shown beside its total, a single hidden cell can be worked out by subtraction. So if exactly one cell in a breakdown is hidden, also hide the smallest remaining cell, with reason `complementary`.
 
-- Applies to: sales by business type within an area, and sales by barangay within a town.
+- Applies to: sales by business type within an area, sales by barangay within a town, and sales by industry or by Focus Tag within a town.
 - Test: a breakdown with one small cell and three large ones shows two hidden cells, not one.
+- Overlapping groups (user decision, 26-10-28): Focus Tags overlap industries and each other, so a tag minus an industry can isolate a group the guard never checked. Focus Tag sales are therefore shown as bands to every audience, Capitol included, with no exact figure, change or sales share. Industry sales keep exact guarded figures in the Capitol.
+- Test: the Capitol receives a band and no value for a Focus Tag whose industry figure is shown.
 
 ### P5. The rules run after filters
 

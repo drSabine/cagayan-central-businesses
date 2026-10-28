@@ -1,8 +1,14 @@
 import type { SelectOption } from '@/types/data';
 
-export type PerformanceFilters = {
+export type AnalyticsFilters = {
     town: string;
     period: 'all' | 'recent';
+    measure: string;
+    dimension: 'industry' | 'tag';
+    group: string | null;
+};
+
+export type PerformanceFilters = AnalyticsFilters & {
     wishView: 'cloud' | 'bars';
 };
 
@@ -13,12 +19,24 @@ export type EconomicObservation = {
     change: string | null;
     percentageChange: number | null;
     comparisonYear: number | null;
+    reason?:
+        | 'not_published'
+        | 'not_reported'
+        | 'small_group'
+        | 'dominance'
+        | 'complementary'
+        | null;
+    band?: string | null;
+    coverage?: { reporting: number; total: number; matched: number } | null;
+    censusYear?: number | null;
 };
+
+export type MetricUnit = 'php' | 'percent' | 'count';
 
 export type EconomicMetric = {
     id: string;
     label: string;
-    unit: string;
+    unit: MetricUnit;
     basis: string;
 };
 
@@ -46,15 +64,31 @@ export type CommunityWishSnapshot = {
     cloudLimit: number;
 };
 
-export type EconomicPerformance = {
-    towns: SelectOption[];
-    filters: PerformanceFilters;
-    periods: Record<PerformanceFilters['period'], number>;
+export type BusinessTrends = {
+    townCode: string;
+    townName: string;
+    groups: Record<AnalyticsFilters['dimension'], SelectOption[]>;
     datasets: Record<
         string,
         {
-            finances: FinancialHistory;
-            wishes: CommunityWishSnapshot;
+            counts: FinancialHistory;
+            sales: FinancialHistory;
+            share: FinancialHistory;
         }
     >;
+};
+
+export type AnalyticsCatalog = {
+    towns: SelectOption[];
+    measures: SelectOption[];
+    periods: Record<AnalyticsFilters['period'], number>;
+    lastYear: number;
+    finances: Record<string, Record<string, FinancialHistory>>;
+    businesses: BusinessTrends | null;
+};
+
+export type EconomicPerformance = {
+    catalog: AnalyticsCatalog;
+    filters: PerformanceFilters;
+    wishes: Record<string, CommunityWishSnapshot>;
 };

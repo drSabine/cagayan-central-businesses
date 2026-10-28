@@ -2,31 +2,36 @@ import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
 import {
     changeLabel,
-    formatPesoTick,
+    formatMetricTick,
     observationLabel,
+    observationNote,
     percentageLabel,
 } from '@/lib/performance-format';
 import type { FinancialHistory } from '@/types/economic-performance';
+
+const DASHES = [undefined, '6 4', '2 3', '10 3 2 3', '1 4'];
 
 export default function FinanceHistoryChart({
     history,
 }: {
     history: FinancialHistory;
 }) {
-    const metrics = history.metrics.slice(0, 2);
+    const metrics = history.metrics.slice(0, DASHES.length);
+    const unit = metrics[0]?.unit ?? 'php';
+    // Series are keyed by position: metric ids contain dots, which are not valid in CSS custom property names.
     const config = Object.fromEntries(
         metrics.map((metric, index) => [
-            metric.id,
+            `series${index}`,
             { label: metric.label, color: `var(--chart-${index + 1})` },
         ]),
     );
     const data = history.rows.map((row) => ({
         year: row.year,
         ...Object.fromEntries(
-            metrics.map((metric) => {
+            metrics.map((metric, index) => {
                 const point = row.observations[metric.id];
                 return [
-                    metric.id,
+                    `series${index}`,
                     point?.state === 'shown' && point.value !== null
                         ? Number(point.value)
                         : null,
@@ -41,7 +46,7 @@ export default function FinanceHistoryChart({
                 config={config}
                 className="aspect-auto h-64 w-full font-mono tabular-nums sm:h-72"
                 role="group"
-                aria-label="Government finances by year. Both vertical axes use the same peso scale. Exact values and annual changes are available for each year."
+                aria-label={`${metrics.map((metric) => metric.label).join(' and ')} by year. Exact values and annual changes are listed for each year.`}
             >
                 <LineChart
                     data={data}
@@ -65,18 +70,18 @@ export default function FinanceHistoryChart({
                             fill: 'var(--muted-foreground)',
                         }}
                     />
-                    {metrics.map((metric, index) => (
-                        <YAxis
-                            key={metric.id}
-                            yAxisId={metric.id}
-                            orientation={index === 0 ? 'left' : 'right'}
-                            domain={[0, Number(history.axisMaximum)]}
-                            width={58}
-                            tickFormatter={formatPesoTick}
-                            tickLine={false}
-                            axisLine={false}
-                        />
-                    ))}
+                    <YAxis
+                        domain={[
+                            (lowest: number) => Math.min(0, lowest),
+                            Math.max(Number(history.axisMaximum), 0),
+                        ]}
+                        width={58}
+                        tickFormatter={(value: number) =>
+                            formatMetricTick(value, unit)
+                        }
+                        tickLine={false}
+                        axisLine={false}
+                    />
                     <ChartTooltip
                         content={({ active, label }) => {
                             const row = history.rows.find(
@@ -97,8 +102,16 @@ export default function FinanceHistoryChart({
                                                     {metric.label}
                                                 </p>
                                                 <p className="font-mono type-body tabular-nums">
-                                                    {observationLabel(point)}
+                                                    {observationLabel(
+                                                        point,
+                                                        metric.unit,
+                                                    )}
                                                 </p>
+                                                {observationNote(point) && (
+                                                    <p className="type-meta">
+                                                        {observationNote(point)}
+                                                    </p>
+                                                )}
                                                 <p className="type-meta">
                                                     Change
                                                     {point?.comparisonYear
@@ -106,8 +119,11 @@ export default function FinanceHistoryChart({
                                                         : ''}
                                                 </p>
                                                 <p className="font-mono type-body tabular-nums">
-                                                    {changeLabel(point)} (
-                                                    {percentageLabel(point)})
+                                                    {changeLabel(
+                                                        point,
+                                                        metric.unit,
+                                                    )}{' '}
+                                                    ({percentageLabel(point)})
                                                 </p>
                                             </div>
                                         );
@@ -119,14 +135,17 @@ export default function FinanceHistoryChart({
                     {metrics.map((metric, index) => (
                         <Line
                             key={metric.id}
-                            yAxisId={metric.id}
-                            dataKey={metric.id}
+                            dataKey={`series${index}`}
                             name={metric.label}
                             type="linear"
-                            stroke={`var(--color-${metric.id})`}
+                            stroke={`var(--color-series${index})`}
                             strokeWidth={2}
-                            strokeDasharray={index === 1 ? '6 4' : undefined}
-                            dot={{ r: 4, fill: 'var(--card)' }}
+                            strokeDasharray={DASHES[index]}
+                            dot={{
+                                r: 4,
+                                fill: 'var(--card)',
+                                strokeDasharray: '0',
+                            }}
                             activeDot={{ r: 6 }}
                             connectNulls={false}
                             isAnimationActive={false}
@@ -134,32 +153,32 @@ export default function FinanceHistoryChart({
                     ))}
                 </LineChart>
             </ChartContainer>
-            <ul
-                aria-label="Legend"
-                className="flex flex-wrap justify-center gap-x-4 gap-y-1"
-            >
-                {metrics.map((metric, index) => (
-                    <li
-                        key={metric.id}
-                        className="flex items-center gap-2 type-meta"
-                    >
-                        <svg width="24" height="8" aria-hidden="true">
-                            <line
-                                x1="0"
-                                y1="4"
-                                x2="24"
-                                y2="4"
-                                stroke={`var(--chart-${index + 1})`}
-                                strokeWidth="2"
-                                strokeDasharray={
-                                    index === 1 ? '6 4' : undefined
-                                }
-                            />
-                        </svg>
-                        {metric.label} ({index === 0 ? 'Left' : 'Right'} Axis)
-                    </li>
-                ))}
-            </ul>
+            {metrics.length > 1 && (
+                <ul
+                    aria-label="Legend"
+                    className="flex flex-wrap justify-center gap-x-4 gap-y-1"
+                >
+                    {metrics.map((metric, index) => (
+                        <li
+                            key={metric.id}
+                            className="flex items-center gap-2 type-meta"
+                        >
+                            <svg width="24" height="8" aria-hidden="true">
+                                <line
+                                    x1="0"
+                                    y1="4"
+                                    x2="24"
+                                    y2="4"
+                                    stroke={`var(--chart-${index + 1})`}
+                                    strokeWidth="2"
+                                    strokeDasharray={DASHES[index]}
+                                />
+                            </svg>
+                            {metric.label}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 }

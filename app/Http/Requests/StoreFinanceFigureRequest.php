@@ -15,13 +15,13 @@ final class StoreFinanceFigureRequest extends FinanceReportRequest
     {
         $years = 'between:'.config('cagayan.finances.first_year').','.min($this->reportYear(), (int) config('cagayan.finances.last_year'));
         $line = $this->input('line_code');
-        $group = is_string($line) ? FinanceLine::query()->where('code', $line)->where('displayed', true)->value('group') : null;
+        $group = is_string($line) ? FinanceLine::query()->enterable()->where('code', $line)->value('group') : null;
         $bases = is_string($group) ? config("cagayan.finances.groups.{$group}.bases", ['actual']) : [];
         $digits = strlen(explode('.', (string) config('cagayan.finances.value_max'))[0]);
 
         return [
             ...parent::rules(),
-            'line_code' => ['required', 'string', 'max:80', Rule::exists('finance_lines', 'code')->where('displayed', true)],
+            'line_code' => ['required', 'string', 'max:80', Rule::exists('finance_lines', 'code')->where('displayed', true)->whereNot('source', 'derived')],
             'fiscal_year' => ['required', 'integer', $years],
             'basis' => ['required', Rule::enum(FinanceBasis::class), Rule::in($bases)],
             'value' => ['required', 'string', 'regex:/^\d{1,'.$digits.'}(\.\d{1,2})?$/', 'numeric', 'between:0,'.config('cagayan.finances.value_max')],

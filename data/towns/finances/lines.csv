@@ -39,3 +39,11 @@ sector.development_fund,,Development Fund,development,php,1,fs_scbaa,20 ?% (deve
 sector.disaster_fund,,Disaster Risk Fund,checks,php,0,fs_scbaa,(5 ?% )?ldrrmf;5 ?% calamity fund
 sector.aid_to_barangays,,Aid to Barangays,checks,php,0,fs_scbaa,aid to barangays?
 sector.debt_service,,Debt Service,checks,php,0,fs_scbaa,debt servicing;financial service;debt service
+performance.surplus,,Surplus or Deficit,totals,php,1,derived,(?!)
+revenue.remaining,,Other Revenue,revenue_sources,php,1,derived,(?!)
+revenue.local_share,,Locally Generated Share,revenue_share,percent,1,derived,(?!)
+budget.utilization,,Budget Utilization,budget_share,percent,1,derived,(?!)
+sector.development_fund.utilization,,Development Fund Utilization,development_share,percent,1,derived,(?!)
+sector.economic_services.utilization,,Economic Services Utilization,development_share,percent,1,derived,(?!)
+per_capita.revenue,,Revenue per Resident,per_capita,php,1,derived,(?!)
+per_capita.expenses,,Expenses per Resident,per_capita,php,1,derived,(?!)

@@ -322,6 +322,7 @@ Withdrawn 26-10-28 by the user. Health, education, social welfare and other sect
   - P4 across the cells of a breakdown.
   - P6 for derived change and share.
   - P7: the public sees bands only.
+  - Focus Tag sales are bands for every audience, because tags overlap industries (P4, 26-10-28).
 - **Label:** every view shows the "Simulated data" label.
 
 ### M30. Industry Share of Town
