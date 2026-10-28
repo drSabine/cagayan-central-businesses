@@ -9,6 +9,4 @@ enum TownMeasure: string
     case BarangayCount = 'barangay_count';
     case IncomeClass = 'income_class';
     case PovertyIncidence = 'poverty_incidence';
-    case Revenue = 'revenue';
-    case Expenditure = 'expenditure';
 }

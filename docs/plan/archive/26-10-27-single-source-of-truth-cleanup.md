@@ -31,7 +31,7 @@ Consolidate redundant frontend and backend code across the public landing page, 
 ## Out of Scope
 
 - Changing Inertia prop contracts, route names, database schema, or user-visible privacy/disclosure behavior.
-- Unrelated uncommitted COA source collection files under `data/towns/annual-audit-reports/` and `data/towns/executive-summaries/`, and the deferred plan `docs/plan/active/26-10-24-government-finances-economic-context.md`.
+- Unrelated uncommitted COA source collection files under `data/towns/annual-audit-reports/` and `data/towns/executive-summaries/`, and the deferred plan `docs/plan/archive/26-10-24-government-finances-economic-context.md`.
 
 ## Decisions and Changes
 

@@ -29,5 +29,7 @@ class DatabaseSeeder extends Seeder
         // Real public figures per town and per Tuguegarao barangay, from data/towns and data/barangays.
         $this->command->call('towns:import');
         $this->command->call('barangays:import');
+        // Government finances from COA reports, published only where signed off (data/towns/finances).
+        $this->command->call('finances:import');
     }
 }

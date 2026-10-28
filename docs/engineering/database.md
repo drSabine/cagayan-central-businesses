@@ -87,19 +87,97 @@ The cities and municipalities of Cagayan. All appear on the province map. Only c
 
 ### town_facts
 
-Real public figures per town and year: population, land area, barangays, income class, poverty incidence, revenue, and expenditure. Loaded from `data/towns/town-facts.csv` by `php artisan towns:import`, which replaces the whole table with the file. Read by `TownAtlasQuery` (metrics.md, "Town figures"). Public, so no visibility class applies.
+Real public figures per town and year: population, land area, barangays, income class, and poverty incidence. Government revenue and expenses moved to the finance ledger below (D35). Loaded from `data/towns/town-facts.csv` by `php artisan towns:import`, which replaces the whole table with the file. Read by `TownAtlasQuery` (metrics.md, "Town figures"). Public, so no visibility class applies.
 
 | Column | Type | Notes |
 | :- | :- | :- |
 | `id` | id | |
 | `municipality_id` | foreign key | cascade on delete |
-| `measure` | enum `population`, `land_area_km2`, `barangay_count`, `income_class`, `poverty_incidence`, `revenue`, `expenditure` | `App\Enums\TownMeasure` |
+| `measure` | enum `population`, `land_area_km2`, `barangay_count`, `income_class`, `poverty_incidence` | `App\Enums\TownMeasure` |
 | `year` | smallint | The year the figure is for |
-| `value` | decimal(16, 2) | Pesos, residents, km², percent, or the class number |
+| `value` | decimal(16, 2) | Residents, km², percent, or the class number |
 | `source_url` | string(500) | Required |
 | `checked_on` | date, nullable | When a team member checked it against the official release |
 
-Unique `(municipality_id, measure, year)`, which also serves the lookups. A new census or budget year is new rows, never a schema change.
+Unique `(municipality_id, measure, year)`, which also serves the lookups. A new census year is new rows, never a schema change.
+
+### Finance ledger
+
+Government finance figures from COA reports (D35, metrics.md M19 to M27). The tables are loaded by `php artisan finances:import` (`composer data:finances`) from `data/towns/finances/`, which the Python parser in `tools/coa/` writes (D34). `php artisan finances:export` saves sign-offs and manual figures back to those CSVs, so `composer db:reset` rebuilds the same verified ledger. The import never deletes manual figures. A parsed figure whose value changes goes back to pending. Public figures, so no visibility class applies, but only `verified` figures are published.
+
+#### finance_lines
+
+The line catalog, one row per `data/towns/finances/lines.csv` row.
+
+| Column | Type | Notes |
+| :- | :- | :- |
+| `id` | id | |
+| `code` | string(80) | unique, such as `performance.revenue` |
+| `parent_code` | string(80), nullable | The total a breakdown line belongs to |
+| `label` | string(120) | Display label, such as "Government Revenue" |
+| `group` | string(40) | Field Catalog section: `totals`, `budget`, `revenue_sources`, `business_taxes`, `development`, or `checks` (read for arithmetic only, never stored) |
+| `unit` | string(10) | `php` |
+| `displayed` | boolean | False for lines kept only for the arithmetic checks |
+| `source` | string(40) | `executive_summary`, `fs_workbook`, `annex_c1`, `fs_scbaa` |
+| `sort` | smallint | File order |
+
+#### finance_documents
+
+A COA report for one town and fiscal year, or the record that COA had not published it on the date checked.
+
+| Column | Type | Notes |
+| :- | :- | :- |
+| `id` | id | |
+| `municipality_id` | foreign key | restrict on delete |
+| `fiscal_year` | smallint | The report year |
+| `kind` | enum `executive_summary`, `fs_workbook`, `annex_workbook` | `App\Enums\FinanceDocumentKind` |
+| `availability` | enum `available`, `not_published` | `App\Enums\FinanceAvailability`. Not published shows as Not available, never zero |
+| `file` | string(300), nullable | Path inside `data/towns/` |
+| `source_url` | string(500), nullable | The exact COA download |
+| `sha256` | char(64), nullable | Checksum of the file as downloaded |
+| `checked_on` | date | When the file or its absence was checked |
+
+Unique `(municipality_id, fiscal_year, kind)`.
+
+#### finance_figures
+
+One figure, parsed from a report or entered by hand.
+
+| Column | Type | Notes |
+| :- | :- | :- |
+| `id` | id | |
+| `public_id` | uuid | unique. The identifier in URLs and exports |
+| `municipality_id` | foreign key | restrict on delete |
+| `fiscal_year` | smallint | The year the figure describes. A 2024 report also gives 2023 |
+| `line_code` | string(80) | foreign key to `finance_lines.code` |
+| `basis` | enum `actual`, `budget_final` | `App\Enums\FinanceBasis` |
+| `value` | decimal(18, 2) | Pesos with cents; negative for a deficit |
+| `definition_variant` | string(60), nullable | Set when the source label states another definition. M26 does not compute change across a variant |
+| `finance_document_id` | foreign key, nullable | The report read. Required for parsed figures |
+| `source_url` | string(500), nullable | For a manual figure without a document |
+| `source_label`, `location` | string, nullable | The label as printed and the page or cell, for reviewers |
+| `entry_method` | enum `parsed`, `manual` | `App\Enums\FinanceEntryMethod` |
+| `extractor_version` | string(10), nullable | Parser rules that produced a parsed figure |
+| `status` | enum `pending`, `verified`, `rejected`, `superseded`, default `pending` | `App\Enums\FinanceFigureStatus` |
+| `entered_by`, `reviewed_by` | foreign keys to `users`, nullable | Null on delete. Not exported |
+| `reviewed_on` | date, nullable | Required once the status is not pending |
+| `note` | string(500), nullable | |
+
+Rules the database enforces:
+
+- At most one `verified` figure per `(municipality_id, fiscal_year, line_code, basis)`, by a partial unique index.
+- One parsed figure per `(finance_document_id, line_code, fiscal_year, basis)`.
+- Every figure has a document or a source URL.
+- Parsed figures have a document.
+- Reviewed figures have a date.
+
+Indexes: `(fiscal_year, line_code)`, `(municipality_id, status)`, `line_code` and `finance_document_id`.
+
+`App\Services\FinanceSignOff` applies the rest:
+
+- When a later report restates a year, its figure supersedes the earlier one.
+- A manual correction outranks every report.
+- Nobody signs off a figure they entered.
 
 ### barangays
 
