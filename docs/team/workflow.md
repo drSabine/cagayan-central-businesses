@@ -203,6 +203,8 @@ The database runs in Docker from `compose.yaml`, the same way on every laptop, a
 - **A real change** (a new image version, a new init script) is its own `chore/` pull request, reviewed by the backend developer, with the CI image kept in sync. The pre-commit hook reminds you. The description says what teammates run after merging, usually `composer db:up`.
 - **Something broken?** Run `composer doctor` first, then tell the backend developer.
 - **Never** `docker compose down -v`, `docker volume rm`, or `docker system prune`. They delete your local database.
+- **Before any rebuild** (`migrate:fresh`, `composer db:reset`), run `php artisan config:show database.connections.pgsql.database` and confirm which database it is and that nothing else uses it, such as your running `composer dev`. A rebuild deletes the local accounts too; restore them with `php artisan db:seed --class=DemoAccountSeeder` (user correction, 26-10-28).
+- **Before `npm ci` or `npm install`,** stop `composer dev` completely, including its Vite process. On Windows a running Vite server locks Tailwind's native file, and the install stops halfway with `EPERM`, leaving `node_modules` broken.
 
 ## Not allowed
 

@@ -344,3 +344,21 @@ Year-tab verification "26-10-28": frontend format/lint, TypeScript and productio
 - Kickoff now works on `feat/business-analytics`. Local branches already in `staging` or in this branch were deleted, leaving `main`, `staging` and this branch.
 - The local `cagayan_business_finance` database used by port 8000 was rebuilt with the final data, and the three demo accounts were restored with `DemoAccountSeeder`.
 - The one-folder rule is recorded in `CLAUDE.md`, `docs/team/workflow.md` and Claude's memory.
+
+### Mistakes and Corrections, 26-10-27 to 26-10-28
+
+Recorded at the user's request so later sessions do not repeat them. Each has its correction and where the rule now lives.
+
+| Mistake | Effect | Correction and rule |
+| :- | :- | :- |
+| Claude started downloading COA archives through the browser without being asked (Phase 4) | Two files reached the user's Downloads folder; the user stopped it | Use only the data already on disk unless the user asks for collection. Recorded in Phase 4 Verification |
+| Claude created git worktrees (`cagayan-business-finance`, and earlier `cagayan-business-followup`) for separate phases | The user could not tell where changes lived; folders split the database, `.env` and branches | Work only in `cagayan-business-kickoff`. `CLAUDE.md` step 0, `docs/team/workflow.md`, Claude's memory |
+| Claude ran `migrate:fresh --seed` on `cagayan_business_finance`, believing it was an isolated check database | It was also the database behind port 8000, so the three local demo accounts were deleted | Accounts restored with `DemoAccountSeeder`. Check the database name and its users before any rebuild: `docs/team/workflow.md`, "The shared database" |
+| Claude created a temporary local Admin account to check Capitol Analytics in the browser | A test account with a generated password existed in the local database until the next rebuild removed it | Use the seeded demo accounts; ask before creating any account |
+| Chart series were keyed by metric ids containing dots | `--color-performance.revenue` is not a valid CSS name, so finance lines drew nothing | Series keyed by position; `docs/engineering/frontend.md`, "Charts" |
+| Phase 6 first shipped without M30 (Industry Share of Town) and without the sales percent change (M31) | Approved metrics were missing from the screens | Both built with tests during the browser check |
+| Focus Tag sales were exact in the Capitol | A tag minus an overlapping industry could reveal a group the privacy guard never checked | User decision: tag sales are bands for everyone; `privacy-rules.md` P4 |
+| The parser trusted Gattaran 2024's column headers | The 2023 values were stored as 2024 | Parser reads printed order when two proofs hold; reliability review above; `data/towns/finances/README.md` |
+| Missing values said "Not in the signed-off figures" even when no workbook had been collected | The reason on screen was not true | Separate reasons for not published, not reported, not collected and awaiting sign-off; `metrics.md`, Observation States |
+| Claude ran `npm ci` while the user's `composer dev` was running | The install stopped halfway and broke the running Vite server | The user stopped Vite and reinstalled. Stop `composer dev` before installing: `docs/team/workflow.md`, "The shared database" |
+| Claude asked the user to run `/open-pr` when the user had already asked for the pull request | An extra round trip for the user | When the user asks for a push or pull request in plain words, do it directly |
