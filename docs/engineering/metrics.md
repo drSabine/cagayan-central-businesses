@@ -170,7 +170,12 @@ Each flag states which condition raised it.
 
 ## Town figures (home page map)
 
-Public figures per town from `town_facts`, loaded from `data/towns/town-facts.csv` (`data/towns/README.md`). They are real published figures, not business records, so no privacy rule applies. The page shows population, Government Revenue, and Government Expenses, each from the newest verified year for that town. A row needs a verification date and source URL before publication. Unchecked newer rows do not displace verified older rows. The legacy `expenditure` key holds accrual total expenses, including non-cash expenses and transfers to other entities; it is not cash disbursements or obligations. Exact COA source-cell calculations, financial highlights cross-checks and qualified opinions are recorded in `data/towns/verified-finances-2024.md`.
+Real published figures per town, not business records, so no privacy rule applies. The page shows three figures, each from the newest verified year for that town:
+
+- **Population:** from `town_facts`, loaded from `data/towns/town-facts.csv` (`data/towns/README.md`).
+- **Government Revenue and Government Expenses (M19):** the newest signed-off `performance.revenue` and `performance.expenses` in the finance ledger (D35). The response keys stay `revenue` and `expenditure`. The expenses figure is accrual total expenses, not cash disbursements or obligations.
+
+A figure needs a verification date, or a ledger sign-off, and a source URL before publication. Unchecked or pending newer figures do not displace verified older ones.
 
 ### M18. Map shade
 
@@ -181,13 +186,153 @@ Public figures per town from `town_facts`, loaded from `data/towns/town-facts.cs
 
 Province population/count totals require complete town coverage in the same reference year. Missing source links are not attributed to another town’s source. City/municipal accounts are never summed and shown as the provincial government’s revenue or expenses.
 
-## Planned COA historical series (not implemented)
+## Government Finances (Approved 26-10-28)
 
-Revenue + Economic Status is the approved information direction: government finances alongside economic output, household conditions, business activity, and community interests. It is not a composite rating. Government revenue includes local and external sources and is not private-business sales or GDP. Preserve source-specific labels and definitions; real GDP growth uses constant-price output, not government revenue growth. Publish a measure only at the source's supported geographic level. In particular, Cagayan Province GDP cannot stand in for Tuguegarao City or barangay GDP. See the October 24 clarification in the product scope for the approved distinctions and primary references.
+**Status: approved by the user on 26-10-28.** A definition changes only with a human-approved doc change. See the [Finance Ledger and Analytics Program](../plan/active/26-10-27-finance-ledger-analytics-program.md) and D35.
 
-COA measures describe the reporting local government, not the output or sales of private businesses. A future separate client-facing Local Government Finances view will use verified fiscal-year 2021–2026 reports when available. Source measure definitions must be approved before implementation; do not silently equate income/revenue, expenses/expenditure, cash outflows, or obligations.
+Revenue + Economic Status is the approved information direction. Government finances sit alongside economic output, household conditions, business activity, and community interests. It is not a composite rating.
 
-For a comparable measure in consecutive fiscal years, absolute change is current value minus prior value. Percentage change is that difference divided by the prior value, times 100; a zero prior value or missing/non-comparable year yields no percentage change. Do not bridge missing years and call the result annual growth. Keep exact source precision in storage, document derived totals, and track restated comparative amounts and audit qualifications. No automatic good/bad interpretation or investment-opportunity score follows from an increase or decrease. Full-year 2026 actuals are unavailable until the fiscal year and corresponding reporting process are complete. See the roadmap's future phase for prerequisites.
+Government revenue includes local and external sources. It is not private-business sales and not GDP. Preserve source-specific labels and definitions; real GDP growth uses constant-price output, not government revenue growth. Publish a measure only at the source's supported geographic level: Cagayan Province GDP cannot stand in for Tuguegarao City or barangay GDP. See the October 24 clarification in the product scope.
+
+COA measures describe the reporting local government, not the output or sales of private businesses. Income/revenue, expenses/expenditure, cash outflows and obligations are not interchangeable. Each line below names its source and basis. Audit opinions, audit findings and infrastructure project lists are excluded (D35).
+
+### Sources and Years
+
+| Source | What it contains |
+| :- | :- |
+| Executive Summary | COA Executive Summary PDF: financial highlights for all 29 towns |
+| FS | Part 1 financial statements workbook: Statement of Financial Performance, and Statement of Comparison of Budget and Actual Amounts (SCBAA) |
+| Annex | Part 4 Annexes workbook: detailed General Fund performance (Annex C-1) |
+
+- **Fiscal years:** 2019 to 2025. Fiscal 2019 comes only from the prior-year column of the 2020 reports.
+- **2026:** waits for its report. No budget or partial-year figure stands in for it.
+- **Basis:** accrual actual, unless the value is marked as a final budget.
+- **Precision:** exact cents in storage.
+
+### Observation States
+
+Every finance and business observation has one state. When it is not shown, it also has a reason. "Not available" and "Hidden" are never shown as `0`.
+
+| State | Meaning | Shown as |
+| :- | :- | :- |
+| `shown` | Signed off (D35) | The value |
+| `not_published` | COA published no report or workbook for that town and year | Not available; the reason is in the tooltip |
+| `not_reported` | The document exists but does not contain the line | Not available; the reason is in the tooltip |
+| `pending_review` | Extracted or entered, not yet signed off | Withheld everywhere except the Capitol review screen |
+| `hidden` | Business privacy guard, P2 to P6 | Hidden, with the reason |
+
+### M19. Government Revenue, Government Expenses, Surplus or Deficit
+
+| Measure | Code | Definition and source labels |
+| :- | :- | :- |
+| Government Revenue | `performance.revenue` | Total revenue for the year. Executive Summary: "Income", "Total Income", "Total Revenues". FS: "Total Revenue" |
+| Government Expenses | `performance.expenses` | Total expenses, including non-cash expenses and transfers to other entities. It is not cash disbursements or obligations |
+| Surplus or Deficit | derived | Government Revenue minus Government Expenses, computed in SQL. The summaries' own "Net Income" is read only to check their arithmetic, not stored |
+
+When a source label states a different definition, the figure carries a `definition_variant`. Example: "Includes Subsidy from Other Funds".
+
+### M20. Budget Utilization
+
+- Current Obligations ÷ Current Appropriations × 100, for the same town and year. Both come from the Executive Summary.
+- Not available when either figure is missing, or when appropriations are zero.
+- A low or high rate is not a judgment of performance.
+
+### M21. Revenue by Source and Locally Generated Share
+
+Revised 26-10-28 by user approval to a business focus. Source lines come from the FS Statement of Financial Performance:
+
+| Revenue source | Code |
+| :- | :- |
+| Local Taxes | `revenue.tax` |
+| National Tax Allotment Share | `revenue.national_share` |
+| Fees and Business Income | `revenue.service_business` |
+
+- **Other Revenue** is Government Revenue minus the three sources, computed in SQL. It covers grants, other national tax shares and miscellaneous income, which are not stored separately.
+- **Share of a source** is the source ÷ Government Revenue × 100.
+- **Locally Generated Share** is (Local Taxes + Fees and Business Income) ÷ Government Revenue × 100.
+- The parser checks that every revenue line in the statement adds up to its Total Revenue, within ₱1.00, before the year's breakdown can be signed off.
+- When a statement has no national share line, Local Taxes carries `definition_variant` `may_include_national_share`, and Locally Generated Share is not available for that year.
+
+### M22. Business Taxes and Fees
+
+From the Part 4 Annex detailed statement, General Fund only:
+
+| Line | Code | Note |
+| :- | :- | :- |
+| Business Tax | `local.business_tax` | |
+| Permit Fees | `local.permit_fees` | |
+| Market Operations | `local.market_operations` | |
+| Real Property Tax | `local.real_property_tax` | Basic tax, net of its discount |
+
+These figures are always labeled General Fund. They are never added to, or compared with, the consolidated totals in M19 and M21. Community Tax was removed on 26-10-28.
+
+### M23. Development Spending
+
+From the SCBAA (budget and actual) sheet, Current Appropriations:
+
+| Line | Code |
+| :- | :- |
+| Development Fund | `sector.development_fund` (the 20% Development Fund) |
+| Economic Services | `sector.economic_services` (agriculture, trade, tourism and other economic offices) |
+
+- **Value:** the sum of every actual amount (personnel, operations, capital outlay, other) listed under the heading.
+- **Budget:** the sum of the final budget column is stored with basis `budget_final`.
+- **Utilization** is the actual ÷ the final budget × 100. Not available when the final budget is zero.
+- **Unknown headings:** the parser recognizes the other sector headings only to know where each section ends. Spending under headings outside the catalog is reported as an issue, never added to these two lines.
+
+### M24. Spending by Sector (Withdrawn)
+
+Withdrawn 26-10-28 by the user. Health, education, social welfare and other sector spending, per-sector capital outlay, and expense types are not stored or displayed. The SCBAA headings proved too inconsistent across towns for a reliable cross-town comparison, and they fall outside the business focus.
+
+### M25. Per Capita
+
+- A figure divided by the town's population in the latest census at or before the fiscal year:
+  - the 2020 census for fiscal 2019 to 2023
+  - the 2024 census for fiscal 2024 and 2025
+- The census year is always stated.
+- Not available when that census figure is not verified.
+
+### M26. Year-over-Year Change
+
+- **When computed:** only for consecutive fiscal years where both values are shown and share the same `definition_variant`.
+- **Absolute change:** current value minus prior value.
+- **Percent change:** absolute change ÷ prior value × 100, shown to one decimal. There is none when the prior value is zero.
+- **Missing years:** never bridged, imputed, or carried forward.
+- **Restated years:** use the restated figure. The tooltip says it was restated, and the earlier figure stays in Capitol history.
+- **No rating:** an increase is not automatically an improvement, and no good or bad rating follows from a change.
+
+### M27. Sum of Reporting Towns
+
+- **Label:** a total across towns for one line and year is always labeled "Sum of Reporting Towns", never provincial government finances.
+- **Coverage:** always stated, for example "13 of 29 towns".
+- **Year-over-year change (M26):** computed only over the towns shown in both years, and that matched count is stated.
+- **Comparing towns:** use the median of the reporting towns. Missing towns are listed last and unranked, as in M5.
+
+### M28. Businesses by Industry or Focus Tag
+
+- **Counts:** Active, New and Closed businesses per year, as defined by the `business_years` status rules.
+- **Grouping:** by the Business Type's PSIC industry, or by a Focus Tag (D36).
+- **Tags overlap:** one type can carry several tags, so tag counts are never added together across tags.
+
+### M29. Declared Sales by Industry or Focus Tag
+
+- **Value:** M3 for the group's businesses in a year.
+- **Privacy guard:** always applies:
+  - P2 and P3 on each group.
+  - P4 across the cells of a breakdown.
+  - P6 for derived change and share.
+  - P7: the public sees bands only.
+- **Label:** every view shows the "Simulated data" label.
+
+### M30. Industry Share of Town
+
+- **Count share:** the industry's active businesses ÷ the town's active businesses × 100.
+- **Sales share:** the industry's declared sales ÷ the town's declared sales × 100. It is hidden whenever either sales figure is hidden (P6).
+
+### M31. Business Year-over-Year Change
+
+- **Definition:** M26 applied to M28 and M29.
+- **Hidden figures:** a change derived from a hidden figure is hidden (P6).
 
 ## Config values
 

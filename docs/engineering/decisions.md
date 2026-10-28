@@ -252,3 +252,30 @@ Approved 26-10-27 by explicit user request. On a machine with `APP_ENV=local`, t
 Accounts come from `config('cagayan.demo_accounts')`, filled from `.env` (`DEMO_SUPER_ADMIN_*`, `DEMO_ADMIN_*`, `DEMO_STAFF_*`), so credentials never enter the repository. `DemoAccountSeeder` creates the ones that are set and skips existing users; run it alone with `php artisan db:seed --class=DemoAccountSeeder`. A button appears only when the account exists, is active, and holds the matching role. The browser receives the role value and label only.
 
 The route is not rate limited because it takes no guessable input and does not exist outside local. The login path still never enters the bundle: the buttons post to the page's own URL plus `/demo/{role}` (D20, `LoginPathOutOfBundleTest`). No new package, no new identity provider (D28). Production and staging must keep `APP_ENV` at `production` or `staging`; `deployment.md` already requires `APP_ENV=production`.
+## D34. Python Source Tooling
+
+Approved 26-10-27 by the user for the [Finance Ledger and Analytics Program](../plan/active/26-10-27-finance-ledger-analytics-program.md). COA Executive Summary PDFs and audit-report workbooks are read by a Python parser in `tools/coa/`. Its dependencies (pdfplumber, openpyxl, pytest) are pinned in `tools/coa/requirements.txt` and installed in a local venv. Composer scripts run it, as D4 requires. The parser runs on team laptops only. It is not part of the app runtime, the Docker image, or CI. The app reads only the parser's committed CSV output under `data/towns/finances/`, so a clean clone works without Python.
+
+**Why:** the user wants new report years added by running one command, not by reading every PDF by hand. The source files vary by town and year in sheet names, labels and table order, and pdfplumber and openpyxl handle both formats well. Earlier source-review helpers were already Python. Keeping Python out of the runtime leaves the PHP stack unchanged.
+
+## D35. Finance Ledger
+
+Approved 26-10-27. Government finance figures leave `town_facts` and move into one ledger:
+
+- **Tables:** `finance_lines`, `finance_documents` and `finance_figures`.
+- **Two entry routes:** the parser's import and a Capitol form. Each figure records how it was entered, its source document, and its page or cell.
+- **Sign-off before publication:** a figure is publishable only after a person signs it off. Staff may enter figures for assigned towns. Admin and Super Admin may enter figures anywhere and may sign off. Nobody signs off a figure they entered.
+- **One current figure:** each town, fiscal year, line and basis has at most one verified figure. When a later report restates a year, the later report's figure becomes current, and the earlier one is kept as superseded history.
+- **Reproducibility:** sign-offs and manual entries are exported to committed CSVs, so `composer db:reset` reproduces the verified state.
+- **Labels and limits:** labels and the line list come from `data/towns/finances/lines.csv`. Figures appear only at the reporting town's level. Totals across towns are labeled Sum of Reporting Towns, never provincial government finances.
+- **Exclusions:** audit opinions, audit findings and infrastructure project lists are not extracted, stored or displayed. This was the user's decision on 26-10-27, and it supersedes the earlier note that audit qualifications must accompany the series.
+
+**Why:** the user asked for revenue sources, spending by sector and budget execution, not only two totals. Admins must be able to enter and correct COA figures through a form. The verification rule must survive automation, so parsing assists people but never replaces their sign-off.
+
+## D36. Industries and Focus Tags
+
+Approved 26-10-27. Each Business Type keeps one official industry, its PSIC section. A team member verifies that section against the PSA classification and records the check date. Admins manage Focus Tags (for example Agriculture and Fishery) and attach them to Business Types. A type can carry several tags.
+
+Analytics groups businesses by industry or by tag. An agricultural supply store therefore counts under Wholesale and Retail Trade by industry, and under Agriculture by focus. Tags attach to types, not to individual businesses.
+
+**Why:** the user wants to see which parts of a town's economy perform well. The official industry alone hides agriculture-related trade. Tagging every record separately would make each record harder to maintain, and simulated records would need invented tags.

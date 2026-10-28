@@ -1,6 +1,6 @@
 # COA Executive Summaries
 
-Executive Summary PDFs from the Commission on Audit (COA) annual audit reports for Cagayan's 28 municipalities and Tuguegarao City. They are source documents for the deferred Local Government Finances history (`docs/team/roadmap.md`). Nothing here is imported into the database.
+Executive Summary PDFs from the Commission on Audit (COA) annual audit reports for Cagayan's 28 municipalities and Tuguegarao City. The parser in `tools/coa/` reads them into [`../finances/`](../finances/README.md) (D34). Figures reach the screen only after review and sign-off (D35).
 
 Collected on October 27, 2026 from https://www.coa.gov.ph/reports/annual-audit-reports/aar-local-government-units/ (Region II, Cagayan, Cities and Municipalities folders).
 

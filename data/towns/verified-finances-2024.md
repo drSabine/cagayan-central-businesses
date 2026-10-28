@@ -1,5 +1,7 @@
 # Verified Local Government Finances 2024
 
+Since 26-10-28 these pairs live in the finance ledger as sign-offs in [`finances/reviews.csv`](finances/reviews.csv), attached to the matching Executive Summary figures, which equal the workbook cells below to the cent (D35). The `revenue` and `expenditure` keys below describe the earlier `town_facts` storage.
+
 Checked 26-10-24 against original COA annual audit report archives, not Wikidata values. The reporting entity is the named city/municipality, for the year ended December 31, 2024. Amounts are Philippine pesos, accrual financial-performance figures. These are neither private-business sales nor GDP. National tax allocations form part of government revenue.
 
 `revenue` stores Total Revenue. The legacy `expenditure` key stores total **expenses**, including non-cash expenses and transfers/assistance/subsidy to other entities. It does not mean cash disbursements, appropriations or obligations. The interface labels are Government Revenue and Government Expenses. Each expense below was cross-checked against the archive's `03-…_Executive_Summary.docx` Financial Highlights/Results of Operations table. Source worksheets record transfers to as negative, hence subtraction in the cell references below. Stored cents replace the earlier rounded secondary-source values; display rounding is separate.
