@@ -6,13 +6,16 @@ use App\Models\Barangay;
 use App\Models\BusinessType;
 use App\Models\Municipality;
 use Faker\Factory as Faker;
+use Faker\Generator;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Simulated businesses for Tuguegarao City, 2020 to 2026, labeled "Simulated data" (D10).
- * It meets database.md "Seeder requirements" 3 to 6 and 9, and follows the business_years status rules.
+ * Simulated businesses for Tuguegarao City, 2020 to 2026, labeled "Simulated data" (D10, D37).
+ * It meets database.md "Seeder requirements" 3 to 7 and 9, follows the business_years status rules, and tells the
+ * presentation story in cagayan.simulation.trends: food near schools and online work grow, one barangay declines.
  */
 class SimulatedBusinessSeeder extends Seeder
 {
@@ -35,73 +38,154 @@ class SimulatedBusinessSeeder extends Seeder
         'medium' => [15_000_000, 60_000_000, 50, 199],
     ];
 
+    private const array RETURN_NOTES = [
+        'Upload a clearer copy of the BIR Certificate of Registration.',
+        'The pin is outside the storefront. Move it to the business address.',
+        'The DTI registration has expired. Upload the renewed certificate.',
+        'Add this year\'s barangay clearance.',
+    ];
+
+    private const string DOCUMENT = 'registry/simulated-document.pdf';
+
+    /** Short owner-style descriptions by type, so profiles do not repeat the type and the place. */
+    private const array DESCRIPTIONS = [
+        'sari-sari-store' => 'Snacks, drinks, load and everyday household needs.',
+        'grocery' => 'Fresh produce, canned goods and toiletries.',
+        'pharmacy' => 'Prescription and over-the-counter medicines.',
+        'hardware-store' => 'Construction materials, tools and electrical supplies.',
+        'clothing-store' => 'Casual wear, school uniforms and footwear.',
+        'school-supplies' => 'Notebooks, books and art materials for students.',
+        'auto-repair' => 'Tune-ups, vulcanizing and motorcycle parts.',
+        'bakery' => 'Pandesal baked fresh every morning, plus cakes on order.',
+        'water-refilling' => 'Purified drinking water with home delivery.',
+        'printing-shop' => 'Printing, photocopy, lamination and tarpaulins.',
+        'coffee-shop' => 'Brewed coffee and pastries, with study-friendly seating.',
+        'restaurant' => 'Filipino and Ibanag favorites for dine-in and takeout.',
+        'eatery' => 'Affordable home-style meals, lunch and dinner.',
+        'boarding-house' => 'Rooms for students and workers, with water and electricity.',
+        'hotel' => 'Air-conditioned rooms for travelers and events.',
+        'bank' => 'Deposits, loans and remittances.',
+        'lending' => 'Small loans and pawning of jewelry and gadgets.',
+        'veterinary-clinic' => 'Checkups, vaccines and grooming for pets.',
+        'tutorial-center' => 'Review classes and tutoring for all grade levels.',
+        'clinic' => 'General consultations and basic laboratory tests.',
+        'dental-clinic' => 'Cleaning, fillings, extractions and braces.',
+        'gym' => 'Weights, cardio and personal training.',
+        'salon' => 'Haircuts, color, rebond and nail care.',
+        'laundry' => 'Wash, dry and fold by the kilo.',
+        'repair-shop' => 'Phone, laptop and appliance repair.',
+        'crop-farm' => 'Rice and corn harvest sold to local traders.',
+        'livestock-farm' => 'Poultry and hogs for local markets.',
+        'fishpond' => 'Tilapia and bangus, harvested to order.',
+        'agri-supply' => 'Seeds, fertilizer and farm chemicals.',
+        'rice-mill' => 'Milling services and rice by the sack.',
+        'online-seller' => 'Orders taken online, with pickup or delivery in the city.',
+        'digital-services' => 'Logos, layouts and social media content.',
+    ];
+
+    private Generator $faker;
+
+    /** @var array<int, string> */
+    private array $typeNames;
+
+    /** @var array<int, string> */
+    private array $typeCodes;
+
     public function run(): void
     {
         $seed = (int) config('cagayan.simulation.seed');
         mt_srand($seed);
-        $faker = Faker::create('en_PH');
-        $faker->seed($seed);
+        $this->faker = Faker::create('en_PH');
+        $this->faker->seed($seed);
+        $trends = config('cagayan.simulation.trends');
 
         $town = Municipality::query()->where('psgc_code', config('cagayan.performance.demo_town'))->firstOrFail();
         $barangays = Barangay::query()->where('municipality_id', $town->id)->whereNotNull('boundary')
-            ->orderBy('psgc_code')->get(['id', 'population']);
+            ->orderBy('psgc_code')->get(['id', 'name', 'population']);
         $types = BusinessType::query()->pluck('id', 'code');
+        $this->typeNames = BusinessType::query()->pluck('name', 'id')->all();
+        $this->typeCodes = BusinessType::query()->pluck('code', 'id')->all();
         $first = (int) config('cagayan.data.first_year');
         $last = (int) config('cagayan.data.latest_year');
+        $minimum = (int) config('cagayan.simulation.minimum_per_barangay');
         $medianPopulation = $barangays->pluck('population')->filter()->median() ?? 0;
 
         // Requirement 5: the least populous barangay keeps a small group. Requirement 6: one barangay has a dominant business.
         $smallest = $barangays->sortBy('population')->first()?->id;
         $dominant = $barangays->sortBy('population')->values()->get(intdiv($barangays->count(), 2))?->id;
+        $declining = $barangays->firstWhere('name', $trends['declining_barangay'])?->id;
 
         $businesses = [];
         $histories = [];
-        $now = now();
         foreach ($barangays as $barangay) {
             $count = $barangay->id === $smallest
-                ? (int) config('cagayan.simulation.minimum_per_barangay')
-                : max((int) config('cagayan.simulation.minimum_per_barangay'), (int) round(($barangay->population ?? 0) / 1000 * (int) config('cagayan.simulation.businesses_per_thousand_residents')));
+                ? $minimum
+                : max($minimum, (int) round(($barangay->population ?? 0) / 1000 * (int) config('cagayan.simulation.businesses_per_thousand_residents')));
             $rural = ($barangay->population ?? 0) < $medianPopulation;
+            // Food in school barangays comes only from the yearly cohorts below, so its growth reads clearly.
+            $excluded = in_array($barangay->name, $trends['school_barangays'], true) ? $trends['food_types'] : [];
+            // Requirement 7: the declining barangay loses established businesses at a rising pace; the rest keep renewing.
+            $endings = $barangay->id === $declining ? $this->endings($trends['declining_non_renewals']) : [];
 
             for ($i = 0; $i < $count; $i++) {
-                $code = $this->pickType($rural);
                 $isDominant = $barangay->id === $dominant && $i === 0;
-                $size = $isDominant ? 'medium' : $this->pickSize();
-                [$low, $high, $minStaff, $maxStaff] = self::SIZES[$size];
-                $established = $isDominant || mt_rand(1, 10) <= 3 ? mt_rand(2000, $first - 1) : mt_rand($first, $last);
-                $publicId = (string) Str::uuid();
-
-                $businesses[] = [
-                    'public_id' => $publicId,
-                    'business_name' => Str::limit($faker->company(), 55, ''),
-                    'business_type_id' => $types[$code],
-                    'description' => Str::limit($faker->sentence(10), 280, ''),
-                    'year_established' => $established,
-                    'barangay_id' => $barangay->id,
-                    'location' => DB::raw('ST_SetSRID(ST_MakePoint(0, 0), 4326)'),
-                    'owner_name' => Str::limit($faker->name(), 80, ''),
-                    'contact_number' => '09'.str_pad((string) mt_rand(0, 999_999_999), 9, '0', STR_PAD_LEFT),
-                    'ownership_type' => $this->pick(['sole_proprietorship' => 80, 'partnership' => 8, 'corporation' => 8, 'cooperative' => 4]),
-                    'size_category' => $size,
-                    'employee_count' => mt_rand($minStaff, $maxStaff),
-                    'is_simulated' => true,
-                    'source' => null,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-                $histories[$publicId] = $this->history($established, $first, $last, $isDominant ? 400_000_000 : mt_rand($low, $high), $isDominant);
+                $ending = array_shift($endings);
+                $established = $isDominant || $ending !== null || mt_rand(1, 10) <= 3 ? mt_rand(2000, $first - 1) : mt_rand($first, $last);
+                $fate = $barangay->id === $declining || $isDominant ? ($ending ?? 0) : null;
+                $this->add($businesses, $histories, $barangay, $types[$this->pickType($rural, $excluded)], $established, $first, $last,
+                    size: $isDominant ? 'medium' : null, sales: $isDominant ? 400_000_000 : null, fate: $fate);
             }
         }
 
-        DB::transaction(function () use ($businesses, $histories, $now): void {
+        // Food near schools: each year brings more new food businesses than the last, and they keep renewing.
+        foreach ($barangays->whereIn('name', $trends['school_barangays']) as $barangay) {
+            for ($year = $first; $year <= $last; $year++) {
+                $new = (int) round($trends['food_new_per_barangay'] * (1 + $trends['food_yearly_growth']) ** ($year - $first));
+                for ($i = 0; $i < $new; $i++) {
+                    $this->add($businesses, $histories, $barangay, $types[$trends['food_types'][mt_rand(0, count($trends['food_types']) - 1)]],
+                        $year, $first, $last, fate: 0);
+                }
+            }
+        }
+
+        // Online and home-based services: city-wide, growing every year from their first year.
+        $byPopulation = $barangays->where('id', '!=', $declining)->mapWithKeys(fn (Barangay $b) => [$b->id => (int) $b->population])->all();
+        for ($year = $trends['online_first_year']; $year <= $last; $year++) {
+            $new = (int) round($trends['online_new_first_year'] * (1 + $trends['online_yearly_growth']) ** ($year - $trends['online_first_year']));
+            for ($i = 0; $i < $new; $i++) {
+                $barangay = $barangays->firstWhere('id', (int) $this->pick($byPopulation));
+                $this->add($businesses, $histories, $barangay, $types[$trends['online_types'][mt_rand(0, count($trends['online_types']) - 1)]],
+                    $year, $first, $last, storefront: false);
+            }
+        }
+
+        // Records waiting in the registry workflow; they have no history and stay out of every statistic (P15).
+        $pending = [];
+        foreach ($trends['pending'] as $status => $total) {
+            for ($i = 0; $i < $total; $i++) {
+                $barangay = $barangays->firstWhere('id', (int) $this->pick($byPopulation));
+                $row = $this->business($barangay, $types[$this->pickType(false)], $last, $this->pickSize(), true);
+                $pending[] = array_merge($row, [
+                    'record_status' => $status,
+                    'submitted_at' => $status === 'draft' ? null : now()->subDays(mt_rand(1, 20)),
+                    'review_note' => $status === 'returned' ? self::RETURN_NOTES[$i % count(self::RETURN_NOTES)] : null,
+                    'reviewed_at' => $status === 'returned' ? now()->subDays(mt_rand(0, 3)) : null,
+                ]);
+            }
+        }
+
+        [$size, $sha256] = $this->storeDocument();
+
+        DB::transaction(function () use ($businesses, $histories, $pending, $last, $size, $sha256): void {
             foreach (array_chunk($businesses, 300) as $chunk) {
                 DB::table('businesses')->insert($chunk);
             }
+            DB::table('businesses')->insert($pending);
             $ids = DB::table('businesses')->pluck('id', 'public_id');
             $rows = [];
             foreach ($histories as $publicId => $years) {
                 foreach ($years as $year) {
-                    $rows[] = $year + ['business_id' => $ids[$publicId], 'created_at' => $now, 'updated_at' => $now];
+                    $rows[] = $year + ['business_id' => $ids[$publicId], 'created_at' => now(), 'updated_at' => now()];
                 }
             }
             foreach (array_chunk($rows, 1000) as $chunk) {
@@ -110,21 +194,115 @@ class SimulatedBusinessSeeder extends Seeder
             // Requirement 9: one point inside each business's barangay, seeded by the business id so reruns match.
             DB::statement('update businesses b set location = ST_GeometryN(ST_GeneratePoints(g.boundary, 1, b.id::int), 1)
                 from barangays g where g.id = b.barangay_id');
+
+            // Mayor's permits run January to December for every active year.
+            DB::statement("insert into business_permits (business_id, permit_number, year, valid_from, valid_until, created_at, updated_at)
+                select y.business_id, 'BP-' || y.year || '-' || lpad((row_number() over (partition by y.year order by y.business_id))::text, 5, '0'),
+                    y.year, make_date(y.year, 1, 1), make_date(y.year, 12, 31), now(), now()
+                from business_years y where y.status in ('new', 'renewed')");
+
+            // Every simulated document points at one placeholder file that reads "Simulated data".
+            $document = "insert into business_documents (public_id, business_id, kind, path, original_name, mime, size, sha256, issued_on, created_at, updated_at)
+                select gen_random_uuid(), b.id, ?, ?, ?, 'application/pdf', ?, ?, make_date(?, 1, 15), now(), now() from businesses b where ";
+            DB::insert($document."b.record_status = 'approved' and b.id % 8 <> 0", ['bir_cor', self::DOCUMENT, 'certificate-of-registration.pdf', $size, $sha256, $last]);
+            DB::insert($document."b.record_status <> 'draft'", ['barangay_clearance', self::DOCUMENT, 'barangay-clearance.pdf', $size, $sha256, $last]);
+            DB::insert($document.'exists (select 1 from business_permits p where p.business_id = b.id and p.year = ?)',
+                ['business_permit', self::DOCUMENT, 'business-permit.pdf', $size, $sha256, $last, $last]);
+            DB::update("update businesses b set bir_verified_on = make_date(?, 1, 20)
+                where b.record_status = 'approved' and exists (select 1 from business_documents d where d.business_id = b.id and d.kind = 'bir_cor')", [$last]);
         });
     }
 
     /**
+     * @param  list<array<string, mixed>>  $businesses
+     * @param  array<string, list<array{year: int, status: string, declared_gross_sales: string|null}>>  $histories
+     *
+     * @param-out list<array<string, mixed>> $businesses
+     * @param-out array<string, list<array{year: int, status: string, declared_gross_sales: string|null}>> $histories
+     */
+    private function add(array &$businesses, array &$histories, Barangay $barangay, int $typeId, int $established, int $first, int $last,
+        ?string $size = null, ?int $sales = null, ?int $fate = null, bool $storefront = true): void
+    {
+        $size ??= $this->pickSize();
+        [$low, $high] = self::SIZES[$size];
+        $row = $this->business($barangay, $typeId, $established, $size, $storefront);
+        $businesses[] = $row;
+        $histories[(string) $row['public_id']] = $this->history($established, $first, $last, $sales ?? mt_rand($low, $high), $fate);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function business(Barangay $barangay, int $typeId, int $established, string $size, bool $storefront): array
+    {
+        [, , $minStaff, $maxStaff] = self::SIZES[$size];
+        $type = $this->typeNames[$typeId];
+        $ownership = $this->pick(['sole_proprietorship' => 80, 'partnership' => 8, 'corporation' => 8, 'cooperative' => 4]);
+        $body = match ($ownership) {
+            'sole_proprietorship' => 'dti',
+            'cooperative' => 'cda',
+            default => 'sec',
+        };
+        $name = $this->pick([
+            $this->faker->lastName().' '.$type => 3,
+            $this->faker->firstName().'\'s '.$type => 2,
+            $barangay->name.' '.$type => 1,
+        ]);
+
+        return [
+            'public_id' => (string) Str::uuid(),
+            'business_name' => Str::limit($name, 55, ''),
+            'business_type_id' => $typeId,
+            'description' => self::DESCRIPTIONS[$this->typeCodes[$typeId]] ?? $type,
+            'year_established' => $established,
+            'barangay_id' => $barangay->id,
+            'location' => DB::raw('ST_SetSRID(ST_MakePoint(0, 0), 4326)'),
+            'owner_name' => Str::limit($this->faker->name(), 80, ''),
+            'contact_number' => '09'.$this->faker->numerify('#########'),
+            'ownership_type' => $ownership,
+            'size_category' => $size,
+            'employee_count' => mt_rand($minStaff, $maxStaff),
+            'is_simulated' => true,
+            'source' => null,
+            'street_address' => Str::limit($this->faker->buildingNumber().' '.$this->faker->streetName(), 160, ''),
+            'business_phone' => mt_rand(1, 10) <= 6 ? '09'.$this->faker->numerify('#########') : null,
+            'business_email' => mt_rand(1, 10) <= 3 ? Str::slug(Str::limit($name, 30, '')).'@example.com' : null,
+            'is_storefront' => $storefront,
+            'registration_body' => $body,
+            'registration_number' => match ($body) {
+                'dti' => $this->faker->numerify('#######'),
+                'sec' => 'CS'.$established.$this->faker->numerify('#####'),
+                'cda' => '9520-'.$this->faker->numerify('########'),
+            },
+            // DTI business names last five years; SEC and CDA registrations do not expire.
+            'registration_valid_until' => $body === 'dti' ? sprintf('%d-%02d-%02d', 2026 + mt_rand(0, 4), mt_rand(1, 12), mt_rand(1, 28)) : null,
+            'tin' => $this->faker->numerify('###-###-###-000'),
+            'rdo_code' => '013',
+            'record_status' => 'approved',
+            'submitted_at' => null,
+            'review_note' => null,
+            'reviewed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+    }
+
+    /**
      * Status rules 1 to 3 in database.md: first row new or renewed, then renewed until one non-renewal or closure.
+     * A null fate renews at random, 0 always renews, and a year ends the business with a non-renewal that year.
      *
      * @return list<array{year: int, status: string, declared_gross_sales: string|null}>
      */
-    private function history(int $established, int $first, int $last, int $sales, bool $alwaysRenews = false): array
+    private function history(int $established, int $first, int $last, int $sales, ?int $fate): array
     {
         $years = [];
         for ($year = max($established, $first); $year <= $last; $year++) {
-            $status = $years === []
-                ? ($established >= $first ? 'new' : 'renewed')
-                : ($alwaysRenews ? 'renewed' : $this->pick(['renewed' => 92, 'not_renewed' => 6, 'closed' => 2]));
+            $status = match (true) {
+                $years === [] => $established >= $first ? 'new' : 'renewed',
+                $fate === $year => 'not_renewed',
+                $fate !== null => 'renewed',
+                default => $this->pick(['renewed' => 92, 'not_renewed' => 6, 'closed' => 2]),
+            };
             $active = in_array($status, ['new', 'renewed'], true);
             $years[] = ['year' => $year, 'status' => $status, 'declared_gross_sales' => $active ? number_format($sales, 2, '.', '') : null];
             if (! $active) {
@@ -136,10 +314,59 @@ class SimulatedBusinessSeeder extends Seeder
         return $years;
     }
 
-    private function pickType(bool $rural): string
+    /**
+     * @param  array<int, int>  $schedule  non-renewals per year
+     * @return list<int>
+     */
+    private function endings(array $schedule): array
     {
-        $weights = self::WEIGHTS;
-        foreach (self::RURAL_TYPES as $code) {
+        $endings = [];
+        foreach ($schedule as $year => $count) {
+            array_push($endings, ...array_fill(0, $count, (int) $year));
+        }
+
+        return $endings;
+    }
+
+    /**
+     * A one-page PDF reading "Simulated data", stored once on the private disk.
+     *
+     * @return array{0: int, 1: string}
+     */
+    private function storeDocument(): array
+    {
+        $stream = 'BT /F1 28 Tf 72 760 Td (Simulated data) Tj ET';
+        $objects = [
+            '<< /Type /Catalog /Pages 2 0 R >>',
+            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+            '<< /Length '.strlen($stream)." >>\nstream\n{$stream}\nendstream",
+            '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        ];
+        $pdf = "%PDF-1.4\n";
+        $offsets = [];
+        foreach ($objects as $index => $object) {
+            $offsets[] = strlen($pdf);
+            $pdf .= ($index + 1)." 0 obj\n{$object}\nendobj\n";
+        }
+        $xref = strlen($pdf);
+        $pdf .= 'xref'."\n0 ".(count($objects) + 1)."\n0000000000 65535 f \n";
+        foreach ($offsets as $offset) {
+            $pdf .= sprintf("%010d 00000 n \n", $offset);
+        }
+        $pdf .= 'trailer << /Size '.(count($objects) + 1)." /Root 1 0 R >>\nstartxref\n{$xref}\n%%EOF\n";
+        Storage::disk('local')->put(self::DOCUMENT, $pdf);
+
+        return [strlen($pdf), hash('sha256', $pdf)];
+    }
+
+    /**
+     * @param  list<string>  $excluded
+     */
+    private function pickType(bool $rural, array $excluded = []): string
+    {
+        $weights = array_diff_key(self::WEIGHTS, array_flip($excluded));
+        foreach (array_intersect(self::RURAL_TYPES, array_keys($weights)) as $code) {
             $weights[$code] *= $rural ? 3 : 1;
         }
 
@@ -152,14 +379,14 @@ class SimulatedBusinessSeeder extends Seeder
     }
 
     /**
-     * @param  array<string, int>  $weights
+     * @param  array<array-key, int>  $weights
      */
     private function pick(array $weights): string
     {
-        $roll = mt_rand(1, array_sum($weights));
+        $roll = mt_rand(1, max(1, array_sum($weights)));
         foreach ($weights as $value => $weight) {
             if (($roll -= $weight) <= 0) {
-                return $value;
+                return (string) $value;
             }
         }
 

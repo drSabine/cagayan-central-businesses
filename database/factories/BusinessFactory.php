@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\OwnershipType;
+use App\Enums\RecordStatus;
 use App\Enums\SizeCategory;
 use App\Models\Barangay;
 use App\Models\Business;
@@ -38,6 +39,7 @@ class BusinessFactory extends Factory
             'size_category' => SizeCategory::Micro,
             'employee_count' => fake()->numberBetween(1, 9),
             'is_simulated' => true,
+            'record_status' => RecordStatus::Approved,
         ];
     }
 
@@ -49,6 +51,11 @@ class BusinessFactory extends Factory
     public function ofType(BusinessType $type): static
     {
         return $this->state(fn () => ['business_type_id' => $type->id]);
+    }
+
+    public function status(RecordStatus $status): static
+    {
+        return $this->state(fn () => ['record_status' => $status]);
     }
 
     public function size(SizeCategory $size): static

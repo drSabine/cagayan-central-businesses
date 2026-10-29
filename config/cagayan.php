@@ -106,6 +106,21 @@ return [
         'seed' => 20261028,
         'businesses_per_thousand_residents' => 9,
         'minimum_per_barangay' => 3,
+        // The presentation story: food near schools and home-based online work grow each year, one barangay declines.
+        'trends' => [
+            'school_barangays' => ['Carig Norte', 'Carig Sur', 'Ugac Norte', 'Ugac Sur', 'Caritan Centro', 'Centro 10'],
+            'food_types' => ['coffee-shop', 'restaurant', 'eatery', 'bakery'],
+            'food_new_per_barangay' => 3,
+            'food_yearly_growth' => 0.2,
+            'online_types' => ['online-seller', 'digital-services'],
+            'online_first_year' => 2021,
+            'online_new_first_year' => 6,
+            'online_yearly_growth' => 0.35,
+            'declining_barangay' => 'Linao East',
+            // Non-renewals per year in the declining barangay, rising so M14 fires (seeder requirement 7).
+            'declining_non_renewals' => [2024 => 3, 2025 => 5, 2026 => 8],
+            'pending' => ['submitted' => 10, 'returned' => 4, 'draft' => 5],
+        ],
     ],
 
     'data' => [
@@ -229,6 +244,28 @@ return [
             'email' => env('DEMO_STAFF_EMAIL'),
             'password' => env('DEMO_STAFF_PASSWORD'),
         ],
+    ],
+
+    /*
+    | Business registry (D40, D41). Documents follow the city's accepted file types. Contact numbers are stored as
+    | typed: mobile 09XXXXXXXXX or +639XXXXXXXXX, or a landline of digits, spaces, parentheses and a plus sign.
+    */
+    'registry' => [
+        'permit_expiring_days' => 30,
+        'document_max_kb' => 5120,
+        'document_mimes' => ['pdf', 'jpg', 'jpeg', 'png'],
+        'documents_max' => 12,
+        'document_requests_per_minute' => 60,
+        'description_max' => 280,
+        'address_max' => 160,
+        'owner_name_max' => 80,
+        'email_max' => 120,
+        'review_note_max' => 280,
+        'phone_pattern' => '/^(09\d{9}|\+639\d{9}|[\d\s()+]{7,20})$/',
+        'tin_pattern' => '/^\d{3}-\d{3}-\d{3}(-\d{3,5})?$/',
+        'rdo_pattern' => '/^\d{3}[A-Z]?$/',
+        'registration_number_max' => 30,
+        'permit_number_max' => 30,
     ],
 
     'inputs' => [

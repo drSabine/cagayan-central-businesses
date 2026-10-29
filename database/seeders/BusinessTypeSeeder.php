@@ -63,6 +63,8 @@ class BusinessTypeSeeder extends Seeder
         ['fishpond', 'Fishpond or Aquaculture', 'A', 'fishery'],
         ['agri-supply', 'Agricultural Supply Store', 'G', 'retail'],
         ['rice-mill', 'Rice Mill', 'C', 'food-processing'],
+        ['online-seller', 'Online Seller', 'G', 'retail'],
+        ['digital-services', 'Graphic and Digital Services', 'M', 'other'],
     ];
 
     public function run(): void
