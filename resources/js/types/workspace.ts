@@ -74,13 +74,15 @@ export type BusinessCategories = {
 };
 
 export type BusinessDirectoryRow = {
+    publicId: string;
     name: string;
     type: string;
     category: string;
-    industry: string;
     barangay: string;
     yearEstablished: number;
     status: string | null;
+    recordStatus: string;
+    permitStatus: string;
 };
 
 export type BusinessDirectory = {
@@ -90,8 +92,12 @@ export type BusinessDirectory = {
     types: SelectOption[];
     industries: SelectOption[];
     statuses: SelectOption[];
+    barangays: SelectOption[];
+    recordCounts: Partial<Record<string, number>>;
     filters: {
         q: string | null;
+        record: string | null;
+        barangay: string | null;
         category: string | null;
         type: string | null;
         industry: string | null;
@@ -99,5 +105,91 @@ export type BusinessDirectory = {
         sort: string;
         dir: string;
     };
-    enabled: boolean;
+    canAdd: boolean;
+};
+
+export type BusinessProfile = {
+    publicId: string;
+    name: string;
+    type: string;
+    typeCode: string;
+    category: { code: string; name: string; color: number };
+    barangay: string;
+    barangayCode: string;
+    town: string;
+    townCode: string;
+    description: string;
+    yearEstablished: number;
+    isStorefront: boolean;
+    businessPhone: string | null;
+    businessEmail: string | null;
+    birVerifiedOn: string | null;
+    permitStatus: string;
+    permitValidUntil: string | null;
+    isNew: boolean;
+    streak: number;
+    location: { lng: number; lat: number };
+    recordStatus: string;
+    submittedBy: string | null;
+    submittedAt: string | null;
+    reviewedBy: string | null;
+    reviewedAt: string | null;
+    admin: {
+        ownerName: string;
+        ownerContact: string;
+        streetAddress: string | null;
+        ownership: string;
+        size: string;
+        employees: number;
+        registrationBody: string | null;
+        registrationNumber: string | null;
+        registrationValidUntil: string | null;
+        tin: string | null;
+        rdoCode: string | null;
+        reviewNote: string | null;
+    } | null;
+    permits: {
+        year: number;
+        number: string | null;
+        validFrom: string;
+        validUntil: string;
+    }[];
+    documents: {
+        publicId: string;
+        kind: string;
+        label: string;
+        name: string;
+        issuedOn: string | null;
+        expiresOn: string | null;
+    }[];
+    history: { year: number; status: string }[];
+    can: { edit: boolean; review: boolean };
+    reviewNoteMax: number;
+};
+
+export type BusinessForm = {
+    publicId: string | null;
+    values: Record<string, string | number | boolean | null> | null;
+    reviewNote: string | null;
+    categories: { code: string; name: string; types: SelectOption[] }[];
+    towns: SelectOption[];
+    barangays: { value: string; label: string; town: string }[];
+    choices: {
+        ownership: SelectOption[];
+        size: SelectOption[];
+        registration: SelectOption[];
+        documents: SelectOption[];
+    };
+    documents: { label: string; name: string }[];
+    limits: {
+        businessNameMax: number;
+        descriptionMax: number;
+        addressMax: number;
+        ownerNameMax: number;
+        emailMax: number;
+        registrationNumberMax: number;
+        permitNumberMax: number;
+        documentsMax: number;
+        documentMaxKb: number;
+    };
 };

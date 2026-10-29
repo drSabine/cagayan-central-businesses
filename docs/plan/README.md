@@ -9,7 +9,7 @@ Dates inside plans use the requested `yy-mm-dd` format in Asia/Manila. Filenames
 | Plan | Status | Scope |
 | :- | :- | :- |
 | [Finance Trends People Can Understand](active/26-10-29-finance-trends.md) | In progress | Shared chart-led finance view, local 3Y / 5Y / Max, focused breakdowns and annual changes |
-| [Business Registry Records](active/26-10-28-business-registry-records.md) | Deferred | Permits and renewal range, BIR, documents, address, owner, record view; stores records, does not process permits; not started |
+| [Business Registry Records](active/26-10-28-business-registry-records.md) | In progress | Staff prepare and Admins review, record profile, form with map pin and documents, BIR and permit badges, public directory, presentation trend seeder |
 
 ## Archive
 

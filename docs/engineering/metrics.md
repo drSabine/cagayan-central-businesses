@@ -341,6 +341,20 @@ Withdrawn 26-10-28 by the user. Health, education, social welfare and other sect
 - **Definition:** M26 applied to M28 and M29.
 - **Hidden figures:** a change derived from a hidden figure is hidden (P6).
 
+### M32. Permit Status
+
+Approved 26-10-29 with the registry plan (D40).
+
+- **Definition:** from the business's latest `business_permits.valid_until`: Expired when before today, Expiring when within `cagayan.registry.permit_expiring_days` of today, otherwise Valid. A business with no permit row is No Permit on File.
+- **Computed** in SQL. It is a status label on the record, not a warning or a notification.
+
+### M33. Renewal Streak
+
+Approved 26-10-29 by the user ("years renewed in a row").
+
+- **Definition:** the number of consecutive years with status new or renewed that end in the latest data year (`cagayan.data.latest_year`). A non-renewal or closure ends the streak, and a business not active in the latest year has a streak of 0. Counted within the data years (from `cagayan.data.first_year`), so a business older than the data shows the years on record.
+- **Computed** in SQL (`App\Services\RenewalStreak`). Shown as a flame and the number when the streak is more than one year.
+
 ## Config values
 
 All thresholds live in `config/cagayan.php`, never in code or SQL literals.

@@ -1,5 +1,10 @@
 import { Link, usePage } from '@inertiajs/react';
-import { ChartNoAxesCombined, House, MessageSquarePlus } from 'lucide-react';
+import {
+    ChartNoAxesCombined,
+    House,
+    MessageSquarePlus,
+    Store,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AppBottomBar } from '@/components/app-bottom-bar';
 import { AppearanceToggle } from '@/components/appearance-toggle';
@@ -8,10 +13,11 @@ import { isCurrentSection } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
 import { economicPerformance } from '@/routes/public';
+import { index as businesses } from '@/routes/public/businesses';
 import { index as suggestions } from '@/routes/public/wishes';
 import type { NavItem } from '@/types/ui';
 
-// The business map (P1) and the guide (P4) join this list when they are built.
+// The start-a-business guide (P4) joins this list when it is built.
 const items: NavItem[] = [
     { title: 'Home', href: home(), icon: House },
     {
@@ -19,6 +25,7 @@ const items: NavItem[] = [
         href: economicPerformance(),
         icon: ChartNoAxesCombined,
     },
+    { title: 'Businesses', href: businesses(), icon: Store },
     { title: 'Suggestions', href: suggestions(), icon: MessageSquarePlus },
 ];
 

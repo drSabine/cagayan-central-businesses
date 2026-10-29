@@ -291,7 +291,11 @@ Used by the business map (P1) and listing (P2), and by the Capitol directory (C1
 | `definition-list.tsx` | Term and description rows, for notes and limits |
 | `province-map.tsx`, `lazy-province-map.tsx` | The halftone SVG map of the towns or of Tuguegarao's barangays, and the lazy loader pages use |
 | `town-atlas.tsx` | The Home hero map, town/style controls, and three public figures with sources |
-| `privacy/simulated-label.tsx` | The "Simulated data" tag, rendered by the layout only, and only while simulated records are on |
+| `privacy/simulated-label.tsx` | The "Simulated data" tag, amber (`bg-simulated`), rendered by the layout only, and only while simulated records are on |
+| `business-badges.tsx` | `BusinessBadges` (BIR, permit, new, streak) and `BirMark` for list rows |
+| `registry-badges.tsx` | Capitol record state and the word permit badge in the directory table |
+| `category-icon.tsx`, `detail-field.tsx`, `profile-section.tsx` | Category icon in muted ink, a label over its value in `DetailGrid`, and a profile card with a Title Case heading |
+| `map/business-map.tsx`, `map/lazy-business-map.tsx` | The one business map: barangay outlines, storefront dots, a business pin, and with `onPick` the form's pin picker |
 | `analytics/analytics-panels.tsx`, `charts/finance-panel.tsx` | The Government Finances card and its ledger table, shared by Economy and Capitol Analytics |
 | `analytics/source-line.tsx` | The one Source line under a table, with one link per distinct report page |
 | `analytics/analytics-help.tsx` | The Help sheet in the Government Finances header |
@@ -491,3 +495,17 @@ A read-only Capitol page for all three roles that lists registered business name
 ## Finance Trends "26-10-29"
 
 User-approved successor to Government Finances Ledger Table: public Economy and Capitol Analytics default to Trends and Max. Keep 3Y / 5Y / Max beside the displayed year range in the card. Totals lead with the latest revenue and expenses and SQL annual changes, two distinguishable lines, then an aligned surplus/deficit bar chart with a zero baseline. Other finance groups focus one selectable metric at a time. Keep quiet horizontal guides, straight annual segments, missing-year and definition-change gaps, token styles, exact amounts and the detailed table. Yearly Summary and its single Source line remain available through the View picker and table year links. Metric and period selections use local history with no application requests. This supersedes the previous table-first default and heavy-grid treatment only; no new financial definitions or prosperity claims.
+
+## Business Registry "26-10-29"
+
+Approved with D40. The Capitol record and the public profile read like a formal profile, not a long form: a header card with the type icon tile, name, Category chip, type, barangay and Since year, and one row of badges; then compact cards in two columns from `lg` (main content, then a 20 to 22rem side rail). No long single-column rows and no empty side strip.
+
+- **Badges.** BIR Registered (our own shield badge, the checked date on hover), Permit Valid, Expiring or Expired (M32, status dots), Storefront or Home Based, and on Capitol only the dashed record state (Draft, For Review, Returned). Color is never the only signal.
+- **Simulated color.** The layout's Simulated data tag is filled amber (`--simulated`) in both modes so a presentation set is unmistakable.
+- **Capitol record.** About, Owner and Registration (TIN masked), Permits, Documents as tiles that open the private file, Registration History as year tiles; side rail Location map with the street address, Business Contact, and Review. Admins approve or return with a required reason from the Review card. Staff see Edit.
+- **Directory.** Tabs All, For Review, Returned, Drafts with counts; names link to the record; Permit column; Barangay filter. Add a Business is the one primary button, for Staff.
+- **Form.** One page: field groups in two columns on the left, and a sticky Location card on the right with Town, Barangay, Street Address and the pin map. Choosing a barangay frames it; a click or drag sets the pin, and a pin in another barangay selects it. Save Draft and Submit for Review. A returned record shows the reason above the form.
+- **Public, corrected by the user "26-10-29".** Nothing loads until a town is chosen; each town's businesses load once and are cached, and every other filter is local. A list row is the category icon in muted ink, the name, "Barangay, Town", and only the BIR shield when registered. No result count, uppercase eyebrow, type, description, Since year, icon tiles, permit or streak marks on rows.
+- **Profile.** The back button sits on the header line, then the category icon and name, "Barangay, Town", and the badges. Below, two columns: About (description, then labels over values in two columns: Business Type, Category, Established, Renewal Streak, Business Permit, BIR Registration), Contact, and More in {barangay} with names and category icons; a sticky Location card with a tall map showing the barangay's other storefronts as dots and this business as a pin. No boxed fields and no ruled table rows. Section headings use `type-item` in Title Case, never `type-label` capitals.
+- **Badges** (`BusinessBadges`, `BirMark`). Quiet mono: a bordered BIR badge with its shield, a bordered permit badge with its status dot and word (Valid, Expiring, Expired), and muted sparkle New and flame streak marks, each named in a tooltip and for screen readers. Color is only on the permit dot and the BIR shield.
+- **One map** (`BusinessMap`) for the list, both profiles and the form: dashed muted barangay outlines, the chosen barangay darker, tinted and framed, primary dots for storefronts, and the business itself as a primary tag with its category icon and a pointer.

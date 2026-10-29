@@ -102,10 +102,14 @@
             "@test:maps",
             "@test:categories",
             "@test:trend",
+            "@test:geo",
+            "@test:businesses",
             "@test"
         ],
         "test:maps": "node --experimental-strip-types --test tests/Frontend/finance-map.test.mjs",
         "test:trend": "node --experimental-strip-types --test tests/Frontend/trend.test.mjs",
+        "test:geo": "node --experimental-strip-types --test tests/Frontend/geo.test.mjs",
+        "test:businesses": "node --experimental-strip-types --test tests/Frontend/public-businesses.test.mjs",
         "test:categories": "node --experimental-strip-types --test tests/Frontend/category-table.test.mjs",
         "test:analytics": "node --experimental-strip-types --test tests/Frontend/analytics.test.mjs",
         "types:check": [

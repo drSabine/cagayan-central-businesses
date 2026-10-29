@@ -16,7 +16,33 @@ import {
     Tags,
     ChartLine,
     Store,
+    ShieldCheck,
+    FileText,
+    Phone,
+    Mail,
+    Plus,
+    Pencil,
+    BedDouble,
+    Briefcase,
+    CalendarCheck,
+    CalendarClock,
+    CalendarX,
+    CookingPot,
+    Fish,
+    Flame,
+    GraduationCap,
+    HeartPulse,
+    Landmark,
+    Palmtree,
+    Scissors,
+    ShoppingBag,
+    Sparkles,
+    Sprout,
+    UtensilsCrossed,
+    Wrench,
+    ArrowLeft,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 export const icons = {
     dashboard: LayoutDashboard,
@@ -36,4 +62,37 @@ export const icons = {
     categories: Tags,
     businesses: Store,
     analytics: ChartLine,
+    birRegistered: ShieldCheck,
+    document: FileText,
+    phone: Phone,
+    email: Mail,
+    add: Plus,
+    edit: Pencil,
+    isNew: Sparkles,
+    streak: Flame,
+    permitValid: CalendarCheck,
+    permitExpiring: CalendarClock,
+    permitExpired: CalendarX,
+    back: ArrowLeft,
 } as const;
+
+// One icon per starter Business Category; a category added later falls back to the store icon.
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+    retail: ShoppingBag,
+    'vehicle-motor-parts': Wrench,
+    'food-processing': CookingPot,
+    'food-and-beverage': UtensilsCrossed,
+    tourism: Palmtree,
+    'lodging-and-rentals': BedDouble,
+    agriculture: Sprout,
+    fishery: Fish,
+    finance: Landmark,
+    'health-services': HeartPulse,
+    education: GraduationCap,
+    'personal-and-repair-services': Scissors,
+    other: Briefcase,
+};
+
+export function categoryIcon(code: string): LucideIcon {
+    return CATEGORY_ICONS[code] ?? Store;
+}

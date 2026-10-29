@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Enums\RecordStatus;
 use App\Enums\UserRole;
 use App\Models\ActivityLog;
+use App\Models\Business;
 use App\Models\Municipality;
 use App\Models\User;
+use App\Services\BusinessVisibility;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -51,6 +54,14 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-categories', fn (User $user): bool => $user->isCapitolAdmin());
         Gate::define('edit-town', fn (User $user, Municipality $town): bool => $user->canEnterWorkspace()
             && ($user->isCapitolAdmin() || $user->assignedTowns()->whereKey($town->id)->exists()));
+        // Registry (D40): Staff prepare records for their towns, Admin and Super Admin review them.
+        Gate::define('add-business', fn (User $user): bool => $user->canEnterWorkspace() && $user->role === UserRole::Staff
+            && $user->assignedTowns()->exists());
+        Gate::define('edit-business', fn (User $user, Business $business): bool => $user->canEnterWorkspace() && $user->role === UserRole::Staff
+            && BusinessVisibility::allows($business) && $business->record_status !== RecordStatus::Submitted
+            && $user->assignedTowns()->whereKey($business->barangay()->value('municipality_id'))->exists());
+        Gate::define('review-business', fn (User $user, Business $business): bool => $user->isCapitolAdmin()
+            && BusinessVisibility::allows($business) && $business->record_status === RecordStatus::Submitted);
 
         Event::listen(Login::class, function (Login $event): void {
             if ($event->user instanceof User && request()->hasSession()) {
@@ -73,6 +84,7 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('wishes', fn (Request $request) => Limit::perHour((int) config('cagayan.wishes.per_hour_per_ip'))->by((string) $request->ip()));
         RateLimiter::for('finance-sources', fn (Request $request) => Limit::perMinute((int) config('cagayan.finances.source_requests_per_minute'))->by((string) $request->ip()));
+        RateLimiter::for('registry-documents', fn (Request $request) => Limit::perMinute((int) config('cagayan.registry.document_requests_per_minute'))->by((string) $request->user()?->getAuthIdentifier()));
         RateLimiter::for('workspace-activity', fn (Request $request) => Limit::perMinute((int) config('cagayan.admin.activity_requests_per_minute'))->by((string) $request->user()?->getAuthIdentifier()));
     }
 

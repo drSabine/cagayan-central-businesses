@@ -10,8 +10,8 @@ With Inertia, everything a controller passes to a page is delivered to the brows
 
 ## Field classes
 
-- **Public:** business name, type, description, year established, barangay, map location.
-- **Admin:** owner name, contact number, ownership type, size category, number of employees.
+- **Public:** business name, type, description, year established, barangay, business phone and email (the business's own contact), the BIR Registered and Permit Status badges, and the map location of storefronts only. Home-based businesses show their barangay, never their pin (D40, 26-10-29).
+- **Admin:** owner name, owner contact number, street address, ownership type, size category, number of employees, registration and permit numbers, TIN (masked to its last three digits), RDO code, review notes, and every uploaded document.
 - **Never displayed:** the declared gross sales of a single business.
 
 ## The rules
@@ -66,15 +66,15 @@ The public side shows the band that contains a total, never the total. A hidden 
 
 ### P8. Admin fields need a login
 
-Owner name, contact number, ownership type, size category, and employee count appear only in responses to authenticated administrators.
+Admin-class fields (see "Field classes") appear only in responses to Capitol administrators and to Staff assigned to the business's town (D40, 26-10-29). Staff of another town see the record without them. The TIN is always sent masked, and the edit form never receives it: a blank TIN keeps the stored one.
 
-- Test: every public route's response is scanned for a known seeded owner name and contact number, and both are absent.
+- Test: every public route's response is scanned for a known seeded owner name and contact number, and both are absent. Staff of another town get no admin fields, permit numbers or documents.
 
 ### P9. Every full record view is logged
 
-Opening a business's full record writes a row to `record_view_logs` with the user and the time, before the response is sent. The directory list shows public fields only. Owner details appear only on the record page.
+Opening a business's full record, its edit form, or one of its documents writes a row to `record_view_logs` with the user and the time, before the response is sent. The directory list shows public fields only. Owner details appear only on the record page and its edit form.
 
-- Test: opening a record adds exactly one log row for that user and business. Viewing the list adds none.
+- Test: opening a record adds exactly one log row for that user and business. The edit form and a document add one each. Viewing the list adds none.
 
 ### P10. Pages receive data objects, never models
 
@@ -114,6 +114,13 @@ Every screen and every export that shows business records carries a visible "Sim
 ### P14. Logs and errors carry no protected data
 
 No sales amounts, owner names, or contact numbers in log messages or exception text. Debug mode is off for any demo that others can reach.
+
+### P15. Only approved records are public
+
+Drafts, submitted and returned registry records never reach a public route, and only approved records count in `stats_` tables (D40).
+
+- Enforce: public queries filter `record_status = 'approved'`; the metric SQL does the same.
+- Test: a draft, a submitted and a returned record are absent from the public list and return 404 on their public profile.
 
 ## The guard
 

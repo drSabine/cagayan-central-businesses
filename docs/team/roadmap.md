@@ -112,9 +112,9 @@ Cut from the top of this list down. Never cut the privacy rules, the simulated l
 - C7 Status and growth trends: Not started
 - C8 Survival rate: Not started
 - C12 Citizen wishes: In progress (restricted aggregate town/category page implemented for Admin/Super Admin. Comparison with registered business supply remains unbuilt)
-- C13 Business directory with view log: Not started
+- C13 Business directory with view log: In progress (registry 26-10-29: directory tabs, full record with view log, Staff add and edit with pin and documents, Admin approve or return; export not built)
 - P1 Explore map: Not started
-- P2 Business listing: Not started
+- P2 Business listing: In progress (public list, storefront pin map and profile with BIR and permit badges, 26-10-29)
 - P3 I wish there was this business here: In progress (form, cooldown, edits, category/company choices, 255-character reason, and count-only background updates done. The registered count waits on F3 and F4)
 - P4 Start a business guide, first path: Not started
 
