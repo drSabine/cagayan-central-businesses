@@ -76,7 +76,7 @@ it('never sends a single business sales figure (P1)', function () {
 
 it('never sends the point of a home-based business', function () {
     $this->business->update(['is_storefront' => false]);
-    $storefront = Business::factory()->inBarangay($this->barangay)->create();
+    $storefront = Business::factory()->inBarangay($this->barangay)->create(['business_name' => 'Zeta Storefront']);
 
     $this->get(route('public.businesses.show', $storefront))->assertInertia(fn (Assert $page) => $page->has('business.neighbors', 0));
 
