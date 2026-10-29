@@ -103,7 +103,7 @@ test('selections survive a direct link and retired filters are ignored', functio
             ->where('performance.filters', [
                 'town' => '0201529000', 'period' => 'recent', 'measure' => 'revenue_sources',
                 'dimension' => 'category', 'group' => null, 'wishView' => 'bars',
-                'presentation' => 'summary', 'year' => null,
+                'presentation' => 'trends', 'year' => null, 'metric' => null,
             ]));
 });
 
@@ -131,6 +131,7 @@ test('invalid filters fail validation before producing a catalog', function (arr
     'unknown measure' => [['measure' => 'assets'], 'measure'],
     'unknown dimension' => [['dimension' => 'barangay'], 'dimension'],
     'malformed group' => [['group' => 'industry:<b>'], 'group'],
+    'malformed metric' => [['metric' => '<b>revenue</b>'], 'metric'],
     'removed table view' => [['wishView' => 'table'], 'wishView'],
     'array input' => [['wishView' => ['cloud']], 'wishView'],
 ]);
@@ -185,20 +186,26 @@ test('large combined wish lists retain every complete label beyond the cloud lim
         ->where('performance.wishes.0201529000.items.119.count', 1));
 });
 
-test('new summary defaults and trend controls survive validated public and Capitol links', function () {
+test('maximum trend defaults and focused metrics survive validated public and Capitol links', function () {
     Municipality::factory()->create(['psgc_code' => '0201529000']);
     $this->get(route('public.economic-performance'))->assertInertia(fn (Assert $page) => $page
-        ->where('performance.filters.presentation', 'summary')
-        ->where('performance.filters.period', '3y')
+        ->where('performance.filters.presentation', 'trends')
+        ->where('performance.filters.period', 'all')
+        ->where('performance.filters.metric', null)
         ->where('performance.filters.year', null)
         ->where('performance.catalog.guide.topics.3.title', 'Business Taxes and Fees'));
-    $query = ['presentation' => 'trends', 'period' => '2y', 'year' => 2024];
+    $query = ['presentation' => 'trends', 'period' => '2y', 'year' => 2024, 'metric' => 'revenue.tax'];
     $this->get(route('public.economic-performance', $query))->assertInertia(fn (Assert $page) => $page
         ->where('performance.filters.presentation', 'trends')->where('performance.filters.period', '2y')
-        ->where('performance.filters.year', 2024));
+        ->where('performance.filters.year', 2024)->where('performance.filters.metric', 'revenue.tax'));
     $this->actingAs(User::factory()->create())->get(route('capitol.analytics', $query))
         ->assertInertia(fn (Assert $page) => $page->where('filters.presentation', 'trends')
-            ->where('filters.period', '2y')->where('filters.year', 2024));
+            ->where('filters.period', '2y')->where('filters.year', 2024)->where('filters.metric', 'revenue.tax'));
+    $this->get(route('capitol.analytics'))->assertInertia(fn (Assert $page) => $page
+        ->where('filters.presentation', 'trends')->where('filters.period', 'all'));
+    $this->get(route('public.economic-performance', ['presentation' => 'summary', 'year' => 2024]))
+        ->assertInertia(fn (Assert $page) => $page->where('performance.filters.presentation', 'summary')
+            ->where('performance.filters.year', 2024));
 });
 
 test('public sources trace signed-off and derived figures without exposing pending amounts or review notes', function () {

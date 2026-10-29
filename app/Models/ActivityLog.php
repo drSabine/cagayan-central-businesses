@@ -16,6 +16,8 @@ final class ActivityLog
         'finance_figures_rejected' => 'Finance Figures Rejected',
         'business_category_created' => 'Business Category Created', 'business_category_updated' => 'Business Category Updated',
         'business_type_created' => 'Business Type Created', 'business_type_updated' => 'Business Type Updated',
+        'business_saved' => 'Business Saved', 'business_submitted' => 'Business Submitted',
+        'business_approved' => 'Business Approved', 'business_returned' => 'Business Returned',
         // Recorded before the Category model replaced Focus Tags (D39).
         'focus_tag_created' => 'Focus Tag Created', 'focus_tag_updated' => 'Focus Tag Updated',
     ];

@@ -16,7 +16,7 @@ type Props = {
 };
 
 export default function Home({ overview }: Props) {
-    const { url } = usePage();
+    const { url, props } = usePage();
     const townCode = pageSearchParams(url).get('town');
     const town = overview.atlas.towns.find((item) => item.code === townCode);
     const query = town ? { town: town.code } : {};
@@ -131,8 +131,9 @@ export default function Home({ overview }: Props) {
                         },
                         {
                             term: 'Records',
-                            description:
-                                'Population and geographic boundaries come from published sources. Business records are not loaded yet.',
+                            description: props.simulated
+                                ? 'Population and geographic boundaries come from published sources. Business records are simulated for this presentation.'
+                                : 'Population and geographic boundaries come from published sources. Business records appear once the Capitol approves them.',
                         },
                         {
                             term: 'Area',

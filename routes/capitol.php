@@ -3,7 +3,10 @@
 use App\Http\Controllers\Capitol\ActivityLogController;
 use App\Http\Controllers\Capitol\AnalyticsController;
 use App\Http\Controllers\Capitol\BusinessCategoryController;
+use App\Http\Controllers\Capitol\BusinessController;
 use App\Http\Controllers\Capitol\BusinessDirectoryController;
+use App\Http\Controllers\Capitol\BusinessDocumentController;
+use App\Http\Controllers\Capitol\BusinessReviewController;
 use App\Http\Controllers\Capitol\CommunityWishController;
 use App\Http\Controllers\Capitol\DashboardController;
 use App\Http\Controllers\Capitol\FinanceFigureController;
@@ -27,6 +30,14 @@ Route::middleware([PreventIndexing::class, 'auth', 'can:capitol'])
             Route::put('{category:code}', [BusinessCategoryController::class, 'updateCategory'])->name('update');
         });
         Route::get('businesses', BusinessDirectoryController::class)->name('businesses.index');
+        Route::get('businesses/create', [BusinessController::class, 'create'])->name('businesses.create');
+        Route::post('businesses', [BusinessController::class, 'store'])->name('businesses.store');
+        Route::get('businesses/{business:public_id}', [BusinessController::class, 'show'])->name('businesses.show');
+        Route::get('businesses/{business:public_id}/edit', [BusinessController::class, 'edit'])->name('businesses.edit');
+        Route::put('businesses/{business:public_id}', [BusinessController::class, 'update'])->name('businesses.update');
+        Route::post('businesses/{business:public_id}/reviews', BusinessReviewController::class)->name('businesses.reviews.store');
+        Route::get('businesses/{business:public_id}/documents/{document:public_id}', BusinessDocumentController::class)
+            ->scopeBindings()->middleware('throttle:registry-documents')->name('businesses.documents.show');
         Route::get('analytics', AnalyticsController::class)->name('analytics');
         Route::get('finances', [FinanceReviewController::class, 'index'])->name('finances.index');
         Route::get('finances/{town:psgc_code}/{year}', [FinanceReviewController::class, 'show'])->whereNumber('year')->name('finances.show');

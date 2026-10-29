@@ -70,12 +70,7 @@ export default function EconomicPerformancePage({
                                     idPrefix="performance"
                                     catalog={catalog}
                                     filters={filters}
-                                    fields={[
-                                        'presentation',
-                                        'measure',
-                                        'year',
-                                        'period',
-                                    ]}
+                                    fields={['presentation', 'measure', 'year']}
                                     onChange={change}
                                 />
                             </div>

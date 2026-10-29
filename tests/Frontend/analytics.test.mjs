@@ -130,7 +130,7 @@ await test('business counts, banded sales and shares use the same business perio
             presentation: 'trends',
             period: '2y',
         }).rows.map((row) => row.year),
-        [2024, 2025],
+        [2025],
     );
     assert.equal(
         selectedBusiness(businessCatalog, { ...filters, town: 'other' }),
@@ -296,4 +296,84 @@ await test('an unavailable category keeps a meaningful year and explicit years a
         2024,
     );
     assert.equal(selectedYear(data, { ...filters, town: 'missing' }), null);
+});
+
+await test('finance coverage trims uncollected outer years and expands with newly published years', () => {
+    const detail = history([
+        [2019, point(null, { state: 'unavailable' })],
+        [2023, point('0')],
+        [2024, point(null, { state: 'unavailable' })],
+        [2025, point('-10')],
+        [2026, point(null, { state: 'unavailable' })],
+    ]);
+    const data = { ...catalog, finances: { town: { totals: detail } } };
+    const selection = { ...filters, presentation: 'trends', period: 'all' };
+    assert.deepEqual(
+        selectedFinance(data, selection).rows.map((row) => row.year),
+        [2023, 2024, 2025],
+    );
+    detail.rows[4].observations.amount = point('20');
+    assert.deepEqual(
+        selectedFinance(data, selection).rows.map((row) => row.year),
+        [2023, 2024, 2025, 2026],
+    );
+    detail.rows.forEach((row) => {
+        row.observations.amount = point(null, { state: 'unavailable' });
+    });
+    assert.deepEqual(selectedFinance(data, selection).rows, []);
+});
+
+await test('chart segments preserve signed amounts without bridging gaps or incompatible definitions', async () => {
+    const { financeChartSeries, focusedFinance } =
+        await import('../../resources/js/lib/finance-chart.ts');
+    const detail = history([
+        [2020, point('0')],
+        [2021, point('-20', { comparable: true })],
+        [2022, point(null, { state: 'unavailable' })],
+        [2023, point('10')],
+        [2024, point('15')],
+        [2025, point('18', { comparable: true })],
+    ]);
+    assert.deepEqual(
+        financeChartSeries(detail).map((segment) => segment.values),
+        [
+            [0, -20, null, null, null, null],
+            [null, null, null, 10, null, null],
+            [null, null, null, null, 15, 18],
+        ],
+    );
+    assert.equal(focusedFinance(detail, 'unknown').id, 'amount');
+    assert.equal(
+        financeChartSeries(history([[2025, point('12')]]))[0].values[0],
+        12,
+    );
+    assert.deepEqual(
+        financeChartSeries(history([[2025, point('12', { state: 'hidden' })]])),
+        [],
+    );
+});
+
+await test('finance metric and range selections use local history and skip repeated choices', (t) => {
+    const calls = [];
+    t.mock.method(router, 'push', (next) => calls.push(next));
+    const current = {
+        ...filters,
+        presentation: 'trends',
+        metric: null,
+        period: 'all',
+    };
+    const url = (query) => '?' + new URLSearchParams(query);
+    const props = (existing, next) => ({ ...existing, filters: next });
+    pushFilters(current, { metric: 'revenue.tax', period: '5y' }, url, props);
+    const next = calls[0].props({}).filters;
+    assert.equal(next.metric, 'revenue.tax');
+    assert.equal(next.period, '5y');
+    assert.equal(
+        new URLSearchParams(calls[0].url).get('metric'),
+        'revenue.tax',
+    );
+    pushFilters(next, { metric: 'revenue.tax', period: '5y' }, url, props);
+    assert.equal(calls.length, 1);
+    pushFilters(next, { measure: 'budget' }, url, props);
+    assert.equal(calls[1].props({}).filters.metric, null);
 });

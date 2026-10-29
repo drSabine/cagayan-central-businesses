@@ -317,3 +317,17 @@ Approved 26-10-28 after the user said categories are sectors and a Boarding Hous
 - **Registry boundary.** The later registry stores permit validity, renewal range, expiry and documents as published records. It does not process applications, fees or issuing, which stay with the city (mvp-scope.md).
 
 **Why:** the user's correction. One Category per Type gives one clear tree, one color and an exact count, and it avoids two overlapping grouping systems. The directory and the schema keep the later registry from reworking the taxonomy.
+
+## D40. Business Registry
+
+Approved 26-10-29 with [Business Registry Records](../plan/active/26-10-28-business-registry-records.md).
+
+- **Workflow.** Staff prepare records for their assigned towns and submit them. Admin and Super Admin approve them or return them for resubmission with a note. Only approved records are public or counted (P15). Editing an approved record sends it back for review.
+- **Documents** (permit, BIR COR, BIR Registration Seal Badge, DTI SEC or CDA, the Tuguegarao permit list) are stored on the private `local` disk with a SHA-256 hash, limited by type and size in `cagayan.registry`, and served only through an authorized, throttled route.
+- **BIR Registered badge.** Our own token-styled badge, shown when an approved record has a BIR Certificate of Registration on file (`bir_verified_on`). It is not BIR artwork, live BIR verification or a tax compliance claim. RR 15-2024 requires the COR on display at the place of business; RMC 38-2026 created the Registration Seal Badge and RMC 113-2026 suspended its mandatory online posting on 26-10-26.
+- **Location.** Pin first, with no geocoder: the town and barangay selects zoom the map, the pin is placed by click or drag, and PostGIS checks it falls inside the barangay. The street address is typed.
+- **Public fields** follow privacy-rules.md, "Field classes".
+
+## D41. Contact Number Formats
+
+Approved 26-10-29. Contact numbers are stored as typed: a mobile number `09XXXXXXXXX` or `+639XXXXXXXXX`, or a landline of digits, spaces, parentheses and a plus sign. The patterns live in `cagayan.registry`.

@@ -61,3 +61,44 @@ it('puts more businesses in populous barangays and every point inside its barang
         ->and(DB::table('businesses as b')->join('barangays as g', 'g.id', '=', 'b.barangay_id')
             ->whereRaw('not ST_Contains(g.boundary, b.location)')->count())->toBe(0);
 });
+
+it('grows new food businesses near schools and online businesses every year (presentation trends)', function () {
+    $trends = config('cagayan.simulation.trends');
+    $newBy = fn (array $types, ?array $barangays) => DB::table('business_years as y')
+        ->join('businesses as b', 'b.id', '=', 'y.business_id')->join('business_types as t', 't.id', '=', 'b.business_type_id')
+        ->join('barangays as g', 'g.id', '=', 'b.barangay_id')->where('y.status', 'new')->whereIn('t.code', $types)
+        ->when($barangays, fn ($query) => $query->whereIn('g.name', $barangays))
+        ->groupBy('y.year')->orderBy('y.year')->selectRaw('y.year, count(*) as new')->pluck('new', 'year');
+
+    $food = $newBy($trends['food_types'], $trends['school_barangays']);
+    $online = $newBy($trends['online_types'], null);
+
+    expect($food->values()->all())->toBe($food->values()->sort()->values()->all())
+        ->and($food[$this->latest])->toBeGreaterThan(2 * $food[(int) config('cagayan.data.first_year')])
+        ->and($online->values()->all())->toBe($online->values()->sort()->values()->all())
+        ->and($online[$this->latest])->toBeGreaterThan(3 * $online[$trends['online_first_year']]);
+});
+
+it('includes a barangay whose non-renewals rise two years in a row (seeder requirement 7)', function () {
+    $trends = config('cagayan.simulation.trends');
+
+    $nonRenewals = DB::table('stats_area_year as s')->join('barangays as g', 'g.id', '=', 's.barangay_id')
+        ->where('g.name', $trends['declining_barangay'])->groupBy('s.year')->orderBy('s.year')
+        ->selectRaw('s.year, sum(s.not_renewed_count) as total')->pluck('total', 'year');
+
+    expect((int) $nonRenewals[$this->latest - 2])->toBeGreaterThanOrEqual(3)
+        ->and($nonRenewals[$this->latest - 1])->toBeGreaterThan($nonRenewals[$this->latest - 2])
+        ->and($nonRenewals[$this->latest])->toBeGreaterThan($nonRenewals[$this->latest - 1]);
+});
+
+it('seeds registry records in every review state, with permits and private documents only for the right ones', function () {
+    $pending = config('cagayan.simulation.trends.pending');
+
+    expect(DB::table('businesses')->where('record_status', 'submitted')->count())->toBe($pending['submitted'])
+        ->and(DB::table('businesses')->where('record_status', 'returned')->whereNotNull('review_note')->count())->toBe($pending['returned'])
+        ->and(DB::table('businesses')->where('record_status', 'draft')->count())->toBe($pending['draft'])
+        ->and(DB::table('business_years as y')->join('businesses as b', 'b.id', '=', 'y.business_id')->where('b.record_status', '<>', 'approved')->count())->toBe(0)
+        ->and(DB::table('business_permits')->count())->toBe(DB::table('business_years')->whereIn('status', ['new', 'renewed'])->count())
+        ->and(DB::table('businesses')->whereNotNull('bir_verified_on')->where('record_status', '<>', 'approved')->count())->toBe(0)
+        ->and(Storage::disk('local')->exists(DB::table('business_documents')->value('path')))->toBeTrue();
+});

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { AnalyticsHelp } from '@/components/analytics/analytics-help';
 import FinancePanel from '@/components/charts/finance-panel';
+import { FinanceTrends } from '@/components/charts/finance-trends';
 import {
     selectedBusiness,
     selectedFinance,
@@ -68,7 +69,17 @@ export function AnalyticsPanels({
                 </div>
                 {financeControls}
                 {finance ? (
-                    <FinancePanel history={finance} {...shown} />
+                    <FinancePanel
+                        history={finance}
+                        {...shown}
+                        trends={
+                            <FinanceTrends
+                                history={finance}
+                                filters={filters}
+                                onChange={onChange}
+                            />
+                        }
+                    />
                 ) : (
                     <Unavailable />
                 )}

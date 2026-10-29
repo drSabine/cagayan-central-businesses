@@ -2,7 +2,7 @@
 
 namespace App\Data;
 
-/** One page of registered business names with the options their filters need (D39). */
+/** One page of registered business names with the options their filters need (D39, D40). */
 final readonly class BusinessDirectory
 {
     /**
@@ -11,8 +11,9 @@ final readonly class BusinessDirectory
      * @param  list<SelectOption>  $types
      * @param  list<SelectOption>  $industries
      * @param  list<SelectOption>  $statuses
+     * @param  list<SelectOption>  $barangays
+     * @param  array<string, int>  $recordCounts  Records per review state, for the tabs
      * @param  array<string, string|null>  $filters
-     * @param  bool  $enabled  False while business records are off (D37), so no table is read
      */
     public function __construct(
         public array $rows,
@@ -21,7 +22,9 @@ final readonly class BusinessDirectory
         public array $types,
         public array $industries,
         public array $statuses,
+        public array $barangays,
+        public array $recordCounts,
         public array $filters,
-        public bool $enabled,
+        public bool $canAdd,
     ) {}
 }

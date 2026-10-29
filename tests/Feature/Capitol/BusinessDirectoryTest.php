@@ -44,7 +44,6 @@ it('lists registered names under their type and category with public fields only
     $response = $this->actingAs(User::factory()->create())->get(route('capitol.businesses.index'));
 
     $response->assertInertia(fn (Assert $page) => $page->component('capitol/businesses')
-        ->where('directory.enabled', true)
         ->where('directory.rows.0.name', 'Alpha Boarding')
         ->where('directory.rows.0.type', 'Boarding House')
         ->where('directory.rows.0.category', 'lodging')
@@ -114,15 +113,23 @@ it('runs the same number of queries however many businesses there are', function
     expect(count(DB::getQueryLog()))->toBe($few);
 });
 
-it('shows nothing and reads no business table while simulated records are off', function () {
+it('lists only registry records while simulated records are off (D37, D40)', function () {
     directoryBusiness('Hidden Inn', $this->hotel);
+    directoryBusiness('Real Inn', $this->hotel, attributes: ['is_simulated' => false]);
     config(['cagayan.simulated' => false]);
-    DB::enableQueryLog();
 
     $this->actingAs(User::factory()->create())->get(route('capitol.businesses.index'))
-        ->assertInertia(fn (Assert $page) => $page->where('directory.enabled', false)->has('directory.rows', 0));
+        ->assertInertia(fn (Assert $page) => $page->has('directory.rows', 1)->where('directory.rows.0.name', 'Real Inn'));
+});
 
-    expect(collect(DB::getQueryLog())->contains(fn ($query) => str_contains($query['query'], 'from "businesses"')))->toBeFalse();
+it('opens a review tab with the records waiting in it', function () {
+    directoryBusiness('Approved Inn', $this->hotel);
+    directoryBusiness('Waiting Inn', $this->hotel, attributes: ['record_status' => 'submitted']);
+
+    $this->actingAs(User::factory()->create())->get(route('capitol.businesses.index', ['record' => 'submitted']))
+        ->assertInertia(fn (Assert $page) => $page->has('directory.rows', 1)->where('directory.rows.0.name', 'Waiting Inn')
+            ->where('directory.rows.0.recordStatus', 'submitted')->where('directory.rows.0.permitStatus', 'none')
+            ->where('directory.recordCounts.submitted', 1));
 });
 
 it('opens for staff and admins and stays hidden from guests', function () {

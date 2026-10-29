@@ -10,7 +10,7 @@ export function SimulatedLabel() {
 
     return (
         <span
-            className="shrink-0 rounded-sm border px-1.5 py-0.5 font-mono text-xs text-muted-foreground"
+            className="shrink-0 rounded-sm bg-simulated px-1.5 py-0.5 font-mono text-xs font-medium text-simulated-foreground"
             data-test="simulated-label"
         >
             Simulated data

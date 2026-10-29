@@ -10,7 +10,7 @@ beforeEach(function () {
 });
 
 it('puts every seeded Business Type under exactly one Category', function () {
-    expect(BusinessType::query()->count())->toBe(30)
+    expect(BusinessType::query()->count())->toBe(32)
         ->and(BusinessType::query()->whereNull('business_category_id')->count())->toBe(0)
         ->and(BusinessCategory::query()->count())->toBe(13)
         // Every category has at least one type, so none is an empty starter label.

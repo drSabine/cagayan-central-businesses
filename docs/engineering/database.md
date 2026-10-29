@@ -65,7 +65,7 @@ A schema change also updates, in the same pull request:
 Every field on a business belongs to exactly one class. The class decides which Data object may carry it. See `privacy-rules.md`.
 
 - **Public:** anyone may see it.
-- **Admin:** logged-in Capitol administrators only.
+- **Admin:** logged-in Capitol administrators, and Staff assigned to the business's town (D40).
 - **Never displayed:** stored and used in calculations, never shown for a single business to anyone. Always in the model's `#[Hidden]`.
 
 ## Tables
@@ -246,13 +246,52 @@ One row per registered business.
 | `year_established` | smallint | Public | Year first registered |
 | `barangay_id` | foreign key | Public | indexed |
 | `location` | geometry(Point, 4326) | Public | Spatial index. Must fall inside the barangay; `BarangaySeeder` loads the barangay shapes the seeder places points in. |
-| `owner_name` | string | Admin | |
-| `contact_number` | string | Admin | |
+| `owner_name` | string(80) | Admin | |
+| `contact_number` | string(20) | Admin | The owner's number |
 | `ownership_type` | enum `sole_proprietorship`, `partnership`, `corporation`, `cooperative` | Admin | |
 | `size_category` | enum `micro`, `small`, `medium` | Admin | |
 | `employee_count` | integer | Admin | |
 | `is_simulated` | boolean, default true | System | |
-| `source` | string, nullable | System | Where the record came from once real data arrives. Permits and renewal range (`business_permits`), uploaded documents (`business_documents`, private disk) and an address line are planned, not built: [Business Registry Records](../plan/active/26-10-28-business-registry-records.md) |
+| `source` | string, nullable | System | Where the record came from once real data arrives |
+| `street_address` | string(160), nullable | Admin | Typed by hand; no geocoder (D40) |
+| `business_phone` | string(20), nullable | Public | The business's own contact, published by choice (D41 format) |
+| `business_email` | string(120), nullable | Public | |
+| `is_storefront` | boolean, default true | Public | Home-based businesses show their barangay, never their pin |
+| `registration_body` | enum `dti`, `sec`, `cda`, nullable | Admin | |
+| `registration_number` | string(30), nullable | Admin | |
+| `registration_valid_until` | date, nullable | Admin | DTI business names last five years |
+| `tin` | string(17), nullable | Admin | From the BIR COR; shown masked to its last three digits |
+| `rdo_code` | string(4), nullable | Admin | |
+| `record_status` | enum `draft`, `submitted`, `returned`, `approved`, default `approved` | System | Only `approved` is public or counted (P15) |
+| `submitted_by`, `reviewed_by` | foreign keys to users, nullable | System | null on delete |
+| `submitted_at`, `reviewed_at` | timestamp, nullable | System | |
+| `review_note` | string(280), nullable | Admin | Why a record was returned |
+| `bir_verified_on` | date, nullable | Public | Set on approval when a BIR COR is on file; drives the BIR Registered badge |
+
+### business_permits
+
+One Mayor's permit per business per year (D40). Unique `(business_id, year)`.
+
+| Column | Type | Class | Notes |
+| :- | :- | :- | :- |
+| `business_id` | foreign key | | cascade on delete |
+| `permit_number` | string(30) | Admin | |
+| `year` | smallint | Public | |
+| `valid_from`, `valid_until` | date | Public | M32 Permit Status reads `valid_until` |
+
+### business_documents
+
+Uploaded files on the private `local` disk, served only through the authorized document route (D40). Admin class.
+
+| Column | Type | Notes |
+| :- | :- | :- |
+| `public_id` | uuid | unique; used in the document URL |
+| `business_id` | foreign key | cascade on delete, indexed |
+| `kind` | enum | the Tuguegarao permit list plus `bir_cor` and `bir_seal_badge` (`App\Enums\DocumentKind`) |
+| `path` | string(300) | never sent to a page |
+| `original_name`, `mime`, `size`, `sha256` | | type and size limits in `cagayan.registry` |
+| `issued_on`, `expires_on` | date, nullable | |
+| `uploaded_by` | foreign key to users, nullable | null on delete |
 
 ### business_years
 
@@ -412,7 +451,10 @@ The simulated dataset must make the demo walkthrough work every time. It is seed
 10. Wishes for several types, with at least one type wished for often and rarely registered.
 11. One administrator for the demo, with the password from `.env`, never in code.
 
-Items 5 through 9 each have a test, so a seeder change cannot silently break the demo.
+12. The presentation story in `cagayan.simulation.trends`: new food businesses near schools and new online businesses grow every year, and the declining barangay meets item 7.
+13. Records in every review state (draft, submitted, returned), with no history, so they stay out of every statistic; permits for every active year; placeholder documents reading "Simulated data".
+
+Items 5 through 7, 9, 12 and 13 each have a test, so a seeder change cannot silently break the demo.
 
 ### Transactional Finance Publication "26-10-28"
 
