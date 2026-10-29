@@ -85,11 +85,20 @@ export function selectedFinance(
     filters: AnalyticsFilters,
 ): FinancialHistory | null {
     const history = catalog.finances[filters.town]?.[filters.measure];
-    return history
-        ? filters.presentation === 'trends'
-            ? periodHistory(history, catalog, filters.period)
-            : history
-        : null;
+    if (!history || filters.presentation !== 'trends') return history ?? null;
+    const period = periodHistory(history, catalog, filters.period);
+    const first = period.rows.find((row) =>
+        Object.values(row.observations).some(
+            (point) => point.state === 'shown' && point.value !== null,
+        ),
+    )?.year;
+    return {
+        ...period,
+        rows:
+            first === undefined
+                ? []
+                : period.rows.filter((row) => row.year >= first),
+    };
 }
 
 export function selectedBusiness(
@@ -148,6 +157,7 @@ export function pushFilters<T extends AnalyticsFilters>(
     ) => Record<string, unknown>,
 ) {
     const next = { ...current, ...patch };
+    if (patch.measure && patch.measure !== current.measure) next.metric = null;
     if (patch.dimension && patch.dimension !== current.dimension)
         next.group = null;
     const keys = Object.keys(next) as (keyof T)[];

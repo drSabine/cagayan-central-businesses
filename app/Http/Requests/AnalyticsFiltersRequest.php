@@ -33,23 +33,25 @@ class AnalyticsFiltersRequest extends FormRequest
             'presentation' => ['nullable', Rule::in(['summary', 'trends'])],
             'year' => ['nullable', 'integer', 'between:'.config('cagayan.performance.first_year').','.app(FinanceYears::class)->publishedLastYear()],
             'measure' => ['nullable', Rule::in(array_keys(config('cagayan.finances.groups')))],
+            'metric' => ['nullable', 'string', 'max:90', 'regex:/^[a-z0-9._-]+$/i'],
             'dimension' => ['nullable', Rule::in(['industry', 'category'])],
             'group' => ['nullable', 'string', 'max:90', 'regex:/^(industry|category):[a-z0-9-]+$/i'],
         ];
     }
 
     /**
-     * @return array{town: string, period: string, measure: string, dimension: string, group: string|null, presentation: string, year: int|null}
+     * @return array{town: string, period: string, measure: string, metric: string|null, dimension: string, group: string|null, presentation: string, year: int|null}
      */
     public function analyticsFilters(): array
     {
         return [
             'town' => $this->input('town') ?: (string) config('cagayan.performance.demo_town'),
-            'period' => $this->input('period') ?: '3y',
+            'period' => $this->input('period') ?: 'all',
             'measure' => $this->input('measure') ?: 'totals',
+            'metric' => $this->input('metric') ?: null,
             'dimension' => $this->input('dimension') ?: 'industry',
             'group' => $this->input('group') ?: null,
-            'presentation' => $this->input('presentation') ?: 'summary',
+            'presentation' => $this->input('presentation') ?: 'trends',
             'year' => $this->filled('year') ? $this->integer('year') : null,
         ];
     }

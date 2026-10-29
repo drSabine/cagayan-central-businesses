@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import type { ReactNode } from 'react';
 import { SourceLine } from '@/components/analytics/source-line';
 import { ExactAmount } from '@/components/charts/exact-amount';
 import { ObservationChange } from '@/components/charts/observation-change';
@@ -79,6 +80,7 @@ export default function FinancePanel({
     year,
     town,
     onYear,
+    trends,
 }: {
     history: FinancialHistory;
     catalog: AnalyticsCatalog;
@@ -86,6 +88,7 @@ export default function FinancePanel({
     year: number | null;
     town: string;
     onYear: (year: number) => void;
+    trends?: ReactNode;
 }) {
     const annualYear = year ?? latestYear(history);
     const annual = history.rows.find((row) => row.year === annualYear);
@@ -108,11 +111,12 @@ export default function FinancePanel({
     if (presentation === 'trends')
         return (
             <div className="flex min-w-0 flex-col gap-3">
-                {plotted && (
-                    <PerformanceVisual>
-                        <FinanceHistoryChart history={history} />
-                    </PerformanceVisual>
-                )}
+                {trends ??
+                    (plotted && (
+                        <PerformanceVisual>
+                            <FinanceHistoryChart history={history} />
+                        </PerformanceVisual>
+                    ))}
                 <Table className={phone}>
                     <TableHeader>
                         <TableRow>

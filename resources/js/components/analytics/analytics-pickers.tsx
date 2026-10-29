@@ -27,7 +27,6 @@ type Option = {
 type PickerField =
     | 'town'
     | 'measure'
-    | 'period'
     | 'dimension'
     | 'group'
     | 'presentation'
@@ -180,33 +179,6 @@ export function AnalyticsPickers({
                         }))
                         .reverse()}
                     onChange={(value) => onChange({ year: Number(value) })}
-                />
-            ),
-        period: () =>
-            filters.presentation === 'trends' && (
-                <Picker
-                    id={`${idPrefix}-period`}
-                    label="Period"
-                    value={filters.period}
-                    options={[
-                        { value: 'all', label: 'All Years' },
-                        { value: '2y', label: 'Last 2 Years' },
-                        { value: '3y', label: 'Last 3 Years' },
-                        { value: '5y', label: 'Last 5 Years' },
-                        ...(filters.period === 'recent'
-                            ? [
-                                  {
-                                      value: 'recent',
-                                      label: `${catalog.periods.recent} to ${catalog.lastYear}`,
-                                  },
-                              ]
-                            : []),
-                    ]}
-                    onChange={(period) =>
-                        onChange({
-                            period: period as AnalyticsFilters['period'],
-                        })
-                    }
                 />
             ),
         dimension: () =>

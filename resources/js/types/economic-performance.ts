@@ -6,6 +6,7 @@ export type AnalyticsFilters = {
     presentation: 'summary' | 'trends';
     year: number | null;
     measure: string;
+    metric: string | null;
     dimension: 'industry' | 'category';
     group: string | null;
 };

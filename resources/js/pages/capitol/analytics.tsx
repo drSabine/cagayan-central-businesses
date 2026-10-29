@@ -48,7 +48,6 @@ export default function Analytics({
                             'presentation',
                             'measure',
                             'year',
-                            'period',
                             'dimension',
                             'group',
                         ]}
